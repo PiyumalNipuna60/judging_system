@@ -7,6 +7,7 @@ import PrimeVue from 'primevue/config'
 import ConfirmationService from 'primevue/confirmationservice'
 import ToastService from 'primevue/toastservice'
 import InputText from 'primevue/inputtext'
+import InputNumber from 'primevue/inputnumber'
 import Button from 'primevue/button'
 import Dropdown from 'primevue/dropdown'
 import Lara from '@primevue/themes/lara'
@@ -52,6 +53,7 @@ app.component('RadioButton', RadioButton)
 app.component('Divider', Divider)
 app.component('ColumnGroup', ColumnGroup)
 app.component('ConfirmPopup', ConfirmPopup)
+app.component('InputNumber', InputNumber)
 
 app.use(PrimeVue, {
   Theme: {

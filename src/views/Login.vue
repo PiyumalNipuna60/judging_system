@@ -3,8 +3,8 @@
     <Toast />
     <ConfirmPopup></ConfirmPopup>
 
-    <section class="homepage-logo-container">
-      <div class="homepage-nav-container">
+    <section class="loginpage-logo-container">
+      <div class="loginpage-nav-container">
         <div class="gov_logo_container">
           <img src="../assets/logo/aus_gov_logo.jpg" alt="aus gov logo" class="gov_logo" />
         </div>
@@ -15,43 +15,50 @@
     </section>
     <Divider layout="vertical" />
 
-    <section>
-      <section class="homepage-nav-container flex-none flex">
-        <div class="homepage-nav-container__logo-container">
-          <div class="gov_logo_container">
-            <img src="../assets/logo/zero_chnance_logo.png" alt="aus gov logo" class="gov_logo" />
+    <section class="loginpage-form-container">
+      <div class="loginpage-form-container_sub" >
+        <section class="loginpage-nav-container flex-none flex">
+          <div class="loginpage-nav-container__logo-container">
+            <div class="gov_logo_container">
+              <img src="../assets/logo/zero_chnance_logo.png" alt="aus gov logo" class="gov_logo" />
+            </div>
           </div>
-        </div>
-      </section>
-      <section>
-        <div>
-          <p>User Name</p>
-          <InputText id="login" type="text" v-model="userName" />
-        </div>
-        <div class="mb-3">
-          <p>Password</p>
-          <InputText id="password" type="text" v-model="password" />
-        </div>
-        <div class="mb-3">
-          <a class="forget-password-class" @click="loadForgotPassword">Forgot password?</a>
-        </div>
-        <div>
-          <Button type="button" @click="loginOnAction">Login</Button>
-        </div>
-      </section>
+        </section>
+        <section>
+          <div>
+            <p>User Name</p>
+            <InputText id="login" type="text" v-model="userName" />
+          </div>
+          <div class="mb-3">
+            <p>Password</p>
+            <InputText id="password" type="text" v-model="password" />
+          </div>
+          <div class="mb-3">
+            <a class="forget-password-class" @click="loadForgotPassword">Forgot password?</a>
+          </div>
+          <div>
+            <Button type="button" @click="loginOnAction">Login</Button>
+          </div>
+        </section>
+      </div>
     </section>
+
     <section class="side-bar-container">
       <Sidebar v-model:visible="visibleRight" header="Password Reset" position="right">
         <div>
           <div class="pw-reset-container">
             <div class="input-field-container">
               <label for="username" class="font-semibold">Contact number</label>
-              <InputText
+              <InputNumber
                 v-model="userData.contact"
-                id="mark_02"
                 class="flex-auto"
-                autocomplete="off"
+                inputId="integeronly"
+                :useGrouping="false"
+                placeholder="format: 705045099"
+                :invalid="isContactInvalid"
               />
+              <label v-if="isContactInvalid"  for="contact" class="contact-error-label">Contact number length invalid. format: 705045099</label>
+
             </div>
             <div class="input-field-container">
               <label for="username" class="font-semibold">New Password</label>
@@ -72,7 +79,7 @@
               />
             </div>
             <div class="button-container">
-              <Button type="button" label="Change Password" @click="onChangePassword"></Button>
+              <Button type="button" label="Change Password" :disabled="isButtonDisabled" @click="onChangePassword"></Button>
               <Button
                 @click="cancelConfirmation($event)"
                 label="Cancle"
@@ -130,6 +137,8 @@ const router = useRouter()
 const userName = ref(null)
 const password = ref(null)
 const visibleRight = ref(false)
+const isButtonDisabled = ref(true)
+const isContactInvalid = ref(false)
 const userData = ref({
   contact: null,
   newPassword: null,
@@ -144,8 +153,14 @@ onMounted(() => {
   }
 })
 
-watch(userData.value.contact, (oldContact, newContact) => {
-console.log('sad_________', oldContact, newContact);
+watch(() => userData.value.contact, ( newContact) => {  
+  if (newContact && newContact.toString().length === 9) {
+    isContactInvalid.value = false
+    isButtonDisabled.value = false
+  } else {
+    isContactInvalid.value = true
+    isButtonDisabled.value = true
+  }
 
 })
 const loginOnAction = async () => {
@@ -203,18 +218,18 @@ const cancelConfirmation = (event) => {
 </script>
 
 <style scoped>
+#app{
+  margin: auto;
+}
 .login-page__main-container {
-  flex-wrap: wrap;
-  justify-content: center;
-  flex-direction: row;
+  width: 100vw;
+    justify-content: center;
+    flex-direction: row;
+    height: 100vh;
 
-  .homepage-logo-container {
+  .loginpage-logo-container, .loginpage-form-container {
     display: flex;
     align-items: center;
-  }
-
-  .p-inputtext {
-    width: 100%;
   }
 
   .forget-password-class {
@@ -235,7 +250,7 @@ const cancelConfirmation = (event) => {
     justify-content: space-evenly;
   }
 
-  .homepage-nav-container {
+  .loginpage-nav-container {
     color: rgb(217, 209, 209);
     width: 300px;
   }
@@ -250,23 +265,32 @@ const cancelConfirmation = (event) => {
     margin: 5px;
   }
 
-  .homepage-nav-container__item :hover {
+  .loginpage-nav-container__item :hover {
   }
 
-  .homepage-nav-container__item {
+  .loginpage-nav-container__item {
     padding: 7px 0px 7px 20px;
     display: inline-flex;
   }
 
-  .homepage-nav-container__main-container {
+  .loginpage-nav-container__main-container {
     margin-top: 15px;
   }
 
-  .homepage-nav-container__main-container > div:hover {
+  .loginpage-nav-container__main-container > div:hover {
     background: grey;
     cursor: pointer;
   }
 }
+
+.p-inputtext, .p-inputnumber {
+    width: 100%;
+  }
+
+.contact-error-label{
+    color: #ec0d0d;
+  }
+
 .button-container {
   display: flex;
   flex-direction: row;

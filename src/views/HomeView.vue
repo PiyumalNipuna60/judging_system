@@ -221,8 +221,9 @@ const editableStudentData = ref({
 
 onMounted(async () => {
   const loggedUser = localStorage.getItem('user')
-  userStore.setUserData(JSON.parse(loggedUser))
-  if (!loggedUser) {
+  if (loggedUser) {
+    userStore.setUserData(JSON.parse(loggedUser))
+  } else {
     router.push('/login')
   }
 
