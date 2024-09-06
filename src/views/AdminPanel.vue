@@ -3,17 +3,14 @@
     <Toast />
     <section class="homepage-nav-container flex-none flex">
       <div class="homepage-nav-container__logo-container">
-        <div class="gov_logo_container">
-          <img src="../assets/logo/aus_gov_logo.jpg" alt="aus gov logo" class="gov_logo" />
-        </div>
-        <div class="gov_logo_container">
-          <img src="../assets/logo/sl_gov_logo.png" alt="sl gov logo" class="gov_logo" />
+        <div class="main-logo_container">
+          <img src="../assets/logo/main_logo.jpg" alt="main-logo" class="main-logo" />
         </div>
       </div>
       <div class="homepage-nav-container__main-container">
         <div v-for="(item, index) in items" :key="index">
           <div @click="navigateToRoute(item.route)" class="homepage-nav-container__item">
-            <div class="pr-3"><i :class="`pi ${item.icon}`" style="font-size: 1rem"></i></div>
+            <div class="pr-3"><i :class="`pi ${item.icon}`" class="nav-icon" style="font-size: 1rem"></i></div>
             <div>{{ item.title }}</div>
           </div>
         </div>
@@ -57,9 +54,9 @@
           dataKey="id"
         >
         <template #paginatorstart>
+          <Button icon="pi pi-external-link" type="button" label="Export" @click="exportCSV($event)" />
     </template>
           <template #paginatorend>
-              <Button icon="pi pi-external-link" type="button" label="Export" @click="exportCSV($event)" />
           </template>
           
           <ColumnGroup type="header">
@@ -338,10 +335,11 @@ const exportCSV = () => {
   display: flex;
   flex-direction: row;
 
-  .homepage-nav-container {
-    background: #1e1e1e;
-    color: rgb(217, 209, 209);
+  .homepage-nav-container{
+    background: #f8f9fa;
+    color: #495057;;
     width: 200px;
+    border-right: 2px solid #aeb6bdab;  
   }
 
   .homepage-content-container {
@@ -361,6 +359,16 @@ const exportCSV = () => {
     margin-top: 15px;
   }
 
+  
+  .homepage-nav-container__main-container > div:hover {
+    font-weight: 700;
+    background: #dddddd;
+        cursor: pointer;
+        .nav-icon {
+    font-size: 1.1rem !important;
+  }
+  }
+ 
 
   .p-dropdown-trigger {
     display: flex;
@@ -383,11 +391,11 @@ const exportCSV = () => {
     list-style-type: none;
   }
 
-  .gov_logo {
+  .main-logo {
     width: 65%;
   }
 
-  .gov_logo_container {
+  .main-logo_container {
     display: flex;
     justify-content: center;
     margin: 5px;

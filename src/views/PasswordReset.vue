@@ -13,7 +13,9 @@
       <div class="homepage-nav-container__main-container">
         <div v-for="(item, index) in items" :key="index">
           <div @click="navigateToRoute(item.route)" class="homepage-nav-container__item">
-            <div class="pr-3"><i :class="`pi ${item.icon}`" style="font-size: 1rem"></i></div>
+            <div class="pr-3">
+              <i class="nav-icon" :class="`pi ${item.icon}`"  style="font-size: 1rem"></i>
+            </div>
             <div>{{ item.title }}</div>
           </div>
         </div>
@@ -191,9 +193,9 @@ const onOTPVerification = async () => {
     }
   }
 
-  .homepage-nav-container {
-    background: #1e1e1e;
-    color: rgb(217, 209, 209);
+  .homepage-nav-container{
+    background: #f8f9fa;
+    color: #495057;
     width: 200px;
   }
 
@@ -215,8 +217,12 @@ const onOTPVerification = async () => {
   }
 
   .homepage-nav-container__main-container > div:hover {
-    background: grey;
-    cursor: pointer;
+    font-weight: 700;
+    background: #dddddd;
+        cursor: pointer;
+  }
+  .nav-icon:hover {
+    font-size: 1.2rem;
   }
 
   .p-dropdown-trigger {
