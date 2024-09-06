@@ -59,90 +59,114 @@
           @rowUnSelect="onRowSelect"
         >
           <Column field="serialNumber" header="Serial Number"></Column>
-          <Column field="mark_01" header="Mark 01"></Column>
-          <Column field="mark_02" header="Mark 02"></Column>
-          <Column field="mark_03" header="Mark 03"></Column>
-          <Column field="mark_04" header="Mark 04"></Column>
-          <Column field="mark_05" header="Mark 05"></Column>
+          <Column field="mark_01" header="Mark 01">
+            <template #body="slotProps">
+              {{ slotProps.data.mark_01 ? slotProps.data.mark_01 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_02" header="Mark 02">
+            <template #body="slotProps">
+              {{ slotProps.data.mark_02 ? slotProps.data.mark_02 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_03" header="Mark 03">
+            <template #body="slotProps">
+              {{ slotProps.data.mark_03 ? slotProps.data.mark_03 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_04" header="Mark 04">
+            <template #body="slotProps">
+              {{ slotProps.data.mark_04 ? slotProps.data.mark_04 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_05" header="Mark 05">
+            <template #body="slotProps">
+              {{ slotProps.data.mark_05 ? slotProps.data.mark_05 : '--' }}
+            </template>
+          </Column>
           <Column field="total" header="Total"></Column>
         </DataTable>
       </div>
     </section>
-  </section>
-  <section class="dialogbox-container">
-    <Dialog
-      v-model:visible="IsDialogVisible"
-      modal
-      header="Update student marks"
-      :style="{ width: '25rem' }"
-    >
-      <span class="p-text-secondary block mb-5"
-        >Student marks serial: {{ editableStudentData.serialNumber }}</span
+    <section class="dialogbox-container">
+      <Dialog
+        v-model:visible="IsDialogVisible"
+        modal
+        header="Update student marks"
+        :style="{ width: '25rem' }"
       >
-      <div class="input-field-container">
-        <label for="username" class="font-semibold w-6rem">Mark 01</label>
-        <InputText
-          v-model="editableStudentData.mark_01"
-          id="mark_01"
-          class="flex-auto"
-          autocomplete="off"
-        />
-      </div>
-      <div class="input-field-container">
-        <label for="username" class="font-semibold w-6rem">Mark 02</label>
-        <InputText
-          v-model="editableStudentData.mark_02"
-          id="mark_02"
-          class="flex-auto"
-          autocomplete="off"
-        />
-      </div>
-      <div class="input-field-container">
-        <label for="username" class="font-semibold w-6rem">Mark 03</label>
-        <InputText
-          v-model="editableStudentData.mark_03"
-          id="mark_03"
-          class="flex-auto"
-          autocomplete="off"
-        />
-      </div>
-      <div class="input-field-container">
-        <label for="username" class="font-semibold w-6rem">Mark 04</label>
-        <InputText
-          v-model="editableStudentData.mark_04"
-          id="mark_04"
-          class="flex-auto"
-          autocomplete="off"
-        />
-      </div>
-      <div class="input-field-container">
-        <label for="username" class="font-semibold w-6rem">Mark 05</label>
-        <InputText
-          v-model="editableStudentData.mark_05"
-          id="mark_05"
-          class="flex-auto"
-          autocomplete="off"
-        />
-      </div>
-      <div class="flex justify-content-end gap-2">
-        <Button type="button" label="Save" @click="saveStudentDetails"></Button>
-        <Button
-          type="button"
-          label="Cancel"
-          severity="secondary"
-          @click="IsDialogVisible = false"
-        ></Button>
-      </div>
-    </Dialog>
+        <span class="p-text-secondary block mb-5"
+          >Student serial number: {{ editableStudentData.serialNumber }}</span
+        >
+        <div class="input-field-container">
+          <label for="username" class="font-semibold w-6rem">Mark 01</label>
+          <InputText
+            v-model="editableStudentData.mark_01"
+            id="mark_01"
+            class="flex-auto"
+            autocomplete="off"
+          />
+        </div>
+        <div class="input-field-container">
+          <label for="username" class="font-semibold w-6rem">Mark 02</label>
+          <InputText
+            v-model="editableStudentData.mark_02"
+            id="mark_02"
+            class="flex-auto"
+            autocomplete="off"
+          />
+        </div>
+        <div class="input-field-container">
+          <label for="username" class="font-semibold w-6rem">Mark 03</label>
+          <InputText
+            v-model="editableStudentData.mark_03"
+            id="mark_03"
+            class="flex-auto"
+            autocomplete="off"
+          />
+        </div>
+        <div class="input-field-container">
+          <label for="username" class="font-semibold w-6rem">Mark 04</label>
+          <InputText
+            v-model="editableStudentData.mark_04"
+            id="mark_04"
+            class="flex-auto"
+            autocomplete="off"
+          />
+        </div>
+        <div class="input-field-container">
+          <label for="username" class="font-semibold w-6rem">Mark 05</label>
+          <InputText
+            v-model="editableStudentData.mark_05"
+            id="mark_05"
+            class="flex-auto"
+            autocomplete="off"
+          />
+        </div>
+        <div class="flex justify-content-end gap-2">
+          <Button type="button" label="Save" @click="saveStudentDetails"></Button>
+          <Button
+            type="button"
+            label="Cancel"
+            severity="secondary"
+            @click="IsDialogVisible = false"
+          ></Button>
+        </div>
+      </Dialog>
+    </section>
   </section>
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue'
-import router from '@/router'
 import { storeToRefs } from 'pinia'
 import { useHomeStore } from '../stores/HomeStore'
 import { useToast } from 'primevue/usetoast'
+import { useUserStore } from '../stores/UserStore'
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+const userStore = useUserStore()
 
 const toast = useToast()
 const homeStore = useHomeStore()
@@ -196,11 +220,22 @@ const editableStudentData = ref({
 })
 
 onMounted(async () => {
+  const loggedUser = localStorage.getItem('user')
+  userStore.setUserData(JSON.parse(loggedUser))
+  if (!loggedUser) {
+    router.push('/login')
+  }
+
   items.value = [
     {
       title: 'Home',
       icon: 'pi-home',
       route: '/'
+    },
+    {
+      title: 'Password reset',
+      icon: 'pi-home',
+      route: '/password-reset'
     },
     {
       title: 'Logout',
@@ -214,14 +249,37 @@ onMounted(async () => {
 
 const navigateToRoute = (route) => {
   if (route === '/login') {
-    logout()
+    userStore.logOut()
   }
   router.push(route)
 }
 
-const logout = () => {}
-
 const onRowSelect = (param) => {
+  if (selectedDistrict.value !== null && selectedAgeGroup.value === null) {
+    toast.add({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'Please select an Age group.',
+      life: 3000
+    })
+    return
+  } else if (selectedAgeGroup.value !== null && selectedDistrict.value === null) {
+    toast.add({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'Please select a District.',
+      life: 3000
+    })
+    return
+  } else if (selectedAgeGroup.value === null && selectedAgeGroup.value === null) {
+    toast.add({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'Please select a District and Age group.',
+      life: 3000
+    })
+    return
+  }
   IsDialogVisible.value = !IsDialogVisible.value
   editableStudentData.value = param.data
   // dataTable.value.blur()
@@ -290,12 +348,14 @@ const commonFilter = () => {
 
 <style lang="scss">
 .user-homepage__container {
+  width: 100vw;
   display: flex;
   flex-direction: row;
 
   .homepage-nav-container {
-    background: #1e1e1e;
-    color: rgb(217, 209, 209);
+    font-weight: 600;
+    background: #f8f9fa;
+    color: #495057;
     width: 200px;
   }
 
@@ -317,7 +377,8 @@ const commonFilter = () => {
   }
 
   .homepage-nav-container__main-container > div:hover {
-    background: grey;
+    // font-weight: 600;
+    color: #0582ca;
     cursor: pointer;
   }
 

@@ -55,85 +55,120 @@
           currentPageReportTemplate="{first} to {last} of {totalRecords}"
           selectionMode="single"
           dataKey="id"
-          @rowClick="onRowSelect"
-          @rowUnSelect="onRowSelect"
         >
-          <Column field="serialNumber" header="Serial Number"></Column>
+        <template #paginatorstart>
+    </template>
+          <template #paginatorend>
+              <Button icon="pi pi-external-link" type="button" label="Export" @click="exportCSV($event)" />
+          </template>
+          
+          <ColumnGroup type="header">
+            <Row>
+              <Column header="Serial Number" sortable :rowspan="2" />
+              <Column header="Examiner 1" :colspan="6" />
+              <Column header="Examiner 2" :colspan="6" />
+              <Column header="Total" sortable :rowspan="2" />
+              <Column header="Average" sortable :rowspan="2" />
+            </Row>
+            <Row>
+              <Column field="mark_01" header="Mark 01"></Column>
+              <Column field="mark_02" header="Mark 02"></Column>
+              <Column field="mark_03" header="Mark 03"></Column>
+              <Column field="mark_04" header="Mark 04"></Column>
+              <Column field="mark_05" header="Mark 05"></Column>
+              <Column field="total" header="Sub Total"></Column>
+              <Column field="mark_01" header="Mark 01"></Column>
+              <Column field="mark_02" header="Mark 02"></Column>
+              <Column field="mark_03" header="Mark 03"></Column>
+              <Column field="mark_04" header="Mark 04"></Column>
+              <Column field="mark_05" header="Mark 05"></Column>
+              <Column field="total" header="Sub Total"></Column>
+            </Row>
+          </ColumnGroup>
+          <Column field="serialNumber" header="Serial Number" style="width: 15%"></Column>
           <Column field="mark_01" header="Mark 01"></Column>
           <Column field="mark_02" header="Mark 02"></Column>
           <Column field="mark_03" header="Mark 03"></Column>
           <Column field="mark_04" header="Mark 04"></Column>
           <Column field="mark_05" header="Mark 05"></Column>
-          <Column field="total" header="Total"></Column>
+          <Column field="total" sortable header="Sub Total"></Column>
+          <Column field="mark_01" header="Mark 01"></Column>
+          <Column field="mark_02" header="Mark 02"></Column>
+          <Column field="mark_03" header="Mark 03"></Column>
+          <Column field="mark_04" header="Mark 04"></Column>
+          <Column field="mark_05" header="Mark 05"></Column>
+          <Column field="total" sortable header="Sub Total"></Column>
+          <Column field="total" style="width: 6%"></Column>
+          <Column field="average" style="width: 6%"></Column>
         </DataTable>
       </div>
     </section>
-  </section>
-  <section class="dialogbox-container">
-    <Dialog
-      v-model:visible="IsDialogVisible"
-      modal
-      header="Update student marks"
-      :style="{ width: '25rem' }"
-    >
-      <span class="p-text-secondary block mb-5"
-        >Student marks serial: {{ editableStudentData.serialNumber }}</span
+    <section class="dialogbox-container">
+      <Dialog
+        v-model:visible="IsDialogVisible"
+        modal
+        header="Update student marks"
+        :style="{ width: '25rem' }"
       >
-      <div class="input-field-container">
-        <label for="username" class="font-semibold w-6rem">Mark 01</label>
-        <InputText
-          v-model="editableStudentData.mark_01"
-          id="mark_01"
-          class="flex-auto"
-          autocomplete="off"
-        />
-      </div>
-      <div class="input-field-container">
-        <label for="username" class="font-semibold w-6rem">Mark 02</label>
-        <InputText
-          v-model="editableStudentData.mark_02"
-          id="mark_02"
-          class="flex-auto"
-          autocomplete="off"
-        />
-      </div>
-      <div class="input-field-container">
-        <label for="username" class="font-semibold w-6rem">Mark 03</label>
-        <InputText
-          v-model="editableStudentData.mark_03"
-          id="mark_03"
-          class="flex-auto"
-          autocomplete="off"
-        />
-      </div>
-      <div class="input-field-container">
-        <label for="username" class="font-semibold w-6rem">Mark 04</label>
-        <InputText
-          v-model="editableStudentData.mark_04"
-          id="mark_04"
-          class="flex-auto"
-          autocomplete="off"
-        />
-      </div>
-      <div class="input-field-container">
-        <label for="username" class="font-semibold w-6rem">Mark 05</label>
-        <InputText
-          v-model="editableStudentData.mark_05"
-          id="mark_05"
-          class="flex-auto"
-          autocomplete="off"
-        />
-      </div>
-      <div class="flex justify-content-end gap-2">
-        <Button type="button" label="Save" @click="saveStudentDetails"></Button>
-        <Button
-          type="button"
-          label="Cancel"
-          severity="secondary"
-          @click="IsDialogVisible = false"
-        ></Button>
-      </div>
-    </Dialog>
+        <span class="p-text-secondary block mb-5"
+          >Student marks serial: {{ editableStudentData.serialNumber }}</span
+        >
+        <div class="input-field-container">
+          <label for="username" class="font-semibold w-6rem">Mark 01</label>
+          <InputText
+            v-model="editableStudentData.mark_01"
+            id="mark_01"
+            class="flex-auto"
+            autocomplete="off"
+          />
+        </div>
+        <div class="input-field-container">
+          <label for="username" class="font-semibold w-6rem">Mark 02</label>
+          <InputText
+            v-model="editableStudentData.mark_02"
+            id="mark_02"
+            class="flex-auto"
+            autocomplete="off"
+          />
+        </div>
+        <div class="input-field-container">
+          <label for="username" class="font-semibold w-6rem">Mark 03</label>
+          <InputText
+            v-model="editableStudentData.mark_03"
+            id="mark_03"
+            class="flex-auto"
+            autocomplete="off"
+          />
+        </div>
+        <div class="input-field-container">
+          <label for="username" class="font-semibold w-6rem">Mark 04</label>
+          <InputText
+            v-model="editableStudentData.mark_04"
+            id="mark_04"
+            class="flex-auto"
+            autocomplete="off"
+          />
+        </div>
+        <div class="input-field-container">
+          <label for="username" class="font-semibold w-6rem">Mark 05</label>
+          <InputText
+            v-model="editableStudentData.mark_05"
+            id="mark_05"
+            class="flex-auto"
+            autocomplete="off"
+          />
+        </div>
+        <div class="flex justify-content-end gap-2">
+          <Button type="button" label="Save" @click="saveStudentDetails"></Button>
+          <Button
+            type="button"
+            label="Cancel"
+            severity="secondary"
+            @click="IsDialogVisible = false"
+          ></Button>
+        </div>
+      </Dialog>
+    </section>
   </section>
 </template>
 
@@ -198,9 +233,9 @@ const editableStudentData = ref({
 onMounted(async () => {
   items.value = [
     {
-      title: 'Home',
+      title: 'Dashboard',
       icon: 'pi-home',
-      route: '/'
+      route: '/dashboard'
     },
     {
       title: 'Create User',
@@ -226,35 +261,35 @@ const navigateToRoute = (route) => {
 
 const logout = () => {}
 
-const onRowSelect = (param) => {
-  IsDialogVisible.value = !IsDialogVisible.value
-  editableStudentData.value = param.data
-  // dataTable.value.blur()
-}
+// const onRowSelect = (param) => {
+//   IsDialogVisible.value = !IsDialogVisible.value
+//   editableStudentData.value = param.data
+//   // dataTable.value.blur()
+// }
 
-const saveStudentDetails = () => {
-  let totalMarks = 0
+// const saveStudentDetails = () => {
+//   let totalMarks = 0
 
-  for (const key in editableStudentData.value) {
-    if (key.startsWith('mark_')) {
-      totalMarks += parseInt(editableStudentData.value[key])
-    }
-  }
+//   for (const key in editableStudentData.value) {
+//     if (key.startsWith('mark_')) {
+//       totalMarks += parseInt(editableStudentData.value[key])
+//     }
+//   }
 
-  editableStudentData.value.total = totalMarks
-  IsDialogVisible.value = !IsDialogVisible.value
+//   editableStudentData.value.total = totalMarks
+//   IsDialogVisible.value = !IsDialogVisible.value
 
-  // End-point
+//   // End-point
 
-  toast.add({
-    severity: 'info',
-    summary: 'Info',
-    detail: 'student marks added succesfully',
-    life: 3000
-  })
+//   toast.add({
+//     severity: 'info',
+//     summary: 'Info',
+//     detail: 'student marks added succesfully',
+//     life: 3000
+//   })
 
-  console.log('markings_____________', editableStudentData.value)
-}
+//   console.log('markings_____________', editableStudentData.value)
+// }
 
 const onDropdownChange = () => {
   console.log('sele______', selectedDistrict.value, selectedAgeGroup.value)
@@ -291,10 +326,15 @@ const commonFilter = () => {
   )
   console.log(markingListArt.value)
 }
+const exportCSV = () => {
+  dataTable.value.exportCSV()
+  dataTable.value.exportXL()
+}
 </script>
 
 <style lang="scss">
 .user-homepage__container {
+  width: 100vw;
   display: flex;
   flex-direction: row;
 
@@ -321,10 +361,6 @@ const commonFilter = () => {
     margin-top: 15px;
   }
 
-  .homepage-nav-container__main-container > div:hover {
-    background: grey;
-    cursor: pointer;
-  }
 
   .p-dropdown-trigger {
     display: flex;
@@ -359,6 +395,10 @@ const commonFilter = () => {
 
   .homepage-content-container_dropdown {
     padding: 10px;
+  }
+
+  .p-datatable-wrapper {
+    height: 550px;
   }
 }
 

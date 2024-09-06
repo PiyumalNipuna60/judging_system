@@ -16,6 +16,12 @@ import Row from 'primevue/row'
 import Dialog from 'primevue/dialog'
 import Toast from 'primevue/toast'
 import Sidebar from 'primevue/sidebar'
+import Tag from 'primevue/tag';
+import MultiSelect from 'primevue/multiselect';
+import RadioButton from 'primevue/radiobutton';
+import Divider from 'primevue/divider';
+import ColumnGroup from 'primevue/columngroup'; 
+import ConfirmPopup from 'primevue/confirmpopup';
 
 import './assets/main.css'
 import 'primevue/resources/themes/saga-blue/theme.css'
@@ -40,6 +46,12 @@ app.component('DataTable', DataTable)
 app.component('Dialog', Dialog)
 app.component('Toast', Toast)
 app.component('Sidebar', Sidebar)
+app.component('Tag', Tag)
+app.component('MultiSelect', MultiSelect)
+app.component('RadioButton', RadioButton)
+app.component('Divider', Divider)
+app.component('ColumnGroup', ColumnGroup)
+app.component('ConfirmPopup', ConfirmPopup)
 
 app.use(PrimeVue, {
   Theme: {
