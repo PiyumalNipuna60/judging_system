@@ -23,6 +23,10 @@ import RadioButton from 'primevue/radiobutton';
 import Divider from 'primevue/divider';
 import ColumnGroup from 'primevue/columngroup'; 
 import ConfirmPopup from 'primevue/confirmpopup';
+import FileUpload from 'primevue/fileupload';
+import ProgressBar from 'primevue/progressbar';
+import Badge from 'primevue/badge';
+
 
 import './assets/main.css'
 import 'primevue/resources/themes/saga-blue/theme.css'
@@ -54,6 +58,11 @@ app.component('Divider', Divider)
 app.component('ColumnGroup', ColumnGroup)
 app.component('ConfirmPopup', ConfirmPopup)
 app.component('InputNumber', InputNumber)
+app.component('FileUpload', FileUpload)
+app.component('ProgressBar', ProgressBar)
+app.component('Badge', Badge)
+
+
 
 app.use(PrimeVue, {
   Theme: {

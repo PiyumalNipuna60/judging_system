@@ -4,6 +4,7 @@ import Login from '../views/Login.vue'
 import AdminPanel from '../views/AdminPanel.vue'
 import UserManage from '../views/UserManage.vue'
 import PasswordReset from '@/views/PasswordReset.vue'
+import CreateStudent from '@/views/CreateStudent.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,11 @@ const router = createRouter({
       path: '/password-reset',
       name: 'password-reset',
       component: PasswordReset
+    },
+    {
+      path: '/student-add',
+      name: 'add-student',
+      component: CreateStudent
     }
   ]
 })

@@ -218,7 +218,6 @@ const onOTPVerification = async () => {
 
   .homepage-nav-container__main-container > div:hover {
     font-weight: 700;
-    background: #dddddd;
         cursor: pointer;
   }
   .nav-icon:hover {

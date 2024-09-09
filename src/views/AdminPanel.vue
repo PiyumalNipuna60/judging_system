@@ -10,7 +10,9 @@
       <div class="homepage-nav-container__main-container">
         <div v-for="(item, index) in items" :key="index">
           <div @click="navigateToRoute(item.route)" class="homepage-nav-container__item">
-            <div class="pr-3"><i :class="`pi ${item.icon}`" class="nav-icon" style="font-size: 1rem"></i></div>
+            <div class="pr-3">
+              <i :class="`pi ${item.icon}`" class="nav-icon" style="font-size: 1rem"></i>
+            </div>
             <div>{{ item.title }}</div>
           </div>
         </div>
@@ -53,12 +55,16 @@
           selectionMode="single"
           dataKey="id"
         >
-        <template #paginatorstart>
-          <Button icon="pi pi-external-link" type="button" label="Export" @click="exportCSV($event)" />
-    </template>
-          <template #paginatorend>
+          <template #paginatorstart>
+            <Button
+              icon="pi pi-external-link"
+              type="button"
+              label="Export"
+              @click="exportCSV($event)"
+            />
           </template>
-          
+          <template #paginatorend> </template>
+
           <ColumnGroup type="header">
             <Row>
               <Column header="Serial Number" sortable :rowspan="2" />
@@ -240,6 +246,11 @@ onMounted(async () => {
       route: '/manage-user'
     },
     {
+      title: 'Add Sudent',
+      icon: 'pi-sign-out',
+      route: '/student-add'
+    },
+    {
       title: 'Logout',
       icon: 'pi-sign-out',
       route: '/login'
@@ -335,19 +346,16 @@ const exportCSV = () => {
   display: flex;
   flex-direction: row;
 
-  .homepage-nav-container{
+  .homepage-nav-container {
     background: #f8f9fa;
-    color: #495057;;
+    color: #495057;
     width: 200px;
-    border-right: 2px solid #aeb6bdab;  
+    border-right: 2px solid #aeb6bdab;
   }
 
   .homepage-content-container {
     justify-content: center;
     align-items: center;
-  }
-
-  .homepage-nav-container__item :hover {
   }
 
   .homepage-nav-container__item {
@@ -359,16 +367,14 @@ const exportCSV = () => {
     margin-top: 15px;
   }
 
-  
   .homepage-nav-container__main-container > div:hover {
     font-weight: 700;
-    background: #dddddd;
-        cursor: pointer;
-        .nav-icon {
-    font-size: 1.1rem !important;
+    cursor: pointer;
+
+    .nav-icon {
+      font-size: 1.1rem !important;
+    }
   }
-  }
- 
 
   .p-dropdown-trigger {
     display: flex;
