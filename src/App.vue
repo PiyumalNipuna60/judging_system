@@ -9,17 +9,17 @@ const isLoginRoute = computed(() => route.name === 'login' || route.path === '/l
 
 <template>
   <RouterView />
-    <div class="floating-logo-container__zero-chance" v-if="!isLoginRoute">
-      <img src="./assets/logo/zero_chnance_logo.png" alt="zero-chance-logo" class="gov_logo" />
+  <div class="floating-logo-container__zero-chance" v-if="!isLoginRoute">
+    <img src="./assets/logo/zero_chnance_logo.png" alt="zero-chance-logo" class="gov_logo" />
+  </div>
+  <div class="floating-logo-container__gov-logo" v-if="!isLoginRoute">
+    <div class="floating-logo-container__aus-gov">
+      <img src="./assets/logo/sl_gov_logo.jpg" alt="aus gov logo" class="gov_logo" />
     </div>
-    <div class="floating-logo-container__gov-logo" v-if="!isLoginRoute">
-      <div class="floating-logo-container__aus-gov">
-        <img src="./assets/logo/sl_gov_logo.jpg" alt="aus gov logo" class="gov_logo" />
-      </div>
-      <div class="floating-logo-container__sl-gov">
-        <img src="./assets/logo/aus_gov_logo.jpg" alt="aus gov logo" class="gov_logo" />
-      </div>
+    <div class="floating-logo-container__sl-gov">
+      <img src="./assets/logo/aus_gov_logo.jpg" alt="aus gov logo" class="gov_logo" />
     </div>
+  </div>
 </template>
 
 <style scoped>

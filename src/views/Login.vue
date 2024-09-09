@@ -16,7 +16,7 @@
     <Divider layout="vertical" />
 
     <section class="loginpage-form-container">
-      <div class="loginpage-form-container_sub" >
+      <div class="loginpage-form-container_sub">
         <section class="loginpage-nav-container flex-none flex">
           <div class="loginpage-nav-container__logo-container">
             <div class="gov_logo_container">
@@ -57,8 +57,9 @@
                 placeholder="format: 705045099"
                 :invalid="isContactInvalid"
               />
-              <label v-if="isContactInvalid"  for="contact" class="contact-error-label">Contact number length invalid. format: 705045099</label>
-
+              <label v-if="isContactInvalid" for="contact" class="contact-error-label"
+                >Contact number length invalid. format: 705045099</label
+              >
             </div>
             <div class="input-field-container">
               <label for="username" class="font-semibold">New Password</label>
@@ -79,7 +80,12 @@
               />
             </div>
             <div class="button-container">
-              <Button type="button" label="Change Password" :disabled="isButtonDisabled" @click="onChangePassword"></Button>
+              <Button
+                type="button"
+                label="Change Password"
+                :disabled="isButtonDisabled"
+                @click="onChangePassword"
+              ></Button>
               <Button
                 @click="cancelConfirmation($event)"
                 label="Cancle"
@@ -153,16 +159,18 @@ onMounted(() => {
   }
 })
 
-watch(() => userData.value.contact, ( newContact) => {  
-  if (newContact && newContact.toString().length === 9) {
-    isContactInvalid.value = false
-    isButtonDisabled.value = false
-  } else {
-    isContactInvalid.value = true
-    isButtonDisabled.value = true
+watch(
+  () => userData.value.contact,
+  (newContact) => {
+    if (newContact && newContact.toString().length === 9) {
+      isContactInvalid.value = false
+      isButtonDisabled.value = false
+    } else {
+      isContactInvalid.value = true
+      isButtonDisabled.value = true
+    }
   }
-
-})
+)
 const loginOnAction = async () => {
   console.log('user logged')
   try {
@@ -207,10 +215,10 @@ const cancelConfirmation = (event) => {
     accept: () => {
       visibleRight.value = false
       userData.value = {
-    contact: null,
-    newPassword: null,
-    newPasswordCheck: null
-  }
+        contact: null,
+        newPassword: null,
+        newPasswordCheck: null
+      }
       toast.add({ severity: 'error', summary: 'Confirmed', detail: 'Record deleted', life: 3000 })
     }
   })
@@ -218,16 +226,17 @@ const cancelConfirmation = (event) => {
 </script>
 
 <style scoped>
-#app{
+#app {
   margin: auto;
 }
 .login-page__main-container {
   width: 100vw;
-    justify-content: center;
-    flex-direction: row;
-    height: 100vh;
+  justify-content: center;
+  flex-direction: row;
+  height: 100vh;
 
-  .loginpage-logo-container, .loginpage-form-container {
+  .loginpage-logo-container,
+  .loginpage-form-container {
     display: flex;
     align-items: center;
   }
@@ -283,13 +292,14 @@ const cancelConfirmation = (event) => {
   }
 }
 
-.p-inputtext, .p-inputnumber {
-    width: 100%;
-  }
+.p-inputtext,
+.p-inputnumber {
+  width: 100%;
+}
 
-.contact-error-label{
-    color: #ec0d0d;
-  }
+.contact-error-label {
+  color: #ec0d0d;
+}
 
 .button-container {
   display: flex;

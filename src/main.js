@@ -17,16 +17,15 @@ import Row from 'primevue/row'
 import Dialog from 'primevue/dialog'
 import Toast from 'primevue/toast'
 import Sidebar from 'primevue/sidebar'
-import Tag from 'primevue/tag';
-import MultiSelect from 'primevue/multiselect';
-import RadioButton from 'primevue/radiobutton';
-import Divider from 'primevue/divider';
-import ColumnGroup from 'primevue/columngroup'; 
-import ConfirmPopup from 'primevue/confirmpopup';
-import FileUpload from 'primevue/fileupload';
-import ProgressBar from 'primevue/progressbar';
-import Badge from 'primevue/badge';
-
+import Tag from 'primevue/tag'
+import MultiSelect from 'primevue/multiselect'
+import RadioButton from 'primevue/radiobutton'
+import Divider from 'primevue/divider'
+import ColumnGroup from 'primevue/columngroup'
+import ConfirmPopup from 'primevue/confirmpopup'
+import FileUpload from 'primevue/fileupload'
+import ProgressBar from 'primevue/progressbar'
+import Badge from 'primevue/badge'
 
 import './assets/main.css'
 import 'primevue/resources/themes/saga-blue/theme.css'
@@ -61,8 +60,6 @@ app.component('InputNumber', InputNumber)
 app.component('FileUpload', FileUpload)
 app.component('ProgressBar', ProgressBar)
 app.component('Badge', Badge)
-
-
 
 app.use(PrimeVue, {
   Theme: {

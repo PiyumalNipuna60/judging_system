@@ -1,6 +1,12 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { getUsersList, deleteUserById, userLogin, createNewUser, sendOTPToUser } from '../service/UserService'
+import {
+  getUsersList,
+  deleteUserById,
+  userLogin,
+  createNewUser,
+  sendOTPToUser
+} from '../service/UserService'
 
 export const useUserStore = defineStore('UserStore', () => {
   const userList = ref()

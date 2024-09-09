@@ -120,7 +120,12 @@
         </div>
         <div class="input-field-container">
           <label for="username" class="font-semibold">Stream</label>
-          <Dropdown v-model="userData.stream" :options="streamList" placeholder="Select a Stream" class="w-full md:w-14rem" />
+          <Dropdown
+            v-model="userData.stream"
+            :options="streamList"
+            placeholder="Select a Stream"
+            class="w-full md:w-14rem"
+          />
         </div>
         <div class="button-setion">
           <Button type="button" label="Save" @click="saveUserDetails"></Button>
@@ -288,11 +293,9 @@ const onRowSelect = (param) => {
 }
 
 const onBlurSelect = (param) => {
- 
   console.log('param log ______ss____', param)
 }
 const onUnSelect = (param) => {
- 
   console.log('param log ______suns____', param)
 }
 </script>
@@ -302,7 +305,7 @@ const onUnSelect = (param) => {
   display: flex;
   flex-direction: row;
 
-  .p-divider-horizontal{
+  .p-divider-horizontal {
     width: 77%;
   }
 
@@ -383,7 +386,7 @@ const onUnSelect = (param) => {
     padding: 10px;
   }
 
-  .p-datatable-wrapper{
+  .p-datatable-wrapper {
     height: 550px;
   }
 }

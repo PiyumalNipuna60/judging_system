@@ -41,17 +41,16 @@ a,
   border-color: rgb(148, 163, 184);
 }
 
-
 .p-datatable-tbody > tr.p-highlight {
   background: #ffffff;
 }
 
-.p-button-secondary{
+.p-button-secondary {
   color: #6c757d;
   background: #ffffff69;
   border: none;
 }
-.p-button-secondary:hover{
+.p-button-secondary:hover {
   background: #edededf7;
   border: none;
 }

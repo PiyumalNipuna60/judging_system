@@ -233,15 +233,13 @@ const addNewStudent = (route) => {
   router.push(route)
 }
 
-const clearStudentData = (
-  
-) => {
+const clearStudentData = () => {
   studentData.value = {
-  serial: null,
-  stream: null,
-  language: null,
-  uploadedFile: []
-}
+    serial: null,
+    stream: null,
+    language: null,
+    uploadedFile: []
+  }
 }
 </script>
 

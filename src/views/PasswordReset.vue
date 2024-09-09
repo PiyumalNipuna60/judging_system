@@ -14,7 +14,7 @@
         <div v-for="(item, index) in items" :key="index">
           <div @click="navigateToRoute(item.route)" class="homepage-nav-container__item">
             <div class="pr-3">
-              <i class="nav-icon" :class="`pi ${item.icon}`"  style="font-size: 1rem"></i>
+              <i class="nav-icon" :class="`pi ${item.icon}`" style="font-size: 1rem"></i>
             </div>
             <div>{{ item.title }}</div>
           </div>
@@ -22,8 +22,7 @@
       </div>
     </section>
     <section class="homepage-content-container flex-grow-1 flex">
-    <div class="pw-reset-container" >
-      
+      <div class="pw-reset-container">
         <div class="input-field-container">
           <label for="username" class="font-semibold">New Password</label>
           <InputText
@@ -44,9 +43,8 @@
         </div>
         <div class="input-field-container">
           <Button type="button" label="Change Password" @click="onChangePassword"></Button>
-
         </div>
-    </div>
+      </div>
     </section>
     <section class="dialogbox-container">
       <Dialog
@@ -57,12 +55,7 @@
       >
         <div class="dialogbox-container__input-field-container">
           <label for="username" class="font-semibold mb-2">Enter OTP sent to your mobile</label>
-          <InputText
-            v-model="otpNumber"
-            id="otp"
-            class="flex-auto"
-            autocomplete="off"
-          />
+          <InputText v-model="otpNumber" id="otp" class="flex-auto" autocomplete="off" />
         </div>
 
         <div class="flex justify-content-end gap-2">
@@ -91,7 +84,6 @@ const router = useRouter()
 
 const userStore = useUserStore()
 
-
 const toast = useToast()
 const homeStore = useHomeStore()
 
@@ -104,7 +96,7 @@ const userData = ref([])
 
 onMounted(async () => {
   if (!userStore.isLoggedUser) {
-  //  router.push('/login')
+    //  router.push('/login')
   }
   items.value = [
     {
@@ -123,7 +115,6 @@ onMounted(async () => {
       route: '/login'
     }
   ]
-
 })
 
 const navigateToRoute = (route) => {
@@ -138,12 +129,12 @@ const onChangePassword = async () => {
   if (userData.value.newPassword === userData.value.newPasswordCheck) {
     const response = await userStore.sendOTP(userData.value)
   } else {
-      toast.add({
-        severity: 'error',
-        summary: 'Eror',
-        detail: 'Passowrds does not match. Enter the same password',
-        life: 3000
-      })
+    toast.add({
+      severity: 'error',
+      summary: 'Eror',
+      detail: 'Passowrds does not match. Enter the same password',
+      life: 3000
+    })
   }
   // End-point
 
@@ -155,19 +146,17 @@ const onOTPVerification = async () => {
   if (userData.value.newPassword === userData.value.newPasswordCheck) {
     await resetPassword()
   } else {
-      toast.add({
-        severity: 'error',
-        summary: 'Eror',
-        detail: 'Passowrds does not match. Enter the same password',
-        life: 3000
-      })
+    toast.add({
+      severity: 'error',
+      summary: 'Eror',
+      detail: 'Passowrds does not match. Enter the same password',
+      life: 3000
+    })
   }
   // End-point
 
   // console.log('markings_____________', editableStudentData.value)
 }
-
-
 </script>
 
 <style lang="scss">
@@ -176,24 +165,24 @@ const onOTPVerification = async () => {
   display: flex;
   flex-direction: row;
 
-  .pw-reset-container{
-    .input-field-container{
+  .pw-reset-container {
+    .input-field-container {
       flex-direction: column;
       align-items: flex-start;
       margin-bottom: 25px;
 
-      input, Button {
+      input,
+      Button {
         width: 18rem;
       }
 
-      label{
+      label {
         margin-bottom: 10px;
-
       }
     }
   }
 
-  .homepage-nav-container{
+  .homepage-nav-container {
     background: #f8f9fa;
     color: #495057;
     width: 200px;
@@ -218,7 +207,7 @@ const onOTPVerification = async () => {
 
   .homepage-nav-container__main-container > div:hover {
     font-weight: 700;
-        cursor: pointer;
+    cursor: pointer;
   }
   .nav-icon:hover {
     font-size: 1.2rem;
@@ -254,7 +243,6 @@ const onOTPVerification = async () => {
     justify-content: center;
     margin: 5px;
   }
-
 }
 
 .input-field-container {
@@ -263,8 +251,8 @@ const onOTPVerification = async () => {
   margin-bottom: 20px;
 }
 
-.dialogbox-container__input-field-container{
-    display: grid;
-    margin-bottom: 20px;
-  }
+.dialogbox-container__input-field-container {
+  display: grid;
+  margin-bottom: 20px;
+}
 </style>
