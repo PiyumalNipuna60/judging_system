@@ -1,26 +1,6 @@
 <template>
   <section class="user-homepage__container">
     <Toast />
-    <section class="homepage-nav-container flex-none flex">
-      <div class="homepage-nav-container__logo-container">
-        <div class="gov_logo_container">
-          <img src="../assets/logo/aus_gov_logo.jpg" alt="aus gov logo" class="gov_logo" />
-        </div>
-        <div class="gov_logo_container">
-          <img src="../assets/logo/sl_gov_logo.png" alt="sl gov logo" class="gov_logo" />
-        </div>
-      </div>
-      <div class="homepage-nav-container__main-container">
-        <div v-for="(item, index) in items" :key="index">
-          <div @click="navigateToRoute(item.route)" class="homepage-nav-container__item">
-            <div class="pr-3">
-              <i class="nav-icon" :class="`pi ${item.icon}`" style="font-size: 1rem"></i>
-            </div>
-            <div>{{ item.title }}</div>
-          </div>
-        </div>
-      </div>
-    </section>
     <section class="homepage-content-container flex-grow-1 flex">
       <div class="pw-reset-container">
         <div class="input-field-container">
@@ -182,35 +162,9 @@ const onOTPVerification = async () => {
     }
   }
 
-  .homepage-nav-container {
-    background: #f8f9fa;
-    color: #495057;
-    width: 200px;
-  }
-
   .homepage-content-container {
     justify-content: center;
     align-items: center;
-  }
-
-  .homepage-nav-container__item :hover {
-  }
-
-  .homepage-nav-container__item {
-    padding: 7px 0px 7px 20px;
-    display: inline-flex;
-  }
-
-  .homepage-nav-container__main-container {
-    margin-top: 15px;
-  }
-
-  .homepage-nav-container__main-container > div:hover {
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .nav-icon:hover {
-    font-size: 1.2rem;
   }
 
   .p-dropdown-trigger {
@@ -232,16 +186,6 @@ const onOTPVerification = async () => {
     margin: 0;
     padding: 0;
     list-style-type: none;
-  }
-
-  .gov_logo {
-    width: 65%;
-  }
-
-  .gov_logo_container {
-    display: flex;
-    justify-content: center;
-    margin: 5px;
   }
 }
 

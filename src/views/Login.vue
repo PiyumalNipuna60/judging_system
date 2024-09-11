@@ -171,6 +171,7 @@ watch(
     }
   }
 )
+
 const loginOnAction = async () => {
   console.log('user logged')
   try {

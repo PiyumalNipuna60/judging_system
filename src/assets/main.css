@@ -29,7 +29,7 @@ a,
   }
 
   #app {
-    display: grid;
+    display: flex;
   }
 }
 

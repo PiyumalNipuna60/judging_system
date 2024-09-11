@@ -1,24 +1,6 @@
 <template>
   <section class="user-dashboard__container">
     <Toast />
-    <section class="dashboard-nav-container flex-none flex">
-      <div class="dashboard-nav-container__logo-container">
-        <div class="gov_logo_container">
-          <img src="../assets/logo/aus_gov_logo.jpg" alt="aus gov logo" class="gov_logo" />
-        </div>
-        <div class="gov_logo_container">
-          <img src="../assets/logo/sl_gov_logo.png" alt="sl gov logo" class="gov_logo" />
-        </div>
-      </div>
-      <div class="dashboard-nav-container__main-container">
-        <div v-for="(item, index) in items" :key="index">
-          <div @click="navigateToRoute(item.route)" class="dashboard-nav-container__item">
-            <div class="pr-3"><i :class="`pi ${item.icon}`" style="font-size: 1rem"></i></div>
-            <div>{{ item.title }}</div>
-          </div>
-        </div>
-      </div>
-    </section>
     <section class="dashboard-content-container flex flex-grow-1">
       <div class="dashboard-content-container__title-section">
         <p>
@@ -328,29 +310,6 @@ const onUnSelect = (param) => {
     justify-content: flex-end;
   }
 
-  .dashboard-nav-container {
-    background: #1e1e1e;
-    color: rgb(217, 209, 209);
-    width: 200px;
-  }
-
-  .dashboard-nav-container__item :hover {
-  }
-
-  .dashboard-nav-container__item {
-    padding: 7px 0px 7px 20px;
-    display: inline-flex;
-  }
-
-  .dashboard-nav-container__main-container {
-    margin-top: 15px;
-  }
-
-  .dashboard-nav-container__main-container > div:hover {
-    background: grey;
-    cursor: pointer;
-  }
-
   .p-dropdown-trigger {
     display: flex;
     align-items: center;
@@ -372,15 +331,6 @@ const onUnSelect = (param) => {
     list-style-type: none;
   }
 
-  .gov_logo {
-    width: 65%;
-  }
-
-  .gov_logo_container {
-    display: flex;
-    justify-content: center;
-    margin: 5px;
-  }
 
   .dashboard-content-container_dropdown {
     padding: 10px;
