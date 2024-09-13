@@ -92,10 +92,11 @@ import { useToast } from 'primevue/usetoast'
 import { onMounted, ref } from 'vue'
 import router from '@/router'
 import { usePrimeVue } from 'primevue/config'
+import { useStudentStore } from '../stores/StudentStore'
+const studentStore = useStudentStore()
 
 const $primevue = usePrimeVue()
 const toast = useToast()
-const items = ref([])
 const imageData = ref()
 const streamList = ref(['Essay', 'Art'])
 const isEssaySelected = ref(false)
@@ -107,38 +108,16 @@ const studentData = ref({
   uploadedFile: []
 })
 
-onMounted(async () => {
-  items.value = [
-    {
-      title: 'Dashboard',
-      icon: 'pi-home',
-      route: '/dashboard'
-    },
-    {
-      title: 'Create User',
-      icon: 'pi-user',
-      route: '/manage-user'
-    },
-    {
-      title: 'Add Sudent',
-      icon: 'pi-sign-out',
-      route: '/student-add'
-    },
-    {
-      title: 'Logout',
-      icon: 'pi-sign-out',
-      route: '/login'
-    }
-  ]
-})
+onMounted(async () => {})
 
 const onAdvancedUpload = async (event) => {
-  studentData.value.uploadedFile = event.files
   const file = event.files[0]
   try {
     const reader = new FileReader()
 
     if (file.type.startsWith('application/pdf') || file.type.startsWith('image/')) {
+      console.log('File type: ')
+
       reader.readAsDataURL(file)
     } else {
       toast.add({
@@ -160,7 +139,8 @@ const onAdvancedUpload = async (event) => {
 
       const fileData = reader.result
       imageData.value = fileData
-      console.log('File data:', fileData)
+      studentData.value.uploadedFile = event.files
+      console.log('File data:', studentData.value)
     }
   } catch (error) {
     toast.add({
@@ -188,11 +168,13 @@ const formatSize = (bytes) => {
 }
 
 const removeUploadedFileCallback = async () => {
-  studentData.value.uploadedFile = []
+  console.log('remove______')
+
+  // studentData.value.uploadedFile = []
 }
 
 const onStreamSelect = async (event) => {
-  console.log('log______', event)
+  // console.log('log______', event)
   if (event.value === 'Essay') {
     isEssaySelected.value = true
     docType.value = 'application'
@@ -202,18 +184,25 @@ const onStreamSelect = async (event) => {
   }
 }
 
-const navigateToRoute = (route) => {
-  if (route === '/login') {
-    // logout()
-  }
-  router.push(route)
-}
+const addNewStudent = async () => {
+  try {
+    console.log('log____________', studentData.value)
 
-const addNewStudent = (route) => {
-  if (route === '/login') {
-    // logout()
+    await studentStore.addStudentData(studentData.value)
+    toast.add({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'student data added succesfully',
+      life: 3000
+    })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: `${error.message}`,
+      life: 3000
+    })
   }
-  router.push(route)
 }
 
 const clearStudentData = () => {
@@ -229,7 +218,7 @@ const clearStudentData = () => {
 <style lang="scss">
 .student-creation-container {
   display: flex;
-  width: 100vw;
+  flex-grow: 1;
 
   .uploaded-content-container img {
     width: 300px;

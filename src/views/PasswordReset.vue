@@ -1,7 +1,9 @@
 <template>
   <section class="user-homepage__container">
     <Toast />
-    <section class="homepage-content-container flex-grow-1 flex">
+    <section class="homepage-content-container flex-grow-1">
+      <h2>PASSWORD RESET</h2>
+      <Divider />
       <div class="pw-reset-container">
         <div class="input-field-container">
           <label for="username" class="font-semibold">New Password</label>
@@ -71,38 +73,13 @@ const { markingList, markingLists } = storeToRefs(homeStore)
 
 const IsDialogVisible = ref(false)
 const otpNumber = ref(null)
-const items = ref([])
 const userData = ref([])
 
 onMounted(async () => {
   if (!userStore.isLoggedUser) {
     //  router.push('/login')
   }
-  items.value = [
-    {
-      title: 'Home',
-      icon: 'pi-home',
-      route: '/'
-    },
-    {
-      title: 'Password reset',
-      icon: 'pi-home',
-      route: '/password-reset'
-    },
-    {
-      title: 'Logout',
-      icon: 'pi-sign-out',
-      route: '/login'
-    }
-  ]
 })
-
-const navigateToRoute = (route) => {
-  if (route === '/login') {
-    userStore.logOut()
-  }
-  router.push(route)
-}
 
 const onChangePassword = async () => {
   IsDialogVisible.value = true
@@ -141,11 +118,17 @@ const onOTPVerification = async () => {
 
 <style lang="scss">
 .user-homepage__container {
-  width: 100vw;
+  flex-grow: 1;
   display: flex;
   flex-direction: row;
 
   .pw-reset-container {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    flex-wrap: wrap;
+    justify-content: center;
+
     .input-field-container {
       flex-direction: column;
       align-items: flex-start;
@@ -165,6 +148,7 @@ const onOTPVerification = async () => {
   .homepage-content-container {
     justify-content: center;
     align-items: center;
+    padding: 10px;
   }
 
   .p-dropdown-trigger {

@@ -1,8 +1,10 @@
 <template>
   <section class="user-homepage__container">
     <Toast />
-    <section class="homepage-content-container flex-grow-1 flex">
-      <div class="flex flex-row">
+    <section class="homepage-content-container flex-grow-1">
+      <h2>ADMIN PANEL</h2>
+      <Divider />
+      <div class="flex flex-row justify-center">
         <div class="homepage-content-container_dropdown">
           <Dropdown
             v-model="selectedDistrict"
@@ -217,40 +219,8 @@ const editableStudentData = ref({
 })
 
 onMounted(async () => {
-  items.value = [
-    {
-      title: 'Dashboard',
-      icon: 'pi-home',
-      route: '/dashboard'
-    },
-    {
-      title: 'Create User',
-      icon: 'pi-user',
-      route: '/manage-user'
-    },
-    {
-      title: 'Add Sudent',
-      icon: 'pi-sign-out',
-      route: '/student-add'
-    },
-    {
-      title: 'Logout',
-      icon: 'pi-sign-out',
-      route: '/login'
-    }
-  ]
-
   markingListArt.value = await homeStore.getMarkingLists()
 })
-
-const navigateToRoute = (route) => {
-  if (route === '/login') {
-    logout()
-  }
-  router.push(route)
-}
-
-const logout = () => {}
 
 // const onRowSelect = (param) => {
 //   IsDialogVisible.value = !IsDialogVisible.value
@@ -325,17 +295,15 @@ const exportCSV = () => {
 
 <style lang="scss">
 .user-homepage__container {
-  width: 100vw;
   display: flex;
   flex-direction: row;
-
+  flex-grow: 1;
 
   .homepage-content-container {
     justify-content: center;
     align-items: center;
+    padding: 10px;
   }
-
-
 
   .p-dropdown-trigger {
     display: flex;

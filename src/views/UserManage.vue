@@ -1,7 +1,9 @@
 <template>
   <section class="user-dashboard__container">
     <Toast />
-    <section class="dashboard-content-container flex flex-grow-1">
+    <section class="dashboard-content-container flex-grow-1">
+      <h2>USER CREATION</h2>
+      <Divider />
       <div class="dashboard-content-container__title-section">
         <p>
           All created user details of teachers will be display here. You can add new teachers by
@@ -181,33 +183,9 @@ const visibleRight = ref(false)
 const usersList = ref([])
 const { markingList, markingLists } = storeToRefs(userStore)
 
-const items = ref([])
 const streamList = ref(['Essay', 'Art'])
 
-const navigateToRoute = (route) => {
-  if (route === '/login') {
-    logout()
-  }
-  router.push(route)
-}
 onMounted(async () => {
-  items.value = [
-    {
-      title: 'Dashboard',
-      icon: 'pi-home',
-      route: '/dashboard'
-    },
-    {
-      title: 'Create User',
-      icon: 'pi-user',
-      route: '/manage-user'
-    },
-    {
-      title: 'Logout',
-      icon: 'pi-sign-out',
-      route: '/login'
-    }
-  ]
   usersList.value = await userStore.getUserLists()
 })
 
@@ -283,7 +261,7 @@ const onUnSelect = (param) => {
 </script>
 <style lang="scss">
 .user-dashboard__container {
-  width: 100vw;
+  flex-grow: 1;
   display: flex;
   flex-direction: row;
 
@@ -296,6 +274,7 @@ const onUnSelect = (param) => {
   }
 
   .dashboard-content-container {
+    padding: 10px;
     justify-content: center;
     align-items: center;
   }
@@ -330,7 +309,6 @@ const onUnSelect = (param) => {
     padding: 0;
     list-style-type: none;
   }
-
 
   .dashboard-content-container_dropdown {
     padding: 10px;

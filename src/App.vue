@@ -1,13 +1,5 @@
-<script setup>
-import { RouterView, useRoute } from 'vue-router'
-import { computed } from 'vue'
-
-const route = useRoute()
-
-const isLoginRoute = computed(() => route.name === 'login' || route.path === '/login')
-</script>
-
 <template>
+  <NavigationPanel v-if="!isLoginRoute"></NavigationPanel>
   <RouterView />
   <div class="floating-logo-container__zero-chance" v-if="!isLoginRoute">
     <img src="./assets/logo/zero_chnance_logo.png" alt="zero-chance-logo" class="gov_logo" />
@@ -21,6 +13,34 @@ const isLoginRoute = computed(() => route.name === 'login' || route.path === '/l
     </div>
   </div>
 </template>
+<script setup>
+import { RouterView, useRoute } from 'vue-router'
+import { computed, ref, onMounted } from 'vue'
+import NavigationPanel from './views/component/NavigationPanel.vue'
+import { NAVACTIONS } from './const/const'
+// import { useUserStore } from './stores/UserStore'
+// const { isLoggedUser } = useUserStore()
+// const userStore = useUserStore()
+
+const route = useRoute()
+const navRoutes = ref(NAVACTIONS)
+const isLoginRoute = computed(() => route.name === 'login' || route.path === '/login')
+
+onMounted(() => {
+  // const userData = localStorage.getItem('user')
+  // if (userData) {
+  //   const parsedUser = JSON.parse(userData);
+  //   if (parsedUser.userType === 'admin') {
+  //     navRoutes.value = navRoutes.value.filter(route => route.user === 'admin')
+  //   } else {
+  //     navRoutes.value = NAVACTIONS.filter(route => route.user === 'user')
+  //   }
+  //   console.log('passwed user ', parsedUser);
+  //   navRoutes.value.push(...NAVACTIONS.filter(route => route.user === 'common'))
+  // }
+  // console.log(' logged user__', navRoutes.value);
+})
+</script>
 
 <style scoped>
 .floating-logo-container__zero-chance {

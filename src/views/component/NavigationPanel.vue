@@ -6,7 +6,7 @@
       </div>
     </div>
     <div class="nav-container__main-container">
-      <div v-for="(item, index) in $props.navRoutes" :key="index">
+      <div v-for="(item, index) in navRoutes" :key="index">
         <div @click="navigateToRoute(item.route)" class="nav-container__item">
           <div class="pr-3">
             <i :class="`pi ${item.icon}`" class="nav-icon" style="font-size: 1rem"></i>
@@ -20,10 +20,14 @@
 <script setup>
 import router from '@/router'
 import { onMounted, ref } from 'vue'
+import { useUserStore } from '../../stores/UserStore'
 
-defineProps(['navRoutes'])
+const userStore = useUserStore()
+const navRoutes = ref([])
 
-const items = ref([])
+onMounted(() => {
+  navRoutes.value = userStore.getNavigationList()
+})
 
 const navigateToRoute = (route) => {
   if (route === '/login') {
@@ -32,7 +36,9 @@ const navigateToRoute = (route) => {
   router.push(route)
 }
 
-const logout = () => {}
+const logout = () => {
+  userStore.logOut()
+}
 </script>
 
 <style lang="scss">
@@ -65,7 +71,7 @@ const logout = () => {}
     padding: 7px 0px 7px 20px;
     display: inline-flex;
   }
-  
+
   .main-logo {
     width: 65%;
   }

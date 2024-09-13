@@ -1,7 +1,9 @@
 <template>
   <section class="user-homepage__container">
     <Toast />
-    <section class="homepage-content-container flex-grow-1 flex">
+    <section class="homepage-content-container flex-grow-1">
+      <h2>HOME PAGE</h2>
+      <Divider />
       <div class="flex flex-row">
         <div class="homepage-content-container_dropdown">
           <Dropdown
@@ -202,23 +204,8 @@ const editableStudentData = ref({
 })
 
 onMounted(async () => {
-  const loggedUser = localStorage.getItem('user')
-  if (loggedUser) {
-    userStore.setUserData(JSON.parse(loggedUser))
-  } else {
-    router.push('/login')
-  }
-
-
   markingListArt.value = await homeStore.getMarkingLists()
 })
-
-const navigateToRoute = (route) => {
-  if (route === '/login') {
-    userStore.logOut()
-  }
-  router.push(route)
-}
 
 const onRowSelect = (param) => {
   if (selectedDistrict.value !== null && selectedAgeGroup.value === null) {
@@ -314,13 +301,14 @@ const commonFilter = () => {
 
 <style lang="scss">
 .user-homepage__container {
-  width: 100vw;
+  flex-grow: 1;
   display: flex;
   flex-direction: row;
 
   .homepage-content-container {
     justify-content: center;
     align-items: center;
+    padding: 10px;
   }
 
   .p-dropdown-trigger {

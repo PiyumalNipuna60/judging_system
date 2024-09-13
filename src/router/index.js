@@ -12,32 +12,38 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: HomeView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/login',
       name: 'login',
-      component: Login
+      component: Login,
+      meta: { requiresAuth: false }
     },
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: AdminPanel
+      component: AdminPanel,
+      meta: { requiresAuth: true }
     },
     {
       path: '/manage-user',
       name: 'manage-user',
-      component: UserManage
+      component: UserManage,
+      meta: { requiresAuth: true }
     },
     {
       path: '/password-reset',
       name: 'password-reset',
-      component: PasswordReset
+      component: PasswordReset,
+      meta: { requiresAuth: true }
     },
     {
       path: '/student-add',
       name: 'add-student',
-      component: CreateStudent
+      component: CreateStudent,
+      meta: { requiresAuth: true }
     }
   ]
 })
