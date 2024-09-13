@@ -33,11 +33,11 @@
           @Blur="onBlurSelect"
           @row-unselect="onUnSelect"
         >
-          <Column field="userName" header="User Name"></Column>
+          <Column field="user_name" header="User Name"></Column>
           <Column field="password" header="Password"></Column>
           <Column field="availableDistricts" header="Districts">
             <template #body="{ data }">
-              {{ data.availableDistricts.join(', ') }}
+              <!-- {{ data.availableDistricts.join(', ') }} -->
             </template>
           </Column>
           <Column field="language" header="Language"></Column>
@@ -52,6 +52,20 @@
     </section>
     <section>
       <Sidebar v-model:visible="visibleRight" header="Create user" position="right">
+        <div class="input-field-container">
+          <label for="username" class="font-semibold">Contact number</label>
+          <InputNumber
+            v-model="userData.contact"
+            class="flex-auto"
+            inputId="integeronly"
+            :useGrouping="false"
+            placeholder="format: 705045099"
+            :invalid="isContactInvalid"
+          />
+          <label v-if="isContactInvalid" for="contact" class="contact-error-label"
+            >Contact number length invalid. format: 705045099</label
+          >
+        </div>
         <div class="input-field-container">
           <label for="username" class="font-semibold">User name</label>
           <InputText
@@ -72,24 +86,36 @@
         </div>
         <div class="input-field-container">
           <label for="username" class="font-semibold">Available districts</label>
+          <div class="tag-div-container gap-2 px-1">
+            <Tag v-for="district in userData.availableDistricts" :key="district" value="Info">
+              <div class="flex align-items-center tag-div">
+                <span class="text-base">{{ districts[district - 1].name }}</span>
+              </div>
+            </Tag>
+          </div>
           <MultiSelect
             v-model="userData.availableDistricts"
             filter
             display="chip"
             :options="districts"
+            optionLabel="name"
+            optionValue="id"
             placeholder="Select Cities"
             :maxSelectedLabels="4"
             class="district-dropdown-container w-full md:w-20rem"
           />
-          <div class="tag-div-container gap-2 px-1">
-            <Tag v-for="district in userData.availableDistricts" :key="district" value="Info">
-              <div class="flex align-items-center tag-div">
-                <span class="text-base">{{ district }}</span>
-              </div>
-            </Tag>
-          </div>
         </div>
         <div class="input-field-container">
+          <label for="username" class="font-semibold">Stream</label>
+          <Dropdown
+            v-model="userData.stream"
+            :options="streamList"
+            placeholder="Select a Stream"
+            class="w-full md:w-14rem"
+            @change="onStreamSelect"
+          />
+        </div>
+        <div class="input-field-container" v-if="isEssaySelected">
           <label for="username" class="font-semibold">Language</label>
           <div class="flex flex-row flex-wrap gap-3">
             <div class="flex align-items-center">
@@ -102,109 +128,92 @@
             </div>
           </div>
         </div>
-        <div class="input-field-container">
-          <label for="username" class="font-semibold">Stream</label>
-          <Dropdown
-            v-model="userData.stream"
-            :options="streamList"
-            placeholder="Select a Stream"
-            class="w-full md:w-14rem"
-          />
-        </div>
         <div class="button-setion">
-          <Button type="button" label="Save" @click="saveUserDetails"></Button>
+          <Button
+            type="button"
+            label="Save"
+            @click="saveUserDetails"
+            :disabled="isButtonDisabled"
+          ></Button>
           <Button
             type="button"
             label="Cancel"
             severity="secondary"
-            @click="IsDialogVisible = false"
+            @click="onClear"
           ></Button>
         </div>
-        <template #footer>
-          <Button type="button" label="Save" @click="saveUserDetails"></Button>
-          <Button
-            type="button"
-            label="Cancel"
-            severity="secondary"
-            @click="IsDialogVisible = false"
-          ></Button>
-        </template>
       </Sidebar>
     </section>
   </section>
 </template>
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import router from '@/router'
 import { storeToRefs } from 'pinia'
 import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
+import { DISTRICTS } from '@/const/const'
 
 const userStore = useUserStore()
 const toast = useToast()
 
 const selecteUser = ref(null)
 const dataTable = ref()
+const districts = ref(DISTRICTS)
+const visibleRight = ref(false)
+const usersList = ref([])
+const isEssaySelected = ref(false)
+const isContactInvalid = ref(false)
+const isButtonDisabled = ref(true)
+const streamList = ref(['Essay', 'Art'])
 const userData = ref({
+  contact: null,
   userName: null,
   password: null,
   availableDistricts: null,
   language: null,
   stream: null
 })
-const districts = [
-  'Colombo',
-  'Galle',
-  'Gampaha',
-  'Kalutara',
-  'Kandy',
-  'Matale',
-  'Nuwara Eliya',
-  'Gampaha',
-  'Hambantota',
-  'Kalutara',
-  'Jaffna',
-  'Kilinochchi',
-  'Mannar',
-  'Mullaitivu',
-  'Vavuniya',
-  'Ampara',
-  'Batticaloa',
-  'Trincomalee',
-  'Anuradhapura',
-  'Polonnaruwa',
-  'Kurunegala',
-  'Puttalam',
-  'Badulla',
-  'Monaragala',
-  'Ratnapura'
-]
-const visibleRight = ref(false)
-const usersList = ref([])
+
 const { markingList, markingLists } = storeToRefs(userStore)
 
-const streamList = ref(['Essay', 'Art'])
-
 onMounted(async () => {
-  usersList.value = await userStore.getUserLists()
+  usersList.value = await userStore.getUserLists()  
 })
+
+watch(
+  () => userData.value.contact,
+  (newContact) => {
+    if (newContact) {
+      if (newContact.toString().length === 9) {
+        isContactInvalid.value = false
+        isButtonDisabled.value = false
+      } else {
+        isContactInvalid.value = true
+        isButtonDisabled.value = true
+      }
+    }
+  }
+)
 
 const saveUserDetails = async () => {
   try {
     const response = await userStore.saveUser(userData.value)
+    usersList.value = await userStore.getUserLists()  
     if (response === 'success') {
       toast.add({
         severity: 'info',
         summary: 'Success',
-        detail: 'User deleted succesfully',
+        detail: 'User saved succesfully!',
         life: 3000
       })
     }
+    onClear()
   } catch (error) {
     toast.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'student marks added succesfully',
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Something went wrong!',
       life: 3000
     })
   }
@@ -213,7 +222,8 @@ const saveUserDetails = async () => {
 
 const removeUser = async (param) => {
   try {
-    const response = await userStore.deleteUser(param?.id)
+    const response = await userStore.deleteUser(param?.teacher_id)
+    usersList.value = await userStore.getUserLists()
     if (response === 'success') {
       toast.add({
         severity: 'info',
@@ -224,9 +234,9 @@ const removeUser = async (param) => {
     }
   } catch (error) {
     toast.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'student marks added succesfully',
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Something went wrong!',
       life: 3000
     })
   }
@@ -234,13 +244,7 @@ const removeUser = async (param) => {
 }
 
 const addNewUser = async () => {
-  userData.value = {
-    userName: null,
-    password: null,
-    availableDistricts: null,
-    language: null,
-    stream: null
-  }
+  clearUserData()
   visibleRight.value = !visibleRight.value
 }
 
@@ -257,6 +261,30 @@ const onBlurSelect = (param) => {
 }
 const onUnSelect = (param) => {
   console.log('param log ______suns____', param)
+}
+
+const onStreamSelect = async (event) => {
+  if (event.value === 'Essay') {
+    isEssaySelected.value = true
+  } else {
+    isEssaySelected.value = false
+  }
+}
+
+const onClear = () => {
+  clearUserData()
+  visibleRight.value = false
+}
+
+const clearUserData = () => {
+  userData.value = {
+    userName: null,
+    contact: null,
+    password: null,
+    availableDistricts: null,
+    language: null,
+    stream: null
+  }
 }
 </script>
 <style lang="scss">
@@ -315,7 +343,7 @@ const onUnSelect = (param) => {
   }
 
   .p-datatable-wrapper {
-    height: 550px;
+    height: 485px;
   }
 }
 
@@ -353,7 +381,7 @@ const onUnSelect = (param) => {
   }
 
   .district-dropdown-container {
-    margin-bottom: 7px;
+    margin-top: 5px;
   }
 
   .tag-div {
@@ -377,5 +405,13 @@ const onUnSelect = (param) => {
     color: #495057;
     border-radius: 4px;
   }
+}
+
+.p-inputnumber {
+  width: 100%;
+}
+
+.contact-error-label {
+  color: #ec0d0d;
 }
 </style>

@@ -68,7 +68,12 @@
                 id="mark_02"
                 class="flex-auto"
                 autocomplete="off"
+                :invalid="isPasswordInvalid"
+                @blur="onConfirmPasswordBlur"
               />
+              <label v-if="isPasswordInvalid" for="contact" class="contact-error-label"
+                >Password must be same</label
+              >
             </div>
             <div class="input-field-container">
               <label for="username" class="font-semibold">Enter password again</label>
@@ -77,7 +82,12 @@
                 id="mark_02"
                 class="flex-auto"
                 autocomplete="off"
+                :invalid="isPasswordInvalid"
+                @blur="onConfirmPasswordBlur"
               />
+              <label v-if="isPasswordInvalid" for="contact" class="contact-error-label"
+                >Password must be same</label
+              >
             </div>
             <div class="button-container">
               <Button
@@ -145,6 +155,7 @@ const password = ref(null)
 const visibleRight = ref(false)
 const isButtonDisabled = ref(true)
 const isContactInvalid = ref(false)
+const isPasswordInvalid = ref(false)
 const userData = ref({
   contact: null,
   newPassword: null,
@@ -204,10 +215,20 @@ const loadForgotPassword = async () => {
 }
 const onChangePassword = async () => {}
 
+const onConfirmPasswordBlur = async () => {
+  if (userData.value.newPassword && userData.value.newPasswordCheck && userData.value.newPassword !== userData.value.newPasswordCheck) {
+    isPasswordInvalid.value = true
+    isButtonDisabled.value = true
+  } else {
+    isPasswordInvalid.value = false
+    isButtonDisabled.value = false
+  }  
+}
+
 const cancelConfirmation = (event) => {
   confirm.require({
     target: event.currentTarget,
-    message: 'Are you sure, you want to cancle?',
+    message: 'Your data will be lost. Are you sure, you want to cancle?',
     icon: 'pi pi-info-circle',
     rejectClass: 'p-button-secondary p-button-outlined p-button-sm',
     acceptClass: 'p-button-danger p-button-sm',
@@ -220,7 +241,7 @@ const cancelConfirmation = (event) => {
         newPassword: null,
         newPasswordCheck: null
       }
-      toast.add({ severity: 'error', summary: 'Confirmed', detail: 'Record deleted', life: 3000 })
+      toast.add({ severity: 'error', summary: 'Confirmed', detail: 'Password reset cancled', life: 3000 })
     }
   })
 }

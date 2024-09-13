@@ -7,7 +7,7 @@
     </div>
     <div class="nav-container__main-container">
       <div v-for="(item, index) in navRoutes" :key="index">
-        <div @click="navigateToRoute(item.route)" class="nav-container__item">
+        <div @click="navigateToRoute(item.route)" class="nav-container__item" :class="getlectedClass(item)">
           <div class="pr-3">
             <i :class="`pi ${item.icon}`" class="nav-icon" style="font-size: 1rem"></i>
           </div>
@@ -36,6 +36,13 @@ const navigateToRoute = (route) => {
   router.push(route)
 }
 
+const getlectedClass = (item) => {
+  if (router.currentRoute.value.path === item.route) {
+    return 'selected-nav-button'
+  }
+
+}
+
 const logout = () => {
   userStore.logOut()
 }
@@ -52,9 +59,10 @@ const logout = () => {
     margin-top: 15px;
   }
 
-  .nav-container__main-container > div:hover {
+  .nav-container__main-container > div:hover, .selected-nav-button {
     font-weight: 700;
     cursor: pointer;
+    color: #2196F3;
 
     .nav-icon {
       font-size: 1.1rem !important;

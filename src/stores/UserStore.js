@@ -15,6 +15,7 @@ export const useUserStore = defineStore('UserStore', () => {
   const router = useRouter()
   const navRoutes = ref()
   const userList = ref()
+  const loggedUser = ref({})
   const userData = ref({
     id: null,
     userName: null,
@@ -30,12 +31,11 @@ export const useUserStore = defineStore('UserStore', () => {
   const userLists = () => {
     return userList.value
   }
-  
+
   const getNavigationList = () => {
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      const parsedUser = JSON.parse(userData)
-      if (parsedUser.userType === 'admin') {
+    loggedUser.value = JSON.parse(localStorage.getItem('user'))
+    if (loggedUser.value) {
+      if (loggedUser.value.userType === 'admin') {
         navRoutes.value = NAVACTIONS.filter((route) => route.user === 'admin')
       } else {
         navRoutes.value = NAVACTIONS.filter((route) => route.user === 'user')
@@ -49,9 +49,11 @@ export const useUserStore = defineStore('UserStore', () => {
   }
 
   const saveUser = async (userData) => {
+    userData.adminId = loggedUser.value.id
+    userData.user_name = userData.userName
     return await createNewUser(userData)
   }
-  const deleteUser = async (id) => {
+  const deleteUser = async (id) => {    
     return await deleteUserById(id)
   }
 
@@ -109,6 +111,8 @@ export const useUserStore = defineStore('UserStore', () => {
     setUserData,
     sendOTP,
     getUserLists,
-    getNavigationList
+    getNavigationList,
+    userLists,
+    deleteUser
   }
 })

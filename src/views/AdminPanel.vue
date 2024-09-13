@@ -331,7 +331,7 @@ const exportCSV = () => {
   }
 
   .p-datatable-wrapper {
-    height: 550px;
+    height: 485px;
   }
 }
 

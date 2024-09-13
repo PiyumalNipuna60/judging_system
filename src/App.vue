@@ -44,7 +44,7 @@ onMounted(() => {
 
 <style scoped>
 .floating-logo-container__zero-chance {
-  position: absolute;
+  position: fixed;
   bottom: 0;
 
   img {
@@ -56,7 +56,7 @@ onMounted(() => {
   display: flex;
   bottom: 0;
   right: 0;
-  position: absolute;
+  position: fixed;
 
   img {
     width: 155px;

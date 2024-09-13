@@ -17,53 +17,19 @@ export async function userLogin(userName, password) {
 }
 
 export async function getUsersList() {
-  return [
-    {
-      id: 'u-001',
-      userName: 'Nimal',
-      password: '0000',
-      availableDistricts: ['Ampara', 'Batticaloa', 'Trincomalee', 'Anuradhapura', 'Polonnaruwa'],
-      language: 'sinhala',
-      stream: 'essay'
-    },
-    {
-      id: 'u-001',
-      userName: 'Kamal',
-      password: '4444',
-      availableDistricts: ['Kurunegala', 'Puttalam', 'Badulla', 'Monaragala', 'Ratnapura'],
-      language: 'sinhala',
-      stream: 'art'
-    },
-    {
-      id: 'u-001',
-      userName: 'Kamani',
-      password: '2222',
-      availableDistricts: ['Colombo', 'Gampaha', 'Kalutara', 'Kandy'],
-      language: 'tamil',
-      stream: 'essay'
-    },
-    {
-      id: 'u-001',
-      userName: 'Supuni',
-      password: '1111',
-      availableDistricts: ['Nuwara Eliya', 'Gampaha', 'Hambantota', 'Kalutara', 'Jaffna'],
-      language: 'tamil',
-      stream: 'art'
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/api/get_all_teacher')
+    if (response.status === 200) {
+      return response.data
+    } else {
+      throw new Error('Error at get user list')
     }
-  ]
+  } catch (error) {
+    throw new Error('Error at get user list', error)
+  }
 }
 
-export async function createNewUser(userData) {
-  userData.admin_id = 1
-  userData.user_name = userData.userName
-  userData.districtDetails = [
-    {
-      district_id: '1'
-    },
-    {
-      district_id: '2'
-    }
-  ]
+export async function createNewUser(userData) {  
   try {
     const response = await axios.post('http://127.0.0.1:8000/api/save_teacher', userData)
     console.log('response log ', response)
@@ -77,8 +43,17 @@ export async function createNewUser(userData) {
     throw new Error('Error at creating user', error)
   }
 }
-export async function deleteUserById() {
-  return 'success'
+export async function deleteUserById(id) {
+  try {
+    const response = await axios.delete(`http://127.0.0.1:8000/api/delete_teacher/${id}`)
+    if (response.status === 200) {
+      return response.data.user
+    } else {
+      throw new Error('Error at delete user')
+    }
+  } catch (error) {
+    throw new Error('Error at delete user', error)
+  }
 }
 
 export async function sendOTPToUser(param) {
