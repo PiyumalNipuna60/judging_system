@@ -26,6 +26,7 @@ import ConfirmPopup from 'primevue/confirmpopup'
 import FileUpload from 'primevue/fileupload'
 import ProgressBar from 'primevue/progressbar'
 import Badge from 'primevue/badge'
+import Checkbox from 'primevue/checkbox';
 
 import './assets/main.css'
 import 'primevue/resources/themes/saga-blue/theme.css'
@@ -60,6 +61,7 @@ app.component('InputNumber', InputNumber)
 app.component('FileUpload', FileUpload)
 app.component('ProgressBar', ProgressBar)
 app.component('Badge', Badge)
+app.component('Checkbox', Checkbox)
 
 app.use(PrimeVue, {
   Theme: {

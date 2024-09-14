@@ -1,9 +1,9 @@
 import axios from 'axios'
 
-export async function userLogin(userName, password) {
+export async function userLogIn(userName, password) {
   try {
-    const response = await axios.post('http://127.0.0.1:8000/api/login', {
-      user_name: userName,
+    const response = await axios.post('http://127.0.0.1:8000/api/user-login', {
+      userName: userName,
       password: password
     })
     if (response.status === 200) {
@@ -13,6 +13,22 @@ export async function userLogin(userName, password) {
     }
   } catch (error) {
     throw new Error('Error at user login', error)
+  }
+}
+
+export async function adminLogIn(userName, password) {
+  try {
+    const response = await axios.post('http://127.0.0.1:8000/api/login', {
+      userName: userName,
+      password: password
+    })
+    if (response.status === 200) {
+      return response.data.user
+    } else {
+      throw new Error('Error at admin login')
+    }
+  } catch (error) {
+    throw new Error('Error at admin login', error)
   }
 }
 

@@ -3,7 +3,8 @@ import { defineStore } from 'pinia'
 import {
   getUsersList,
   deleteUserById,
-  userLogin,
+  adminLogIn,
+  userLogIn,
   createNewUser,
   sendOTPToUser
 } from '../service/UserService'
@@ -43,7 +44,6 @@ export const useUserStore = defineStore('UserStore', () => {
       navRoutes.value.push(...NAVACTIONS.filter((route) => route.user === 'common'))
     } else {
       router.push('/login')
-
     }
     return navRoutes.value
   }
@@ -57,13 +57,29 @@ export const useUserStore = defineStore('UserStore', () => {
     return await deleteUserById(id)
   }
 
-  const login = async (username, password) => {
+  const adminLogin = async (username, password) => {
     try {
-      const response = await userLogin(username, password)
+      const response = await adminLogIn(username, password)
       if (response) {
         isLoggedIn.value = true
         setUserData(response)
-        response.userType = response.user_name === 'admin' ? 'admin' : 'user'
+        response.userType = 'admin'
+        localStorage.setItem('user', JSON.stringify(response))
+      }
+      return
+    } catch (error) {
+      throw new Error('Error at user login')
+    }
+  }
+
+  const userLogin = async (username, password) => {
+    try {
+      const response = await userLogIn(username, password)
+      if (response) {
+        isLoggedIn.value = true
+        setUserData(response)
+        response.userType = 'user'
+        response.districtDetails = [1,2,3]
         localStorage.setItem('user', JSON.stringify(response))
       }
       return
@@ -102,9 +118,11 @@ export const useUserStore = defineStore('UserStore', () => {
   }
 
   const isLoggedUser = computed(() => isLoggedIn.value)
+  const getLoggedUser = computed(() => loggedUser.value)
 
   return {
-    login,
+    userLogin,
+    adminLogin,
     isLoggedUser,
     logOut,
     saveUser,
@@ -113,6 +131,7 @@ export const useUserStore = defineStore('UserStore', () => {
     getUserLists,
     getNavigationList,
     userLists,
-    deleteUser
+    deleteUser,
+    getLoggedUser
   }
 })

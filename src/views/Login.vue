@@ -36,6 +36,10 @@
           <div class="mb-3">
             <a class="forget-password-class" @click="loadForgotPassword">Forgot password?</a>
           </div>
+          <div class="mb-3 check-box-is-admin">
+            <Checkbox v-model="isAdminLogin" :binary="true" />
+            <p>Is Admin ?</p>
+          </div>
           <div>
             <Button type="button" @click="loginOnAction">Login</Button>
           </div>
@@ -156,6 +160,7 @@ const visibleRight = ref(false)
 const isButtonDisabled = ref(true)
 const isContactInvalid = ref(false)
 const isPasswordInvalid = ref(false)
+const isAdminLogin = ref(false)
 const userData = ref({
   contact: null,
   newPassword: null,
@@ -186,7 +191,11 @@ watch(
 const loginOnAction = async () => {
   console.log('user logged')
   try {
-    await userStore.login(userName.value, password.value)
+    if (isAdminLogin.value) {
+      await userStore.adminLogin(userName.value, password.value)
+    } else {
+      await userStore.userLogin(userName.value, password.value)
+    }
     router.push('/')
   } catch (error) {
     toast.add({
@@ -256,6 +265,16 @@ const cancelConfirmation = (event) => {
   justify-content: center;
   flex-direction: row;
   height: 100vh;
+
+  .check-box-is-admin{
+    display: flex;
+    flex-direction: row;
+
+    >p{
+      margin: 0;
+      margin-left: 10px;
+    }
+    }
 
   .loginpage-logo-container,
   .loginpage-form-container {

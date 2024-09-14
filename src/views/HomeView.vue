@@ -63,7 +63,7 @@
               {{ slotProps.data.mark_04 ? slotProps.data.mark_04 : '--' }}
             </template>
           </Column>
-          <Column field="mark_05" header="Mark 05">
+          <Column v-if="getLoggedUser.stream !== 'Essay'" field="mark_05" header="Mark 05">
             <template #body="slotProps">
               {{ slotProps.data.mark_05 ? slotProps.data.mark_05 : '--' }}
             </template>
@@ -148,6 +148,7 @@ import { useHomeStore } from '../stores/HomeStore'
 import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
 import { useRouter } from 'vue-router'
+import { DISTRICTS } from '@/const/const'
 const router = useRouter()
 
 const userStore = useUserStore()
@@ -156,6 +157,7 @@ const toast = useToast()
 const homeStore = useHomeStore()
 
 const { markingList, markingLists } = storeToRefs(homeStore)
+const { getLoggedUser } = storeToRefs(userStore)
 
 const items = ref([])
 const dataTable = ref()
@@ -164,32 +166,7 @@ const selectedDistrict = ref(null)
 const selectedAgeGroup = ref(null)
 const ageGroups = ref(['9-11', '12-13'])
 const markingListArt = ref([])
-const districts = [
-  'Colombo',
-  'Gampaha',
-  'Kalutara',
-  'Kandy',
-  'Matale',
-  'Nuwara Eliya',
-  'Gampaha',
-  'Hambantota',
-  'Kalutara',
-  'Jaffna',
-  'Kilinochchi',
-  'Mannar',
-  'Mullaitivu',
-  'Vavuniya',
-  'Ampara',
-  'Batticaloa',
-  'Trincomalee',
-  'Anuradhapura',
-  'Polonnaruwa',
-  'Kurunegala',
-  'Puttalam',
-  'Badulla',
-  'Monaragala',
-  'Ratnapura'
-]
+const districts = ref([])
 const IsDialogVisible = ref(false)
 const editableStudentData = ref({
   serialNumber: null,
@@ -205,6 +182,8 @@ const editableStudentData = ref({
 
 onMounted(async () => {
   markingListArt.value = await homeStore.getMarkingLists()
+  getDistrictList()
+  
 })
 
 const onRowSelect = (param) => {
@@ -296,6 +275,13 @@ const commonFilter = () => {
     (item) => item.district === selectedDistrict.value && item.ageGroup === selectedAgeGroup.value
   )
   console.log(markingListArt.value)
+}
+
+const getDistrictList = () => {
+  getLoggedUser.value.districtDetails.forEach(element => {
+    districts.value.push(DISTRICTS.find((ele)=> ele.id === element).name)
+  });
+  console.log(districts.value)
 }
 </script>
 

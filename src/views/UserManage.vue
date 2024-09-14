@@ -34,13 +34,21 @@
           @row-unselect="onUnSelect"
         >
           <Column field="user_name" header="User Name"></Column>
-          <Column field="password" header="Password"></Column>
+          <Column field="contact" header="Contact"></Column>
           <Column field="availableDistricts" header="Districts">
             <template #body="{ data }">
-              <!-- {{ data.availableDistricts.join(', ') }} -->
+              <div class="district-chip-container">
+                <div v-for="obj in data.district_details" :key="obj.district_id">
+                  {{ districts.find(dis => dis.id === obj.district_id).name }}
+                </div>
+              </div>
             </template>
           </Column>
-          <Column field="language" header="Language"></Column>
+          <Column field="language" header="Language">
+            <template #body="slotProps">
+              {{ slotProps.data.language !== '' ? slotProps.data.language : '--' }}
+            </template>
+          </Column>
           <Column field="stream" header="Stream"></Column>
           <Column header="Action">
             <template #body="{ data }">
@@ -292,6 +300,18 @@ const clearUserData = () => {
   flex-grow: 1;
   display: flex;
   flex-direction: row;
+
+  .district-chip-container{
+    display: flex;
+    flex-direction: row;
+
+    >div{
+      background: #7cbdffa1;
+      margin: 2px;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+  }
 
   .p-divider-horizontal {
     width: 77%;
