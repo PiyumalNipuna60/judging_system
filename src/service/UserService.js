@@ -2,7 +2,7 @@ import axios from 'axios'
 
 export async function userLogIn(userName, password) {
   try {
-    const response = await axios.post('http://127.0.0.1:8000/api/user-login', {
+    const response = await axios.post('http://54.161.152.240:80/api/user-login', {
       userName: userName,
       password: password
     })
@@ -18,7 +18,7 @@ export async function userLogIn(userName, password) {
 
 export async function adminLogIn(userName, password) {
   try {
-    const response = await axios.post('http://127.0.0.1:8000/api/login', {
+    const response = await axios.post('http://54.161.152.240:80/api/login', {
       userName: userName,
       password: password
     })
@@ -34,7 +34,7 @@ export async function adminLogIn(userName, password) {
 
 export async function getUsersList() {
   try {
-    const response = await axios.get('http://127.0.0.1:8000/api/get_all_teacher')
+    const response = await axios.get('http://54.161.152.240:80/api/get_all_teacher')
     if (response.status === 200) {
       return response.data
     } else {
@@ -47,7 +47,7 @@ export async function getUsersList() {
 
 export async function createNewUser(userData) {  
   try {
-    const response = await axios.post('http://127.0.0.1:8000/api/save_teacher', userData)
+    const response = await axios.post('http://54.161.152.240:80/api/save_teacher', userData)
     console.log('response log ', response)
 
     if (response.status === 200) {
@@ -61,7 +61,7 @@ export async function createNewUser(userData) {
 }
 export async function deleteUserById(id) {
   try {
-    const response = await axios.delete(`http://127.0.0.1:8000/api/delete_teacher/${id}`)
+    const response = await axios.delete(`http://54.161.152.240:80/api/delete_teacher/${id}`)
     if (response.status === 200) {
       return response.data.user
     } else {
@@ -74,7 +74,7 @@ export async function deleteUserById(id) {
 
 export async function sendOTPToUser(param) {
   try {
-    const response = await axios.post('http://127.0.0.1:8000/api/send_otp', param)
+    const response = await axios.post('http://54.161.152.240:80/api/send_otp', param)
     if (response.status === 200) {
       return response.data.user
     } else {
