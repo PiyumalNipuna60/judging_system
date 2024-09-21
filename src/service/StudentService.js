@@ -4,7 +4,7 @@ export async function addStudent(studentData) {
   try {
     console.log('student data ', studentData)
 
-    const response = await axios.post('http://54.161.152.240:80/api/save_student', { studentData })
+    const response = await axios.post('https://54.161.152.240:80/api/save_student', { studentData })
     if (response.status === 200) {
       return response.data.user
     } else {
