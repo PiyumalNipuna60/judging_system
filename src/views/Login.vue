@@ -30,8 +30,11 @@
             <InputText id="login" type="text" v-model="userName" />
           </div>
           <div class="mb-3">
+            <form>
             <p>Password</p>
             <InputText id="password" type="text" v-model="password" />
+               
+          </form>
           </div>
           <div class="mb-3">
             <a class="forget-password-class" @click="loadForgotPassword">Forgot password?</a>

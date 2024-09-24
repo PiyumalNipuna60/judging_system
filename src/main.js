@@ -27,6 +27,8 @@ import FileUpload from 'primevue/fileupload'
 import ProgressBar from 'primevue/progressbar'
 import Badge from 'primevue/badge'
 import Checkbox from 'primevue/checkbox';
+import Image from 'primevue/image';
+
 
 import './assets/main.css'
 import 'primevue/resources/themes/saga-blue/theme.css'
@@ -62,6 +64,7 @@ app.component('FileUpload', FileUpload)
 app.component('ProgressBar', ProgressBar)
 app.component('Badge', Badge)
 app.component('Checkbox', Checkbox)
+app.component('Image', Image)
 
 app.use(PrimeVue, {
   Theme: {

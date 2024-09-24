@@ -40,7 +40,22 @@
       </section>
       <section class="file-upload-container">
         <Toast />
-        <FileUpload
+        <div class="ml-4">
+          <FilePicker
+            v-model:files="files"
+            :image-display-name="ruleName"
+            :is-larger-image-preview="isLargerImagePreview"
+            :file-types="['.jpeg', '.jpg', 'image/jpeg', '.png', 'image/png']"
+            file-types-text="Formats accepted: JPEG, JPG, PNG"
+            :max-files="1"
+            :is-file-picker-template-hide="isFilePickerTemplateHide"
+            is-promotion
+            generate-preview
+            :processing="filesProcessing"
+            @on-files-added="onFilesAdded"
+          />
+        </div>
+        <!-- <FileUpload
           name="demo[]"
           url="/api/upload"
           :auto="true"
@@ -77,7 +92,7 @@
           <template #empty v-if="!studentData.uploadedFile.length > 0">
             <p>Drag and drop files to here to upload.</p>
           </template>
-        </FileUpload>
+        </FileUpload> -->
       </section>
       <section class="action-button-class">
         <Button type="button" label="Add Student" class="mr-2" @click="addNewStudent"></Button>
@@ -93,6 +108,8 @@ import { onMounted, ref } from 'vue'
 import router from '@/router'
 import { usePrimeVue } from 'primevue/config'
 import { useStudentStore } from '../stores/StudentStore'
+import { uploadImage } from '../service/StudentService'
+import FilePicker from './component/FilePicker.vue'
 const studentStore = useStudentStore()
 
 const $primevue = usePrimeVue()
@@ -102,11 +119,40 @@ const streamList = ref(['Essay', 'Art'])
 const isEssaySelected = ref(false)
 const docType = ref('image')
 const studentData = ref({
-  serial: null,
+  serial_no: null,
   stream: null,
   language: null,
-  uploadedFile: []
+  uploadedFile: {}
 })
+const files = ref([])
+const ruleName = ref()
+const isLargerImagePreview = ref(true)
+const isFilePickerTemplateHide = ref(false)
+const filesProcessing = ref(false)
+const ruleImageUrl = ref()
+
+const onFilesAdded = async ({ newFiles, filesList }) => {
+  filesProcessing.value = true
+  const previews = await generatePreviews(filesList)
+  files.value = filesList.map((file, i) => ({
+    ...file,
+    ...(previews[i] && { location: previews[i] })
+  }))
+  ruleImageUrl.value = files.value[0].location
+  filesProcessing.value = false
+  console.log('file details ________________________',files);
+
+  studentData.value.uploadedFile = {
+    file: files.value[0].blob,
+    name: files.value[0].name
+  }
+}
+
+async function generatePreviews(files) {  
+  return Promise.all(
+    files.map((file) => (file.blob ? studentStore.uploadImage(file) : null))
+  )
+}
 
 onMounted(async () => {})
 
@@ -116,8 +162,6 @@ const onAdvancedUpload = async (event) => {
     const reader = new FileReader()
 
     if (file.type.startsWith('application/pdf') || file.type.startsWith('image/')) {
-      console.log('File type: ')
-
       reader.readAsDataURL(file)
     } else {
       toast.add({
@@ -140,7 +184,13 @@ const onAdvancedUpload = async (event) => {
       const fileData = reader.result
       imageData.value = fileData
       studentData.value.uploadedFile = event.files
-      console.log('File data:', studentData.value)
+
+      const formData = new FormData()
+      formData.append('file', file, file.name)
+      studentData.value.uploadedFile = formData
+
+      console.log('File data:', formData)
+      console.log('File data:', studentData.value.uploadedFile)
     }
   } catch (error) {
     toast.add({

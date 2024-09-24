@@ -72,62 +72,86 @@
         </DataTable>
       </div>
     </section>
-    <section class="dialogbox-container">
-      <Dialog
+    <section class="sidebar-container">
+      <Sidebar
         v-model:visible="IsDialogVisible"
         modal
         header="Update student marks"
-        :style="{ width: '25rem' }"
+        :style="{ width: '70rem' }"
+        position="right"
       >
         <span class="p-text-secondary block mb-5"
           >Student serial number: {{ editableStudentData.serialNumber }}</span
         >
-        <div class="input-field-container">
-          <label for="username" class="font-semibold w-6rem">Mark 01</label>
-          <InputText
-            v-model="editableStudentData.mark_01"
-            id="mark_01"
-            class="flex-auto"
-            autocomplete="off"
-          />
-        </div>
-        <div class="input-field-container">
-          <label for="username" class="font-semibold w-6rem">Mark 02</label>
-          <InputText
-            v-model="editableStudentData.mark_02"
-            id="mark_02"
-            class="flex-auto"
-            autocomplete="off"
-          />
-        </div>
-        <div class="input-field-container">
-          <label for="username" class="font-semibold w-6rem">Mark 03</label>
-          <InputText
-            v-model="editableStudentData.mark_03"
-            id="mark_03"
-            class="flex-auto"
-            autocomplete="off"
-          />
-        </div>
-        <div class="input-field-container">
-          <label for="username" class="font-semibold w-6rem">Mark 04</label>
-          <InputText
-            v-model="editableStudentData.mark_04"
-            id="mark_04"
-            class="flex-auto"
-            autocomplete="off"
-          />
-        </div>
-        <div class="input-field-container">
-          <label for="username" class="font-semibold w-6rem">Mark 05</label>
-          <InputText
-            v-model="editableStudentData.mark_05"
-            id="mark_05"
-            class="flex-auto"
-            autocomplete="off"
-          />
-        </div>
-        <div class="flex justify-content-end gap-2">
+        <section class="sidebar-content-container">
+          <section class="sidebar-content-container__image-container">
+            <div v-if="getLoggedUser.stream !== 'Essay'">
+              <Image src="/src/assets/sample_drawing.webp" alt="Image" width="250" preview />
+            </div>
+            <div v-else>
+              <fge-pdf-vue3
+                style="height: 100vh"
+                :viewButton="viewButton"
+                :viewSignature="viewSignature"
+                :signature="signature"
+                :page-number="1"
+                file-name="Custom fileName"
+                v-model:files="files"
+                :footer-visible="false"
+                :theme="'light'"
+              ></fge-pdf-vue3>
+            </div>
+          </section>
+          <Divider layout="vertical" />
+          <section class="sidebar-content-container__form-container">
+            <div class="input-field-container">
+              <label for="username" class="font-semibold w-6rem">Mark 01</label>
+              <InputText
+                v-model="editableStudentData.mark_01"
+                id="mark_01"
+                class="flex-auto"
+                autocomplete="off"
+              />
+            </div>
+            <div class="input-field-container">
+              <label for="username" class="font-semibold w-6rem">Mark 02</label>
+              <InputText
+                v-model="editableStudentData.mark_02"
+                id="mark_02"
+                class="flex-auto"
+                autocomplete="off"
+              />
+            </div>
+            <div class="input-field-container">
+              <label for="username" class="font-semibold w-6rem">Mark 03</label>
+              <InputText
+                v-model="editableStudentData.mark_03"
+                id="mark_03"
+                class="flex-auto"
+                autocomplete="off"
+              />
+            </div>
+            <div class="input-field-container">
+              <label for="username" class="font-semibold w-6rem">Mark 04</label>
+              <InputText
+                v-model="editableStudentData.mark_04"
+                id="mark_04"
+                class="flex-auto"
+                autocomplete="off"
+              />
+            </div>
+            <div class="input-field-container" v-if="getLoggedUser.stream !== 'Essay'">
+              <label for="username" class="font-semibold w-6rem">Mark 05</label>
+              <InputText
+                v-model="editableStudentData.mark_05"
+                id="mark_05"
+                class="flex-auto"
+                autocomplete="off"
+              />
+            </div>
+          </section>
+        </section>
+        <div class="button-section">
           <Button type="button" label="Save" @click="saveStudentDetails"></Button>
           <Button
             type="button"
@@ -136,7 +160,7 @@
             @click="IsDialogVisible = false"
           ></Button>
         </div>
-      </Dialog>
+      </Sidebar>
     </section>
   </section>
 </template>
@@ -149,17 +173,17 @@ import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
 import { useRouter } from 'vue-router'
 import { DISTRICTS } from '@/const/const'
-const router = useRouter()
-
-const userStore = useUserStore()
+import Image from 'primevue/image'
+// import FgePdfVue3 from 'fge-pdf-vue3'
+// import 'vue3-pdf-app/dist/icons/main.css'
 
 const toast = useToast()
+const userStore = useUserStore()
 const homeStore = useHomeStore()
 
-const { markingList, markingLists } = storeToRefs(homeStore)
+const { markingList } = storeToRefs(homeStore)
 const { getLoggedUser } = storeToRefs(userStore)
 
-const items = ref([])
 const dataTable = ref()
 const selectedudent = ref(null)
 const selectedDistrict = ref(null)
@@ -180,10 +204,36 @@ const editableStudentData = ref({
   total: null
 })
 
+const files = ref([
+  {
+    id: '6359b8a82736f8d11cd61190',
+    fileName: 'cv2.pdf',
+    pdf: '/src/assets/PE0449.pdf'
+  }
+])
+
+const viewSignature = {
+  adsib: true,
+  agetic: true
+}
+const signature = {
+  adsib: true,
+  agetic: true
+}
+
+
+const viewButton = ref({
+  // print: true,
+  openFile: true,
+  presentationMode: true,
+  // download: true,
+  // bookmark: true,
+  files: true
+})
+
 onMounted(async () => {
   markingListArt.value = await homeStore.getMarkingLists()
   getDistrictList()
-  
 })
 
 const onRowSelect = (param) => {
@@ -242,7 +292,6 @@ const saveStudentDetails = () => {
 }
 
 const onDropdownChange = () => {
-  console.log('sele______', selectedDistrict.value, selectedAgeGroup.value)
   if (selectedDistrict.value !== null && selectedAgeGroup.value === null) {
     districtFilter()
     return
@@ -260,28 +309,24 @@ const ageGroupFilter = () => {
   markingListArt.value = markingList.value.filter(
     (item) => item.ageGroup === selectedAgeGroup.value
   )
-  console.log(markingListArt.value)
 }
 
 const districtFilter = () => {
   markingListArt.value = markingList.value.filter(
     (item) => item.district === selectedDistrict.value
   )
-  console.log(markingListArt.value)
 }
 
 const commonFilter = () => {
   markingListArt.value = markingList.value.filter(
     (item) => item.district === selectedDistrict.value && item.ageGroup === selectedAgeGroup.value
   )
-  console.log(markingListArt.value)
 }
 
 const getDistrictList = () => {
-  getLoggedUser.value.districtDetails.forEach(element => {
-    districts.value.push(DISTRICTS.find((ele)=> ele.id === element).name)
-  });
-  console.log(districts.value)
+  getLoggedUser.value.districtDetails?.forEach((element) => {
+    districts.value.push(DISTRICTS.find((ele) => ele.id === element).name)
+  })
 }
 </script>
 
@@ -327,5 +372,36 @@ const getDistrictList = () => {
   display: flex;
   align-items: center;
   margin-bottom: 20px;
+}
+
+.sidebar-content-container__image-container {
+  width: 50rem;
+}
+
+.sidebar-content-container__form-container {
+  width: 20rem;
+}
+
+.sidebar-content-container {
+  display: flex;
+}
+
+.button-section {
+  position: absolute;
+  bottom: 0px;
+  margin: 15px;
+  right: 0;
+
+  > button {
+    width: 150px;
+  }
+}
+
+#toolbarViewerRight, #viewFind, .sidebar-toggle, #pageNumber, #numPages{
+  display: none !important;
+}
+
+.sidebar-toggle{
+  display: none !important;
 }
 </style>
