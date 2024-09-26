@@ -4,6 +4,37 @@
     <section class="student-creation-sub-container flex-grow-1">
       <h2>STUDENT ADDING</h2>
       <Divider />
+      <section class="flex flex-row mt-3">
+        <div class="input-field-container">
+          <label class="font-semibold mb-2">Search by student serial number</label>
+          <IconField>
+            <InputIcon class="pi pi-search search-icon-class" @click="searchStudent"> </InputIcon>
+            <Dropdown
+              v-model="studentData.serial"
+              :options="studentList"
+              filter
+              optionLabel="setial_no"
+              placeholder="Select a Student"
+              class="w-full md:w-14rem flex-auto"
+              @change="onStudentIdSelect"
+            >
+              <template #value="slotProps">
+                <div v-if="slotProps.value" class="flex align-items-center">
+                  <div>{{ slotProps.value.setial_no }}</div>
+                </div>
+                <span v-else>
+                  {{ slotProps.placeholder }}
+                </span>
+              </template>
+              <template #option="slotProps">
+                <div class="flex align-items-center">
+                  <div>{{ slotProps.option.setial_no }}</div>
+                </div>
+              </template>
+            </Dropdown>
+          </IconField>
+          </div>
+      </section>
       <section class="flex flex-row mt-5">
         <div class="input-field-container">
           <label class="font-semibold mb-2">Student serial number</label>
@@ -13,7 +44,35 @@
             class="flex-auto"
             autocomplete="off"
           />
+
         </div>
+        <div class="flex flex-row">
+          <div class="input-field-container">
+            <label class="font-semibold mb-2">Student district</label>
+            <Dropdown
+              v-model="studentData.district"
+              :options="districts"
+              optionLabel="name"
+              showClear
+              placeholder="Select a District"
+              class="w-full md:w-14rem flex flex-row relative"
+              @change="onDistrictelect"
+            />
+          </div>
+          <div class="input-field-container">
+            <label class="font-semibold mb-2">Student age group</label>
+            <Dropdown
+              v-model="studentData.ageGroup"
+              :options="ageGroups"
+              showClear
+              placeholder="Select an Age Group"
+              class="w-full md:w-14rem flex flex-row relative"
+              @change="onAgeGroupelect"
+            />
+          </div>
+        </div>
+      </section>
+      <section class="flex flex-row mt-5">
         <div class="input-field-container">
           <label class="font-semibold mb-2">Stream</label>
           <Dropdown
@@ -40,7 +99,7 @@
       </section>
       <section class="file-upload-container">
         <Toast />
-        <div class="ml-4">
+        <!-- <div class="ml-4">
           <FilePicker
             v-model:files="files"
             :image-display-name="ruleName"
@@ -54,7 +113,7 @@
             :processing="filesProcessing"
             @on-files-added="onFilesAdded"
           />
-        </div>
+        </div> -->
         <!-- <FileUpload
           name="demo[]"
           url="/api/upload"
@@ -95,7 +154,7 @@
         </FileUpload> -->
       </section>
       <section class="action-button-class">
-        <Button type="button" label="Add Student" class="mr-2" @click="addNewStudent"></Button>
+        <Button type="button" :label="action" class="mr-2" @click="addNewStudent"></Button>
         <Button type="button" label="Clear" @click="clearStudentData"></Button>
       </section>
     </section>
@@ -110,18 +169,24 @@ import { usePrimeVue } from 'primevue/config'
 import { useStudentStore } from '../stores/StudentStore'
 import { uploadImage } from '../service/StudentService'
 import FilePicker from './component/FilePicker.vue'
+import { DISTRICTS, AGEGROUPS, STREAMS } from '@/const/const'
+
 const studentStore = useStudentStore()
 
 const $primevue = usePrimeVue()
 const toast = useToast()
 const imageData = ref()
-const streamList = ref(['Essay', 'Art'])
+const ageGroups = ref(AGEGROUPS)
+const streamList = ref(STREAMS)
+const districts = ref(DISTRICTS)
 const isEssaySelected = ref(false)
 const docType = ref('image')
 const studentData = ref({
   serial_no: null,
   stream: null,
   language: null,
+  district: null,
+  ageGroup: null,
   uploadedFile: {}
 })
 const files = ref([])
@@ -130,6 +195,8 @@ const isLargerImagePreview = ref(true)
 const isFilePickerTemplateHide = ref(false)
 const filesProcessing = ref(false)
 const ruleImageUrl = ref()
+const studentList = ref([])
+const action = ref('Add Student')
 
 const onFilesAdded = async ({ newFiles, filesList }) => {
   filesProcessing.value = true
@@ -140,7 +207,7 @@ const onFilesAdded = async ({ newFiles, filesList }) => {
   }))
   ruleImageUrl.value = files.value[0].location
   filesProcessing.value = false
-  console.log('file details ________________________',files);
+  console.log('file details ________________________', files)
 
   studentData.value.uploadedFile = {
     file: files.value[0].blob,
@@ -148,13 +215,13 @@ const onFilesAdded = async ({ newFiles, filesList }) => {
   }
 }
 
-async function generatePreviews(files) {  
-  return Promise.all(
-    files.map((file) => (file.blob ? studentStore.uploadImage(file) : null))
-  )
+async function generatePreviews(files) {
+  return Promise.all(files.map((file) => (file.blob ? studentStore.uploadImage(file) : null)))
 }
 
-onMounted(async () => {})
+onMounted(async () => {
+  await getAllStudents()
+})
 
 const onAdvancedUpload = async (event) => {
   const file = event.files[0]
@@ -201,6 +268,19 @@ const onAdvancedUpload = async (event) => {
     })
   }
 }
+const getAllStudents = async (event) => {
+  try {
+    studentList.value = await studentStore.getAllStudents()
+    console.log('student lust _', studentList.value)
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: `${error.message}`,
+      life: 3000
+    })
+  }
+}
 
 const formatSize = (bytes) => {
   const k = 1024
@@ -221,6 +301,10 @@ const removeUploadedFileCallback = async () => {
   console.log('remove______')
 
   // studentData.value.uploadedFile = []
+}
+
+const searchStudent = async () => {
+  studentStore.searchStudent(studentData.value.serial)
 }
 
 const onStreamSelect = async (event) => {
@@ -255,11 +339,52 @@ const addNewStudent = async () => {
   }
 }
 
+const onStudentIdSelect = (param) => {
+  console.log('log___________', param);
+  clearStudentData()
+  action.value = 'Update Student'
+  studentData.value = {
+    id: param.value.student_id,
+    serial: param.value.setial_no,
+    stream: param.value.stream,
+    language: param.value.medium,
+    ageGroup: param.value.age,
+    district: {id:23,  name: 'Galle'},
+    
+    uploadedFile: []
+  }
+  if (param.value.stream === 'Essay') {
+    isEssaySelected.value = true
+    docType.value = 'application'
+  } else {
+    isEssaySelected.value = false
+    docType.value = 'image'
+    console.log('art log ');
+    
+  }
+  // getDistrictValue()
+}
+
+const getDistrictValue = (param) => {
+  studentData.value.ageGroup = param.value
+}
+
+const onAgeGroupelect = (param) => {
+  studentData.value.ageGroup = param.value
+}
+
+const onDistrictelect = (param) => {
+  studentData.value.district = param.value
+}
+
 const clearStudentData = () => {
+  action.value = 'Add Student'
   studentData.value = {
     serial: null,
     stream: null,
     language: null,
+    ageGroup: null,
+    district: null,
     uploadedFile: []
   }
 }
@@ -284,7 +409,7 @@ const clearStudentData = () => {
 
   .action-button-class {
     display: flex;
-    justify-content: flex-end;
+    //  justify-content: flex-end;
     padding-top: 1rem;
   }
 
@@ -294,6 +419,10 @@ const clearStudentData = () => {
 
     input {
       width: 250px;
+    }
+
+    .search-icon-class:hover {
+      cursor: pointer;
     }
   }
 

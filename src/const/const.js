@@ -34,6 +34,12 @@ export const NAVACTIONS = [
     icon: 'pi-sign-out',
     route: '/login',
     user: 'common'
+  },
+  {
+    title: 'DB Populate',
+    icon: 'pi-sign-out',
+    route: '/populate',
+    user: 'common'
   }
 ]
 
@@ -64,3 +70,7 @@ export const DISTRICTS = [
     { id: 24, name: 'Monaragala' },
     { id: 25, name: 'Ratnapura' }
   ]
+  export const AGEGROUPS = ['9-11', '12-13']
+
+  export const STREAMS = ['Essay', 'Art']
+  export const BASEURL = 'http://127.0.0.1:8000'

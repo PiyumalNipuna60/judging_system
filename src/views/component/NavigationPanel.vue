@@ -21,6 +21,7 @@
 import router from '@/router'
 import { onMounted, ref } from 'vue'
 import { useUserStore } from '../../stores/UserStore'
+import { loadDBampleData } from '../../service/UserService'
 
 const userStore = useUserStore()
 const navRoutes = ref([])
@@ -32,6 +33,8 @@ onMounted(() => {
 const navigateToRoute = (route) => {
   if (route === '/login') {
     logout()
+  } else if (route === '/populate') {
+    loadDBampleData()
   }
   router.push(route)
 }

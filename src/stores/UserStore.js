@@ -105,13 +105,24 @@ export const useUserStore = defineStore('UserStore', () => {
   }
 
   const sendOTP = async (param) => {
-    const requestData = {
-      userName: userData.value.userName,
-      conatct: userData.value.contact,
-      newPassword: param.newPassword
+    console.log('log sttore otp send _______',userData.value.contact ? true : false, userData.value.contact, param);
+    
+    const contact = userData.value.contact ? userData.value.contact : param
+    try {
+      return await sendOTPToUser(contact)
+    } catch (error) {
+      throw new Error('Error at OTP generation')
+    }
+  }
+
+  const verifyOtp = async (param) => {
+    console.log('log sttore otp send _______',userData.value.contact ? true : false, userData.value.contact, param);
+    const request = {
+      otp: param,
+      contact: userData.value.contact
     }
     try {
-      return await sendOTPToUser(requestData)
+      return await sendOTPToUser(request)
     } catch (error) {
       throw new Error('Error at OTP generation')
     }
@@ -128,6 +139,7 @@ export const useUserStore = defineStore('UserStore', () => {
     saveUser,
     setUserData,
     sendOTP,
+    verifyOtp,
     getUserLists,
     getNavigationList,
     userLists,

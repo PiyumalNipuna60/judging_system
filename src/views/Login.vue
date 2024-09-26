@@ -31,10 +31,9 @@
           </div>
           <div class="mb-3">
             <form>
-            <p>Password</p>
-            <InputText id="password" type="text" v-model="password" />
-               
-          </form>
+              <p>Password</p>
+              <InputText id="password" type="text" v-model="password" />
+            </form>
           </div>
           <div class="mb-3">
             <a class="forget-password-class" @click="loadForgotPassword">Forgot password?</a>
@@ -68,50 +67,83 @@
                 >Contact number length invalid. format: 705045099</label
               >
             </div>
-            <div class="input-field-container">
-              <label for="username" class="font-semibold">New Password</label>
-              <InputText
-                v-model="userData.newPassword"
-                id="mark_02"
-                class="flex-auto"
-                autocomplete="off"
-                :invalid="isPasswordInvalid"
-                @blur="onConfirmPasswordBlur"
-              />
-              <label v-if="isPasswordInvalid" for="contact" class="contact-error-label"
-                >Password must be same</label
-              >
-            </div>
-            <div class="input-field-container">
-              <label for="username" class="font-semibold">Enter password again</label>
-              <InputText
-                v-model="userData.newPasswordCheck"
-                id="mark_02"
-                class="flex-auto"
-                autocomplete="off"
-                :invalid="isPasswordInvalid"
-                @blur="onConfirmPasswordBlur"
-              />
-              <label v-if="isPasswordInvalid" for="contact" class="contact-error-label"
-                >Password must be same</label
-              >
-            </div>
             <div class="button-container">
               <Button
                 type="button"
-                label="Change Password"
-                :disabled="isButtonDisabled"
-                @click="onChangePassword"
+                :disabled="isContactInvalid"
+                label="Send OTP"
+                @click="sendOtpVerificationCode"
               ></Button>
-              <Button
-                @click="cancelConfirmation($event)"
-                label="Cancle"
-                class="cancle-button"
-              ></Button>
+            </div>
+            <div v-if="isOtpVerified">
+              <div class="input-field-container">
+                <label for="username" class="font-semibold">New Password</label>
+                <InputText
+                  v-model="userData.newPassword"
+                  id="mark_02"
+                  class="flex-auto"
+                  autocomplete="off"
+                  :invalid="isPasswordInvalid"
+                  @blur="onConfirmPasswordBlur"
+                />
+                <label v-if="isPasswordInvalid" for="contact" class="contact-error-label"
+                  >Password must be same</label
+                >
+              </div>
+              <div class="input-field-container">
+                <label for="username" class="font-semibold">Enter password again</label>
+                <InputText
+                  v-model="userData.newPasswordCheck"
+                  id="mark_02"
+                  class="flex-auto"
+                  autocomplete="off"
+                  :invalid="isPasswordInvalid"
+                  @blur="onConfirmPasswordBlur"
+                />
+                <label v-if="isPasswordInvalid" for="contact" class="contact-error-label"
+                  >Password must be same</label
+                >
+              </div>
+              <div class="button-container">
+                <Button
+                  type="button"
+                  label="Change Password"
+                  :disabled="isButtonDisabled"
+                  @click="onChangePassword"
+                ></Button>
+                <Button
+                  @click="cancelConfirmation($event)"
+                  label="Cancle"
+                  class="cancle-button"
+                ></Button>
+              </div>
             </div>
           </div>
         </div>
       </Sidebar>
+    </section>
+    <section class="dialogbox-container">
+      <Dialog
+        v-model:visible="IsDialogVisible"
+        modal
+        header="OTP Verification"
+        :style="{ width: '25rem' }"
+      >
+        <div class="dialogbox-container__input-field-container">
+          <label for="username" class="font-semibold mb-2">Enter OTP sent to your mobile</label>
+          <InputNumber v-model="otpNumber" :useGrouping="false" id="otp" class="flex-auto" autocomplete="off" />
+        </div>
+
+        <div class="flex justify-content-end gap-2">
+          <Button type="button" label="Verify OTP" @click="onOTPVerification"></Button>
+          <Button
+            type="button"
+            label="Cancel"
+            severity="secondary"
+            @click="IsDialogVisible = false"
+          ></Button>
+        </div>
+      </Dialog>
     </section>
     <section class="dialogbox-container">
       <!-- <Dialog
@@ -149,6 +181,7 @@ import InputText from 'primevue/inputtext'
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
+import { sendOTPToUser } from '../service/UserService'
 import { onMounted, ref, watch } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 
@@ -169,6 +202,61 @@ const userData = ref({
   newPassword: null,
   newPasswordCheck: null
 })
+const IsDialogVisible = ref(false)
+const isOtpVerified = ref(false)
+const otpNumber = ref(0)
+
+const sendOtpVerificationCode = async () => {
+  IsDialogVisible.value = true
+  try {
+    const response = await userStore.sendOTP(userData.value)
+    toast.add({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'OTP send successfully!',
+      life: 3000
+    })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Eror',
+      detail: error,
+      life: 3000
+    })
+  }
+}
+
+const onOTPVerification = async () => {
+  IsDialogVisible.value = true
+  try {
+    console.log('length==========', otpNumber.value.toString().length);
+    
+    if (otpNumber.value.toString().length === 4) {
+      await userStore.verifyOtp(otpNumber.value)
+      toast.add({
+        severity: 'info',
+        summary: 'Info',
+        detail: 'OTP verified successfully!',
+        life: 3000
+      })
+    } else {
+      toast.add({
+        severity: 'error',
+        summary: 'Eror',
+        detail: 'OTP length is invalid. Enter 4 digit code.',
+        life: 3000
+      })
+    }
+    isOtpVerified.value = true
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Eror',
+      detail: 'Something wrong with password verification.',
+      life: 3000
+    })
+  }
+}
 
 onMounted(() => {
   const loggedUser = localStorage.getItem('user')
@@ -225,16 +313,22 @@ const loadForgotPassword = async () => {
   //   })
   // }
 }
-const onChangePassword = async () => {}
+const onChangePassword = async () => {
+  sendOTPToUser({ contact: 705045099 })
+}
 
 const onConfirmPasswordBlur = async () => {
-  if (userData.value.newPassword && userData.value.newPasswordCheck && userData.value.newPassword !== userData.value.newPasswordCheck) {
+  if (
+    userData.value.newPassword &&
+    userData.value.newPasswordCheck &&
+    userData.value.newPassword !== userData.value.newPasswordCheck
+  ) {
     isPasswordInvalid.value = true
     isButtonDisabled.value = true
   } else {
     isPasswordInvalid.value = false
     isButtonDisabled.value = false
-  }  
+  }
 }
 
 const cancelConfirmation = (event) => {
@@ -253,7 +347,12 @@ const cancelConfirmation = (event) => {
         newPassword: null,
         newPasswordCheck: null
       }
-      toast.add({ severity: 'error', summary: 'Confirmed', detail: 'Password reset cancled', life: 3000 })
+      toast.add({
+        severity: 'error',
+        summary: 'Confirmed',
+        detail: 'Password reset cancled',
+        life: 3000
+      })
     }
   })
 }
@@ -269,15 +368,15 @@ const cancelConfirmation = (event) => {
   flex-direction: row;
   height: 100vh;
 
-  .check-box-is-admin{
+  .check-box-is-admin {
     display: flex;
     flex-direction: row;
 
-    >p{
+    > p {
       margin: 0;
       margin-left: 10px;
     }
-    }
+  }
 
   .loginpage-logo-container,
   .loginpage-form-container {

@@ -28,7 +28,8 @@ import ProgressBar from 'primevue/progressbar'
 import Badge from 'primevue/badge'
 import Checkbox from 'primevue/checkbox';
 import Image from 'primevue/image';
-
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
 
 import './assets/main.css'
 import 'primevue/resources/themes/saga-blue/theme.css'
@@ -65,6 +66,8 @@ app.component('ProgressBar', ProgressBar)
 app.component('Badge', Badge)
 app.component('Checkbox', Checkbox)
 app.component('Image', Image)
+app.component('IconField', IconField)
+app.component('InputIcon', InputIcon)
 
 app.use(PrimeVue, {
   Theme: {

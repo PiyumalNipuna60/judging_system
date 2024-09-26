@@ -172,7 +172,7 @@ import { useHomeStore } from '../stores/HomeStore'
 import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
 import { useRouter } from 'vue-router'
-import { DISTRICTS } from '@/const/const'
+import { DISTRICTS, AGEGROUPS } from '@/const/const'
 import Image from 'primevue/image'
 // import FgePdfVue3 from 'fge-pdf-vue3'
 // import 'vue3-pdf-app/dist/icons/main.css'
@@ -188,7 +188,7 @@ const dataTable = ref()
 const selectedudent = ref(null)
 const selectedDistrict = ref(null)
 const selectedAgeGroup = ref(null)
-const ageGroups = ref(['9-11', '12-13'])
+const ageGroups = ref(AGEGROUPS)
 const markingListArt = ref([])
 const districts = ref([])
 const IsDialogVisible = ref(false)
