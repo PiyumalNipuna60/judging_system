@@ -47,25 +47,30 @@ export async function getUsersList() {
 }
 
 export async function createNewUser(userData) {  
-  try {
     const response = await axios.post(`${BASEURL}/api/save_teacher`, userData)
     console.log('response log ', response)
-
     if (response.status === 200) {
       return true
     } else {
       throw new Error('Error at creating user')
     }
-  } catch (error) {
-    throw new Error('Error at creating user', error)
-  }
+}
+
+export async function updateExistingUser(userData) {  
+    const response = await axios.put(`${BASEURL}/api/update_teacher/${userData.teacher_id}`, userData)
+    console.log('response log ', response)
+    if (response.status === 201) {
+      return true
+    } else {
+      throw new Error('Error at updating user')
+    }
 }
 
 export async function deleteUserById(id) {
   try {
-    const response = await axios.delete(`${BASEURL}/api/delete_teacher/${id}`)
+    const response = await axios.delete(`${BASEURL}/api/delete_teacher/${id}`)    
     if (response.status === 200) {
-      return response.data.user
+      return true
     } else {
       throw new Error('Error at delete user')
     }
@@ -75,9 +80,28 @@ export async function deleteUserById(id) {
 }
 
 export async function sendOTPToUser(param) {
-  console.log('Lof', param);
+  const request = {
+    contact: param
+  }
   try {
-    const response = await axios.post(`${BASEURL}/api/verify_otp`, param)
+    const response = await axios.post(`${BASEURL}/api/send_otp`, request)
+    if (response.status === 200) {
+      return response.data.user
+    } else {
+      throw new Error('Error at otp send')
+    }
+  } catch (error) {
+    throw new Error('Error at otp send', error)
+  }
+}
+
+export async function verifySentOtp(otpNumber, contact) {
+  const request = {
+    otp: otpNumber,
+    contact: contact
+  }
+  try {
+    const response = await axios.post(`${BASEURL}/api/verify_otp`, request)
     if (response.status === 200) {
       return response.data.user
     } else {
@@ -88,9 +112,21 @@ export async function sendOTPToUser(param) {
   }
 }
 
-export async function otpGenerate(param) {
-  return 'success'
-}
+export async function changeUserPassword(password, contact) {  
+  const request = {
+    password: password,
+    contact: contact
+  }
+  try {
+    const response = await axios.post(`${BASEURL}/api/change_password`, request)
+    if (response.status === 200) {
+      return response.data.user
+    } else {
+      throw new Error('Error at password change')
+    }
+  } catch (error) {
+    throw new Error('Error at  password change', error)
+  }}
 
 
 export async function loadDBampleData() {

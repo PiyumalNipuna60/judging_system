@@ -63,7 +63,7 @@
               {{ slotProps.data.mark_04 ? slotProps.data.mark_04 : '--' }}
             </template>
           </Column>
-          <Column v-if="getLoggedUser.stream !== 'Essay'" field="mark_05" header="Mark 05">
+          <Column v-if="getLoggedUser?.stream !== 'Essay'" field="mark_05" header="Mark 05">
             <template #body="slotProps">
               {{ slotProps.data.mark_05 ? slotProps.data.mark_05 : '--' }}
             </template>
@@ -85,7 +85,7 @@
         >
         <section class="sidebar-content-container">
           <section class="sidebar-content-container__image-container">
-            <div v-if="getLoggedUser.stream !== 'Essay'">
+            <div v-if="getLoggedUser?.stream !== 'Essay'">
               <Image src="/src/assets/sample_drawing.webp" alt="Image" width="250" preview />
             </div>
             <div v-else>
@@ -140,7 +140,7 @@
                 autocomplete="off"
               />
             </div>
-            <div class="input-field-container" v-if="getLoggedUser.stream !== 'Essay'">
+            <div class="input-field-container" v-if="getLoggedUser?.stream !== 'Essay'">
               <label for="username" class="font-semibold w-6rem">Mark 05</label>
               <InputText
                 v-model="editableStudentData.mark_05"
@@ -174,7 +174,7 @@ import { useUserStore } from '../stores/UserStore'
 import { useRouter } from 'vue-router'
 import { DISTRICTS, AGEGROUPS } from '@/const/const'
 import Image from 'primevue/image'
-// import FgePdfVue3 from 'fge-pdf-vue3'
+import FgePdfVue3 from 'fge-pdf-vue3'
 // import 'vue3-pdf-app/dist/icons/main.css'
 
 const toast = useToast()
@@ -232,6 +232,8 @@ const viewButton = ref({
 })
 
 onMounted(async () => {
+  console.log('get logged user ___________', getLoggedUser);
+  
   markingListArt.value = await homeStore.getMarkingLists()
   getDistrictList()
 })

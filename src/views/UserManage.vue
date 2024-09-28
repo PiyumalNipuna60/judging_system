@@ -3,7 +3,7 @@
     <Toast />
     <section class="dashboard-content-container flex-grow-1">
       <h2>USER CREATION</h2>
-      <Divider />
+      <!-- <Divider /> -->
       <div class="dashboard-content-container__title-section">
         <p>
           All created user details of teachers will be display here. You can add new teachers by
@@ -39,7 +39,7 @@
             <template #body="{ data }">
               <div class="district-chip-container">
                 <div v-for="obj in data.district_details" :key="obj.district_id">
-                  {{ districts.find(dis => dis.id === obj.district_id).name }}
+                  {{ districts.find((dis) => dis.id === obj.district_id).name }}
                 </div>
               </div>
             </template>
@@ -59,7 +59,12 @@
       </div>
     </section>
     <section>
-      <Sidebar v-model:visible="visibleRight" header="Create user" position="right">
+      <Sidebar
+        v-model:visible="visibleRight"
+        header="Create user"
+        position="right"
+        @hide="isUserUpdating = false"
+      >
         <div class="input-field-container">
           <label for="username" class="font-semibold">Contact number</label>
           <InputNumber
@@ -69,6 +74,7 @@
             :useGrouping="false"
             placeholder="format: 705045099"
             :invalid="isContactInvalid"
+            :disabled="isUserUpdating"
           />
           <label v-if="isContactInvalid" for="contact" class="contact-error-label"
             >Contact number length invalid. format: 705045099</label
@@ -78,6 +84,7 @@
           <label for="username" class="font-semibold">User name</label>
           <InputText
             v-model="userData.userName"
+            :disabled="isUserUpdating"
             id="mark_01"
             class="flex-auto"
             autocomplete="off"
@@ -90,6 +97,7 @@
             id="mark_02"
             class="flex-auto"
             autocomplete="off"
+            :disabled="isUserUpdating"
           />
         </div>
         <div class="input-field-container">
@@ -97,7 +105,7 @@
           <div class="tag-div-container gap-2 px-1">
             <Tag v-for="district in userData.availableDistricts" :key="district" value="Info">
               <div class="flex align-items-center tag-div">
-                <span class="text-base">{{ districts[district - 1].name }}</span>
+                <span class="text-base">{{ districts[district - 1]?.name }}</span>
               </div>
             </Tag>
           </div>
@@ -139,16 +147,11 @@
         <div class="button-setion">
           <Button
             type="button"
-            label="Save"
+            :label="isUserUpdating ? 'Update' : 'Save'"
             @click="saveUserDetails"
             :disabled="isButtonDisabled"
           ></Button>
-          <Button
-            type="button"
-            label="Cancel"
-            severity="secondary"
-            @click="onClear"
-          ></Button>
+          <Button type="button" label="Cancel" severity="secondary" @click="onClear"></Button>
         </div>
       </Sidebar>
     </section>
@@ -156,7 +159,6 @@
 </template>
 <script setup>
 import { onMounted, ref, watch } from 'vue'
-import router from '@/router'
 import { storeToRefs } from 'pinia'
 import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
@@ -174,19 +176,18 @@ const isEssaySelected = ref(false)
 const isContactInvalid = ref(false)
 const isButtonDisabled = ref(true)
 const streamList = ref(['Essay', 'Art'])
+const isUserUpdating = ref(false)
 const userData = ref({
   contact: null,
   userName: null,
   password: null,
-  availableDistricts: null,
+  availableDistricts: [],
   language: null,
   stream: null
 })
 
-const { markingList, markingLists } = storeToRefs(userStore)
-
 onMounted(async () => {
-  usersList.value = await userStore.getUserLists()  
+  usersList.value = await userStore.getUserLists()
 })
 
 watch(
@@ -206,33 +207,43 @@ watch(
 
 const saveUserDetails = async () => {
   try {
-    const response = await userStore.saveUser(userData.value)
-    usersList.value = await userStore.getUserLists()  
-    if (response === 'success') {
+    if (isUserUpdating.value) {
+      await userStore.updateUser(userData.value)
+    } else {
+      await userStore.saveUser(userData.value)
+    }
+    usersList.value = await userStore.getUserLists()
+    toast.add({
+      severity: 'info',
+      summary: 'Success',
+      detail: 'User saved succesfully!',
+      life: 3000
+    })
+    onClear()
+  } catch (error) {
+    if (error.status === 422) {
       toast.add({
-        severity: 'info',
-        summary: 'Success',
-        detail: 'User saved succesfully!',
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Contact number cannot be duplicated!',
+        life: 3000
+      })
+    } else {
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Something went wrong!',
         life: 3000
       })
     }
-    onClear()
-  } catch (error) {
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'Something went wrong!',
-      life: 3000
-    })
   }
-  console.log('remove user ')
 }
 
 const removeUser = async (param) => {
   try {
     const response = await userStore.deleteUser(param?.teacher_id)
-    usersList.value = await userStore.getUserLists()
-    if (response === 'success') {
+    usersList.value = await userStore.getUserLists()    
+    if (response) {
       toast.add({
         severity: 'info',
         summary: 'Success',
@@ -248,7 +259,6 @@ const removeUser = async (param) => {
       life: 3000
     })
   }
-  console.log('remove user ', param)
 }
 
 const addNewUser = async () => {
@@ -257,11 +267,16 @@ const addNewUser = async () => {
 }
 
 const onRowSelect = (param) => {
+  isUserUpdating.value = true
   visibleRight.value = !visibleRight.value
   userData.value = param?.data
-  // dataTable.value.blur()
-
-  console.log('param log __________', param)
+  userData.value.userName = param?.data.user_name
+  userData.value.availableDistricts = param?.data.district_details.map((item) => item.district_id)
+  if (param.data.stream === 'Essay') {
+    isEssaySelected.value = true
+  } else {
+    isEssaySelected.value = false
+  }
 }
 
 const onBlurSelect = (param) => {
@@ -276,11 +291,15 @@ const onStreamSelect = async (event) => {
     isEssaySelected.value = true
   } else {
     isEssaySelected.value = false
+    if (userData.value.language) {
+      userData.value.language = null
+    }
   }
 }
 
 const onClear = () => {
   clearUserData()
+  isUserUpdating.value = false
   visibleRight.value = false
 }
 
@@ -289,7 +308,7 @@ const clearUserData = () => {
     userName: null,
     contact: null,
     password: null,
-    availableDistricts: null,
+    availableDistricts: [],
     language: null,
     stream: null
   }
@@ -301,20 +320,16 @@ const clearUserData = () => {
   display: flex;
   flex-direction: row;
 
-  .district-chip-container{
+  .district-chip-container {
     display: flex;
     flex-direction: row;
 
-    >div{
+    > div {
       background: #7cbdffa1;
       margin: 2px;
       padding: 2px 6px;
       border-radius: 3px;
     }
-  }
-
-  .p-divider-horizontal {
-    width: 77%;
   }
 
   .p-datatable-tbody > tr.p-highlight {
