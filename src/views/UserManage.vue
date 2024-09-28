@@ -21,7 +21,7 @@
           v-model:selection="selecteUser"
           :value="usersList"
           :highlightOnSelect="false"
-          tableStyle="min-width: 50rem"
+          tableStyle="min-width: 40rem"
           paginator
           :rows="10"
           :rowsPerPageOptions="[10, 20, 50]"
@@ -33,9 +33,9 @@
           @Blur="onBlurSelect"
           @row-unselect="onUnSelect"
         >
-          <Column field="user_name" header="User Name"></Column>
-          <Column field="contact" header="Contact"></Column>
-          <Column field="availableDistricts" header="Districts">
+          <Column field="user_name" header="User Name" style="width: 15%"></Column>
+          <Column field="contact" header="Contact" style="width: 15%"></Column>
+          <Column field="availableDistricts" header="Districts" style="width: 30%">
             <template #body="{ data }">
               <div class="district-chip-container">
                 <div v-for="obj in data.district_details" :key="obj.district_id">
@@ -44,13 +44,13 @@
               </div>
             </template>
           </Column>
-          <Column field="language" header="Language">
+          <Column field="language" header="Language" style="width: 15%">
             <template #body="slotProps">
               {{ slotProps.data.language !== '' ? slotProps.data.language : '--' }}
             </template>
           </Column>
-          <Column field="stream" header="Stream"></Column>
-          <Column header="Action">
+          <Column field="stream" header="Stream" style="width: 15%"></Column>
+          <Column header="Action" style="width: 10%">
             <template #body="{ data }">
               <Button type="button" label="Remove" @click="removeUser(data)"></Button>
             </template>

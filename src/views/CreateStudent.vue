@@ -7,44 +7,35 @@
       <section class="flex flex-row mt-3">
         <div class="input-field-container">
           <label class="font-semibold mb-2">Search by student serial number</label>
-          <IconField>
-            <InputIcon class="pi pi-search search-icon-class" @click="searchStudent"> </InputIcon>
-            <Dropdown
-              v-model="studentData.serial"
-              :options="studentList"
-              filter
-              optionLabel="setial_no"
-              placeholder="Select a Student"
-              class="w-full md:w-14rem flex-auto"
-              @change="onStudentIdSelect"
-            >
-              <template #value="slotProps">
-                <div v-if="slotProps.value" class="flex align-items-center">
-                  <div>{{ slotProps.value.setial_no }}</div>
-                </div>
-                <span v-else>
-                  {{ slotProps.placeholder }}
-                </span>
-              </template>
-              <template #option="slotProps">
-                <div class="flex align-items-center">
-                  <div>{{ slotProps.option.setial_no }}</div>
-                </div>
-              </template>
-            </Dropdown>
-          </IconField>
-          </div>
+          <!-- <InputIcon class="pi pi-search search-icon-class" @click="searchStudent"> </InputIcon> -->
+          <Dropdown
+            v-model="studentData.serialNo"
+            :options="studentList"
+            :filter="true"
+            optionLabel="serial_no"
+            placeholder="Select a Student"
+            class="flex-auto"
+            style="width: 250px"
+            @change="onStudentIdSelect"
+          >
+            <template #option="slotProps">
+              <div class="flex align-items-center">
+                <div>{{ slotProps.option.serial_no }}</div>
+              </div>
+            </template>
+          </Dropdown>
+        </div>
       </section>
       <section class="flex flex-row mt-5">
         <div class="input-field-container">
           <label class="font-semibold mb-2">Student serial number</label>
           <InputText
-            v-model="studentData.serial"
+            v-model="studentData.serialNo"
             id="mark_03"
             class="flex-auto"
             autocomplete="off"
+            :disable="isStudentUpdating"
           />
-
         </div>
         <div class="flex flex-row">
           <div class="input-field-container">
@@ -154,7 +145,19 @@
         </FileUpload> -->
       </section>
       <section class="action-button-class">
-        <Button type="button" :label="action" class="mr-2" @click="addNewStudent"></Button>
+        <Button
+          type="button"
+          :label="isStudentUpdating ? 'Update student' : 'Add student'"
+          class="mr-2"
+          @click="addNewStudent"
+        ></Button>
+        <Button
+          type="button"
+          label="Delete"
+          @click="removeStudentData"
+          :disabled="!isStudentUpdating"
+          class="mr-2"
+        ></Button>
         <Button type="button" label="Clear" @click="clearStudentData"></Button>
       </section>
     </section>
@@ -162,13 +165,11 @@
 </template>
 
 <script setup>
+import { find } from 'lodash'
 import { useToast } from 'primevue/usetoast'
 import { onMounted, ref } from 'vue'
-import router from '@/router'
 import { usePrimeVue } from 'primevue/config'
 import { useStudentStore } from '../stores/StudentStore'
-import { uploadImage } from '../service/StudentService'
-import FilePicker from './component/FilePicker.vue'
 import { DISTRICTS, AGEGROUPS, STREAMS } from '@/const/const'
 
 const studentStore = useStudentStore()
@@ -182,7 +183,7 @@ const districts = ref(DISTRICTS)
 const isEssaySelected = ref(false)
 const docType = ref('image')
 const studentData = ref({
-  serial_no: null,
+  serialNo: null,
   stream: null,
   language: null,
   district: null,
@@ -190,13 +191,145 @@ const studentData = ref({
   uploadedFile: {}
 })
 const files = ref([])
-const ruleName = ref()
-const isLargerImagePreview = ref(true)
-const isFilePickerTemplateHide = ref(false)
 const filesProcessing = ref(false)
 const ruleImageUrl = ref()
 const studentList = ref([])
-const action = ref('Add Student')
+const isStudentUpdating = ref(false)
+
+onMounted(async () => {
+  await getAllStudents()
+})
+
+const getAllStudents = async () => {
+  try {
+    studentList.value = await studentStore.getAllStudents()
+    console.log('student lust _', studentList.value)
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: `${error.message}`,
+      life: 3000
+    })
+  }
+}
+
+const onStreamSelect = async (event) => {
+  if (event.value === 'Essay') {
+    isEssaySelected.value = true
+    docType.value = 'application'
+  } else {
+    isEssaySelected.value = false
+    docType.value = 'image'
+
+    if (studentData.value.language) {
+      studentData.value.language = null
+    }
+  }
+}
+
+const addNewStudent = async () => {
+  try {
+    if (isStudentUpdating.value) {
+      await studentStore.updateStudentData(studentData.value)
+    } else {
+      await studentStore.addStudentData(studentData.value)
+    }
+    toast.add({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'student data added succesfully',
+      life: 3000
+    })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: `${error.message}`,
+      life: 3000
+    })
+  }
+}
+
+const onStudentIdSelect = (param) => {
+  clearStudentData()
+  isStudentUpdating.value = true
+  console.log('  isStudentUpdating.value', isStudentUpdating.value)
+  studentData.value = {
+    id: param.value.student_id,
+    serialNo: param.value.serial_no,
+    stream: param.value.stream,
+    language: param.value.language,
+    ageGroup: param.value.age
+  }
+  if (param.value.stream === 'Essay') {
+    isEssaySelected.value = true
+    docType.value = 'application'
+  } else {
+    isEssaySelected.value = false
+    docType.value = 'image'
+    if (studentData.value.language) {
+      studentData.value.language = null
+    }
+  }
+  getDistrictValue(param.value.district)
+}
+
+const getDistrictValue = (param) => {
+  studentData.value.district = find(DISTRICTS, { id: Number(param) })
+}
+
+const onAgeGroupelect = (param) => {
+  studentData.value.ageGroup = param.value
+}
+
+const onDistrictelect = (param) => {
+  studentData.value.district = param.value
+}
+
+const removeStudentData = async () => {
+  try {
+    await studentStore.removeStudentData(studentData.value.id)
+    getAllStudents()
+    toast.add({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'student data deleted succesfully',
+      life: 3000
+    })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: `${error.message}`,
+      life: 3000
+    })
+  }
+}
+
+const clearStudentData = () => {
+  isStudentUpdating.value = false
+  studentData.value = {
+    serialNo: null,
+    stream: null,
+    language: null,
+    ageGroup: null,
+    district: null,
+    uploadedFile: []
+  }
+}
+
+// need to implement  -  fie upload part
+import { uploadImage } from '../service/StudentService'
+import FilePicker from './component/FilePicker.vue'
+
+const ruleName = ref()
+const isLargerImagePreview = ref(true)
+const isFilePickerTemplateHide = ref(false)
+
+async function generatePreviews(files) {
+  return Promise.all(files.map((file) => (file.blob ? studentStore.uploadImage(file) : null)))
+}
 
 const onFilesAdded = async ({ newFiles, filesList }) => {
   filesProcessing.value = true
@@ -214,14 +347,6 @@ const onFilesAdded = async ({ newFiles, filesList }) => {
     name: files.value[0].name
   }
 }
-
-async function generatePreviews(files) {
-  return Promise.all(files.map((file) => (file.blob ? studentStore.uploadImage(file) : null)))
-}
-
-onMounted(async () => {
-  await getAllStudents()
-})
 
 const onAdvancedUpload = async (event) => {
   const file = event.files[0]
@@ -268,19 +393,6 @@ const onAdvancedUpload = async (event) => {
     })
   }
 }
-const getAllStudents = async (event) => {
-  try {
-    studentList.value = await studentStore.getAllStudents()
-    console.log('student lust _', studentList.value)
-  } catch (error) {
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: `${error.message}`,
-      life: 3000
-    })
-  }
-}
 
 const formatSize = (bytes) => {
   const k = 1024
@@ -305,88 +417,6 @@ const removeUploadedFileCallback = async () => {
 
 const searchStudent = async () => {
   studentStore.searchStudent(studentData.value.serial)
-}
-
-const onStreamSelect = async (event) => {
-  // console.log('log______', event)
-  if (event.value === 'Essay') {
-    isEssaySelected.value = true
-    docType.value = 'application'
-  } else {
-    isEssaySelected.value = false
-    docType.value = 'image'
-  }
-}
-
-const addNewStudent = async () => {
-  try {
-    console.log('log____________', studentData.value)
-
-    await studentStore.addStudentData(studentData.value)
-    toast.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'student data added succesfully',
-      life: 3000
-    })
-  } catch (error) {
-    toast.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: `${error.message}`,
-      life: 3000
-    })
-  }
-}
-
-const onStudentIdSelect = (param) => {
-  console.log('log___________', param);
-  clearStudentData()
-  action.value = 'Update Student'
-  studentData.value = {
-    id: param.value.student_id,
-    serial: param.value.setial_no,
-    stream: param.value.stream,
-    language: param.value.medium,
-    ageGroup: param.value.age,
-    district: {id:23,  name: 'Galle'},
-    
-    uploadedFile: []
-  }
-  if (param.value.stream === 'Essay') {
-    isEssaySelected.value = true
-    docType.value = 'application'
-  } else {
-    isEssaySelected.value = false
-    docType.value = 'image'
-    console.log('art log ');
-    
-  }
-  // getDistrictValue()
-}
-
-const getDistrictValue = (param) => {
-  studentData.value.ageGroup = param.value
-}
-
-const onAgeGroupelect = (param) => {
-  studentData.value.ageGroup = param.value
-}
-
-const onDistrictelect = (param) => {
-  studentData.value.district = param.value
-}
-
-const clearStudentData = () => {
-  action.value = 'Add Student'
-  studentData.value = {
-    serial: null,
-    stream: null,
-    language: null,
-    ageGroup: null,
-    district: null,
-    uploadedFile: []
-  }
 }
 </script>
 
