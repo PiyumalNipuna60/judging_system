@@ -2,16 +2,23 @@ import axios from 'axios'
 import { BASEURL } from '../const/const'
 
 export async function getStudentLists(params) {
-  const requset = {
-    districts: params.districtDetails,
-    stream: params.stream,
-    language: params.language,
-    teacherId: params.teacher_id
-  }
+  
+ 
   try {
-    const response = await axios.post(`${BASEURL}/api/get_all_student`, requset)
+    let response
+    if (params) {
+      const requset = {
+        districts: params.districtDetails,
+        stream: params.stream,
+        language: params.language,
+        teacherId: params.teacher_id
+      }
+      response = await axios.post(`${BASEURL}/api/get_all_student`, requset)
+    } else {
+      response = await axios.post(`${BASEURL}/api/get_all_student`)
+    }
     if (response.status === 200) {
-      return await mapStudentData(response.data)
+      return mapStudentData(response.data)
     } else {
       throw new Error('Error at get student list')
     }
@@ -47,8 +54,7 @@ export async function updateMarks(params) {
 }
 
 async function mapStudentData(params) {
-  const { students, marks } = params
-  return students.map(student => ({
+  return params.map(student => ({
     ...student,
     marks: student.marks[0]
   }));
