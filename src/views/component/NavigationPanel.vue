@@ -84,7 +84,7 @@ const logout = () => {
   }
 
   .main-logo {
-    width: 65%;
+    width: 80%;
   }
 }
 </style>

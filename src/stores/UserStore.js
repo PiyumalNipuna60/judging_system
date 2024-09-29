@@ -6,7 +6,7 @@ import {
   adminLogIn,
   userLogIn,
   createNewUser,
-  sendOTPToUser
+  sendOTPToUser, verifySentOtp, changeUserPassword, updateExistingUser
 } from '../service/UserService'
 import { NAVACTIONS } from '../const/const'
 import { useRouter } from 'vue-router'
@@ -23,7 +23,7 @@ export const useUserStore = defineStore('UserStore', () => {
     contact: null
   })
   const isLoggedIn = ref(false)
-
+  
   const getUserLists = async () => {
     userList.value = await getUsersList()
     return userList.value
@@ -50,9 +50,16 @@ export const useUserStore = defineStore('UserStore', () => {
 
   const saveUser = async (userData) => {
     userData.adminId = loggedUser.value.id
-    userData.user_name = userData.userName
+    userData.userName = userData.userName.toLowerCase()
     return await createNewUser(userData)
   }
+
+  const updateUser = async (userData) => {    
+    userData.adminId = loggedUser.value.id
+    userData.userName = userData.userName.toLowerCase()
+    return await updateExistingUser(userData)
+  }
+
   const deleteUser = async (id) => {    
     return await deleteUserById(id)
   }
@@ -104,27 +111,27 @@ export const useUserStore = defineStore('UserStore', () => {
     userData.value.contact = param.contact
   }
 
-  const sendOTP = async (param) => {
-    console.log('log sttore otp send _______',userData.value.contact ? true : false, userData.value.contact, param);
-    
-    const contact = userData.value.contact ? userData.value.contact : param
+  const sendOTP = async (contact) => {
     try {
-      return await sendOTPToUser(contact)
+      return await sendOTPToUser(userData.value.contact ? userData.value.contact : contact)
     } catch (error) {
       throw new Error('Error at OTP generation')
     }
   }
 
-  const verifyOtp = async (param) => {
-    console.log('log sttore otp send _______',userData.value.contact ? true : false, userData.value.contact, param);
-    const request = {
-      otp: param,
-      contact: userData.value.contact
-    }
+  const verifyOtp = async (otpNumber, contact) => {
     try {
-      return await sendOTPToUser(request)
+      return await verifySentOtp(otpNumber,userData.value.contact ? userData.value.contact : contact)
     } catch (error) {
       throw new Error('Error at OTP generation')
+    }
+  }
+
+  const changePassword = async (password, contact) => {
+    try {
+      return await changeUserPassword(password, userData.value.contact ? userData.value.contact : contact)
+    } catch (error) {
+      throw new Error('Error at password change')
     }
   }
 
@@ -144,6 +151,8 @@ export const useUserStore = defineStore('UserStore', () => {
     getNavigationList,
     userLists,
     deleteUser,
-    getLoggedUser
+    getLoggedUser,
+    changePassword,
+    updateUser
   }
 })

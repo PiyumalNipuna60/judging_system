@@ -47,25 +47,30 @@ export async function getUsersList() {
 }
 
 export async function createNewUser(userData) {  
-  try {
     const response = await axios.post(`${BASEURL}/api/save_teacher`, userData)
     console.log('response log ', response)
-
     if (response.status === 200) {
       return true
     } else {
       throw new Error('Error at creating user')
     }
-  } catch (error) {
-    throw new Error('Error at creating user', error)
-  }
+}
+
+export async function updateExistingUser(userData) {  
+    const response = await axios.put(`${BASEURL}/api/update_teacher/${userData.teacher_id}`, userData)
+    console.log('response log ', response)
+    if (response.status === 201) {
+      return true
+    } else {
+      throw new Error('Error at updating user')
+    }
 }
 
 export async function deleteUserById(id) {
   try {
-    const response = await axios.delete(`${BASEURL}/api/delete_teacher/${id}`)
+    const response = await axios.delete(`${BASEURL}/api/delete_teacher/${id}`)    
     if (response.status === 200) {
-      return response.data.user
+      return true
     } else {
       throw new Error('Error at delete user')
     }
@@ -75,9 +80,28 @@ export async function deleteUserById(id) {
 }
 
 export async function sendOTPToUser(param) {
-  console.log('Lof', param);
+  const request = {
+    contact: param
+  }
   try {
-    const response = await axios.post(`${BASEURL}/api/verify_otp`, param)
+    const response = await axios.post(`${BASEURL}/api/send_otp`, request)
+    if (response.status === 200) {
+      return response.data.user
+    } else {
+      throw new Error('Error at otp send')
+    }
+  } catch (error) {
+    throw new Error('Error at otp send', error)
+  }
+}
+
+export async function verifySentOtp(otpNumber, contact) {
+  const request = {
+    otp: otpNumber,
+    contact: contact
+  }
+  try {
+    const response = await axios.post(`${BASEURL}/api/verify_otp`, request)
     if (response.status === 200) {
       return response.data.user
     } else {
@@ -88,15 +112,29 @@ export async function sendOTPToUser(param) {
   }
 }
 
-export async function otpGenerate(param) {
-  return 'success'
-}
+export async function changeUserPassword(password, contact) {  
+  const request = {
+    password: password,
+    contact: contact
+  }
+  try {
+    const response = await axios.post(`${BASEURL}/api/change_password`, request)
+    if (response.status === 200) {
+      return response.data.user
+    } else {
+      throw new Error('Error at password change')
+    }
+  } catch (error) {
+    throw new Error('Error at  password change', error)
+  }}
 
 
 export async function loadDBampleData() {
   await districtReg()
   await userReg()
   await teacherReg()
+  await studentReg('WP/GM/SAC/ART – 00')
+  await studentReg('WP/GM/SAC/ESSAY – 00')
 }
 
 const userReg = async () => {
@@ -123,7 +161,7 @@ const teacherReg =async () => {
       "availableDistricts": [1, 2],
       "language": "Sinhala",
       "stream": "Essay",
-      "contact": 705044099,
+      "contact": 705045099,
       "adminId": 2,
   }
   )
@@ -153,6 +191,33 @@ const districtReg = async () => {
         "name": district.name
     })
     });
+  } catch (error) {
+    console.error('district error log', error); 
+  }
+}
+
+const studentReg = async (key) => {
+  try {
+    for (let i = 0; i < 9; i++) {
+      const formData = new FormData();
+
+      const studentData = {
+        serialNo: key+i,
+        stream: 'null',
+        language: 'null',
+        ageGroup: 'null',
+        district: 'null',
+      }
+      formData.append('serialNo', studentData.serialNo)
+      formData.append('district', 1)
+      formData.append('ageGroup', '9-11')
+      formData.append('stream', 'Essay')
+      formData.append('language', 'Sinhala')
+      // formData.append('file', studentData.uploadedFile.file,  studentData.uploadedFile.name); // Append file to FormData
+  
+      const response = await axios.post(`${BASEURL}/api/save_student`, formData)  
+  }
+   
   } catch (error) {
     console.error('district error log', error); 
   }

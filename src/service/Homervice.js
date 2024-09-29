@@ -1,136 +1,56 @@
-export async function getMarkingList() {
-  return [
-    {
-      serialNumber: 'WP/GM/SAC/ART - 001',
-      district: 'Gampaha',
-      ageGroup: '9-11',
-      mark_01: 10,
-      mark_02: 15,
-      mark_03: null,
-      mark_04: null,
-      mark_05: null,
-      total: null
-    },
-    {
-      serialNumber: 'WP/GM/SAC/ART - 002',
-      district: 'Kalutara',
-      ageGroup: '9-11',
-      mark_01: null,
-      mark_02: null,
-      mark_03: null,
-      mark_04: null,
-      mark_05: null,
-      total: null
-    },
-    {
-      serialNumber: 'WP/GM/SAC/ART - 003',
-      district: 'Colombo',
-      ageGroup: '12-13',
-      mark_01: null,
-      mark_02: null,
-      mark_03: null,
-      mark_04: null,
-      mark_05: null,
-      total: null
-    },
-    {
-      serialNumber: 'WP/GM/SAC/ART - 001',
-      district: 'Gampaha',
-      ageGroup: '12-13',
-      mark_01: 10,
-      mark_02: 15,
-      mark_03: null,
-      mark_04: null,
-      mark_05: null,
-      total: null
-    },
-    {
-      serialNumber: 'WP/GM/SAC/ART - 002',
-      district: 'Kalutara',
-      ageGroup: '9-11',
-      mark_01: null,
-      mark_02: null,
-      mark_03: null,
-      mark_04: null,
-      mark_05: null,
-      total: null
-    },
-    {
-      serialNumber: 'WP/GM/SAC/ART - 003',
-      district: 'Colombo',
-      ageGroup: '12-13',
-      mark_01: null,
-      mark_02: null,
-      mark_03: null,
-      mark_04: null,
-      mark_05: null,
-      total: null
-    },
-    {
-      serialNumber: 'WP/GM/SAC/ART - 001',
-      district: 'Gampaha',
-      ageGroup: '9-11',
-      mark_01: 10,
-      mark_02: 15,
-      mark_03: null,
-      mark_04: null,
-      mark_05: null,
-      total: null
-    },
-    {
-      serialNumber: 'WP/GM/SAC/ART - 002',
-      district: 'Kalutara',
-      ageGroup: '12-13',
-      mark_01: null,
-      mark_02: null,
-      mark_03: null,
-      mark_04: null,
-      mark_05: null,
-      total: null
-    },
-    {
-      serialNumber: 'WP/GM/SAC/ART - 003',
-      district: 'Colombo',
-      ageGroup: '12-13',
-      mark_01: null,
-      mark_02: null,
-      mark_03: null,
-      mark_04: null,
-      mark_05: null,
-      total: null
-    },
-    {
-      serialNumber: 'WP/GM/SAC/ART - 001',
-      district: 'Gampaha',
-      ageGroup: '9-11',
-      mark_01: 10,
-      mark_02: 15,
-      mark_03: null,
-      mark_04: null,
-      mark_05: null,
-      total: null
-    },
-    {
-      serialNumber: 'WP/GM/SAC/ART - 002',
-      district: 'Kalutara',
-      ageGroup: '12-13',
-      mark_01: null,
-      mark_02: null,
-      mark_03: null,
-      mark_04: null,
-      mark_05: null,
-      total: null
-    },
-    {
-      serialNumber: 'WP/GM/SAC/ART - 003',
-      district: 'Colombo',
-      ageGroup: '12-13',
-      mark_01: null,
-      mark_02: null,
-      mark_03: null,
-      mark_04: null,
-      mark_05: null,
-      total: null
+import axios from 'axios'
+import { BASEURL } from '../const/const'
+
+export async function getStudentLists(params) {
+  const requset = {
+    districts: params.districtDetails,
+    stream: params.stream,
+    language: params.language,
+    teacherId: params.teacher_id
+  }
+  try {
+    const response = await axios.post(`${BASEURL}/api/get_all_student`, requset)
+    if (response.status === 200) {
+      return await mapStudentData(response.data)
+    } else {
+      throw new Error('Error at get student list')
     }
-  ]
+  } catch (error) {
+    throw new Error('Error at get student list', error)
+  }
+}
+
+export async function addMarks(params) {  
+  try {
+    const response = await axios.post(`${BASEURL}/api/save_mark`, params)    
+    if (response.status === 200) {
+      return true
+    } else {
+      throw new Error('Error at add student marks')
+    }
+  } catch (error) {
+    throw new Error('Error at add student marks', error)
+  }
+}
+
+export async function updateMarks(params) {  
+  try {
+    const response = await axios.put(`${BASEURL}/api/update_mark/${params.mark_id}`, params)    
+    if (response.status === 201) {
+      return true
+    } else {
+      throw new Error('Error at update student marks')
+    }
+  } catch (error) {
+    throw new Error('Error at update student marks', error)
+  }
+}
+
+async function mapStudentData(params) {
+  const { students, marks } = params
+  return students.map(student => ({
+    ...student,
+    marks: student.marks[0]
+  }));
+  
 }

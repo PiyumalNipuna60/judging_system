@@ -53,27 +53,29 @@
       <Sidebar v-model:visible="visibleRight" header="Password Reset" position="right">
         <div>
           <div class="pw-reset-container">
-            <div class="input-field-container">
-              <label for="username" class="font-semibold">Contact number</label>
-              <InputNumber
-                v-model="userData.contact"
+            <div v-if="!isOtpVerified">
+              <div class="input-field-container">
+                <label for="username" class="font-semibold">Contact number</label>
+                <InputNumber
+                v-model="contact"
                 class="flex-auto"
                 inputId="integeronly"
                 :useGrouping="false"
                 placeholder="format: 705045099"
                 :invalid="isContactInvalid"
-              />
-              <label v-if="isContactInvalid" for="contact" class="contact-error-label"
+                />
+                <label v-if="isContactInvalid" for="contact" class="contact-error-label"
                 >Contact number length invalid. format: 705045099</label
-              >
-            </div>
-            <div class="button-container">
-              <Button
+                >
+              </div>
+              <div class="button-container">
+                <Button
                 type="button"
                 :disabled="isContactInvalid"
                 label="Send OTP"
                 @click="sendOtpVerificationCode"
-              ></Button>
+                ></Button>
+              </div>
             </div>
             <div v-if="isOtpVerified">
               <div class="input-field-container">
@@ -140,38 +142,13 @@
             type="button"
             label="Cancel"
             severity="secondary"
-            @click="IsDialogVisible = false"
+            @click="onDialogClose"
           ></Button>
         </div>
       </Dialog>
     </section>
     <section class="dialogbox-container">
-      <!-- <Dialog
-        v-model:visible="IsDialogVisible"
-        modal
-        header="OTP Verification"
-        :style="{ width: '25rem' }"
-      >
-        <div class="dialogbox-container__input-field-container">
-          <label for="username" class="font-semibold mb-2">Enter OTP sent to your mobile</label>
-          <InputText
-            v-model="otpNumber"
-            id="otp"
-            class="flex-auto"
-            autocomplete="off"
-          />
-        </div>
 
-        <div class="flex justify-content-end gap-2">
-          <Button type="button" label="Verify OTP" @click="onOTPVerification"></Button>
-          <Button
-            type="button"
-            label="Cancel"
-            severity="secondary"
-            @click="IsDialogVisible = false"
-          ></Button>
-        </div>
-      </Dialog> -->
     </section>
   </div>
 </template>
@@ -181,7 +158,6 @@ import InputText from 'primevue/inputtext'
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
-import { sendOTPToUser } from '../service/UserService'
 import { onMounted, ref, watch } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 
@@ -198,24 +174,24 @@ const isContactInvalid = ref(false)
 const isPasswordInvalid = ref(false)
 const isAdminLogin = ref(false)
 const userData = ref({
-  contact: null,
   newPassword: null,
   newPasswordCheck: null
 })
 const IsDialogVisible = ref(false)
 const isOtpVerified = ref(false)
-const otpNumber = ref(0)
+const otpNumber = ref()
+const contact = ref(null)
 
 const sendOtpVerificationCode = async () => {
-  IsDialogVisible.value = true
   try {
-    const response = await userStore.sendOTP(userData.value)
+    await userStore.sendOTP(contact.value)
     toast.add({
       severity: 'info',
       summary: 'Info',
       detail: 'OTP send successfully!',
       life: 3000
     })
+    IsDialogVisible.value = true
   } catch (error) {
     toast.add({
       severity: 'error',
@@ -227,18 +203,16 @@ const sendOtpVerificationCode = async () => {
 }
 
 const onOTPVerification = async () => {
-  IsDialogVisible.value = true
-  try {
-    console.log('length==========', otpNumber.value.toString().length);
-    
+  try {    
     if (otpNumber.value.toString().length === 4) {
-      await userStore.verifyOtp(otpNumber.value)
+      await userStore.verifyOtp(otpNumber.value, contact.value)
       toast.add({
         severity: 'info',
         summary: 'Info',
         detail: 'OTP verified successfully!',
         life: 3000
       })
+      
     } else {
       toast.add({
         severity: 'error',
@@ -247,6 +221,7 @@ const onOTPVerification = async () => {
         life: 3000
       })
     }
+    IsDialogVisible.value = false
     isOtpVerified.value = true
   } catch (error) {
     toast.add({
@@ -267,7 +242,7 @@ onMounted(() => {
 })
 
 watch(
-  () => userData.value.contact,
+  () => contact.value,
   (newContact) => {
     if (newContact && newContact.toString().length === 9) {
       isContactInvalid.value = false
@@ -280,7 +255,6 @@ watch(
 )
 
 const loginOnAction = async () => {
-  console.log('user logged')
   try {
     if (isAdminLogin.value) {
       await userStore.adminLogin(userName.value, password.value)
@@ -300,21 +274,25 @@ const loginOnAction = async () => {
 
 const loadForgotPassword = async () => {
   visibleRight.value = true
-  // console.log('user logged')
-  // try {
-  //   await userStore.login(userName.value, password.value)
-  //   router.push('/')
-  // } catch (error) {
-  //   toast.add({
-  //     severity: 'error',
-  //     summary: 'Error',
-  //     detail: 'Username or Password invalid.',
-  //     life: 3000
-  //   })
-  // }
 }
 const onChangePassword = async () => {
-  sendOTPToUser({ contact: 705045099 })
+  try {
+    await userStore.changePassword(userData.value.newPassword, contact.value)
+    toast.add({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'Password changes successfully!.',
+      life: 3000
+    })
+    visibleRight.value = false
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Username or Password invalid.',
+      life: 3000
+    })
+  }
 }
 
 const onConfirmPasswordBlur = async () => {
@@ -343,7 +321,6 @@ const cancelConfirmation = (event) => {
     accept: () => {
       visibleRight.value = false
       userData.value = {
-        contact: null,
         newPassword: null,
         newPasswordCheck: null
       }
@@ -355,6 +332,10 @@ const cancelConfirmation = (event) => {
       })
     }
   })
+}
+
+const onDialogClose = () => {
+  otpNumber.value = null
 }
 </script>
 

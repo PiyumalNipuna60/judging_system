@@ -31,6 +31,8 @@ import Image from 'primevue/image';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 
+import FgePdfVue3 from 'fge-pdf-vue3';
+
 import './assets/main.css'
 import 'primevue/resources/themes/saga-blue/theme.css'
 import 'primevue/resources/primevue.min.css'
@@ -44,6 +46,8 @@ app.use(createPinia())
 app.use(router)
 app.use(ToastService)
 app.use(ConfirmationService)
+
+app.component('fge-pdf-vue3', FgePdfVue3);
 
 app.component('InputText', InputText)
 app.component('Button', Button)
