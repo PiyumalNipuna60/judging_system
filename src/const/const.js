@@ -73,5 +73,5 @@ export const DISTRICTS = [
   export const AGEGROUPS = ['9-11', '12-13']
 
   export const STREAMS = ['Essay', 'Art']
-  // export const BASEURL = 'https://tequilasl.com:443'
-  export const BASEURL = 'http://127.0.0.1:8000'
+  export const BASEURL = 'https://tequilasl.com:443'
+  // export const BASEURL = 'http://127.0.0.1:8000'
