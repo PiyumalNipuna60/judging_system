@@ -97,7 +97,7 @@
               <Image src="/src/assets/sample_drawing.webp" alt="Image" width="250" preview />
             </div>
             <div v-else>
-              <fge-pdf-vue3
+              <!-- <fge-pdf-vue3
                 style="height: 100vh"
                 :viewButton="viewButton"
                 :viewSignature="viewSignature"
@@ -107,7 +107,7 @@
                 v-model:files="files"
                 :footer-visible="false"
                 :theme="'light'"
-              ></fge-pdf-vue3>
+              ></fge-pdf-vue3> -->
             </div>
           </section>
           <Divider layout="vertical" />
@@ -182,8 +182,6 @@ import { useUserStore } from '../stores/UserStore'
 import { find } from 'lodash'
 import { DISTRICTS, AGEGROUPS } from '@/const/const'
 import Image from 'primevue/image'
-import FgePdfVue3 from 'fge-pdf-vue3'
-// import 'vue3-pdf-app/dist/icons/main.css'
 
 const toast = useToast()
 const userStore = useUserStore()
@@ -362,6 +360,8 @@ const ageGroupFilter = () => {
 }
 
 const districtFilter = () => {
+  console.log('filtered ___________-', filteredStudentLists.value);
+  
   filteredStudentList.value = filteredStudentLists.value.filter(
     (item) => Number(item.district) === find(DISTRICTS, { name: selectedDistrict.value }).id
   )

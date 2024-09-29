@@ -30,7 +30,7 @@
         <DataTable
           ref="dataTable"
           v-model:selection="selectedudent"
-          :value="markingListArt"
+          :value="studentList"
           tableStyle="min-width: 50rem"
           paginator
           :rows="10"
@@ -170,7 +170,7 @@ import { useToast } from 'primevue/usetoast'
 const toast = useToast()
 const homeStore = useHomeStore()
 
-const { markingList, markingLists } = storeToRefs(homeStore)
+const { filteredStudentLists } = storeToRefs(homeStore)
 
 const items = ref([])
 const dataTable = ref()
@@ -178,7 +178,7 @@ const selectedudent = ref(null)
 const selectedDistrict = ref(null)
 const selectedAgeGroup = ref(null)
 const ageGroups = ref(['9-11', '12-13'])
-const markingListArt = ref([])
+const studentList = ref([])
 const districts = [
   'Colombo',
   'Gampaha',
@@ -219,7 +219,9 @@ const editableStudentData = ref({
 })
 
 onMounted(async () => {
-  markingListArt.value = await homeStore.getMarkingLists()
+  studentList.value = await homeStore.getStudentList()
+  console.log('student list _____________', studentList.value, filteredStudentLists.value);
+  
 })
 
 // const onRowSelect = (param) => {
@@ -261,31 +263,31 @@ const onDropdownChange = () => {
     ageGroupFilter()
     return
   } else if (selectedAgeGroup.value === null && selectedAgeGroup.value === null) {
-    markingListArt.value = markingList.value
+    studentList.value = filteredStudentLists.value
     return
   }
   commonFilter()
 }
 
 const ageGroupFilter = () => {
-  markingListArt.value = markingList.value.filter(
+  studentList.value = filteredStudentLists.value.filter(
     (item) => item.ageGroup === selectedAgeGroup.value
   )
-  console.log(markingListArt.value)
+  console.log(studentList.value)
 }
 
 const districtFilter = () => {
-  markingListArt.value = markingList.value.filter(
+  studentList.value = filteredStudentLists.value.filter(
     (item) => item.district === selectedDistrict.value
   )
-  console.log(markingListArt.value)
+  console.log(studentList.value)
 }
 
 const commonFilter = () => {
-  markingListArt.value = markingList.value.filter(
+  studentList.value = filteredStudentLists.value.filter(
     (item) => item.district === selectedDistrict.value && item.ageGroup === selectedAgeGroup.value
   )
-  console.log(markingListArt.value)
+  console.log(studentList.value)
 }
 const exportCSV = () => {
   dataTable.value.exportCSV()
