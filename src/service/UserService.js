@@ -130,9 +130,9 @@ export async function changeUserPassword(password, contact) {
 
 
 export async function loadDBampleData() {
-  // await districtReg()
-  // await userReg()
-  // await teacherReg()
+  await districtReg()
+  await userReg()
+  await teacherReg()
   await studentReg('WP/GM/SAC/ART – 00')
   await studentReg('WP/GM/SAC/ESSAY – 00')
 }
@@ -209,10 +209,10 @@ const studentReg = async (key) => {
         district: 'null',
       }
       formData.append('serialNo', studentData.serialNo)
-      formData.append('district', studentData.district.id)
-      formData.append('ageGroup', studentData.ageGroup)
-      formData.append('stream', studentData.stream)
-      formData.append('language', studentData.language)
+      formData.append('district', 1)
+      formData.append('ageGroup', '9-11')
+      formData.append('stream', 'Essay')
+      formData.append('language', 'Sinhala')
       // formData.append('file', studentData.uploadedFile.file,  studentData.uploadedFile.name); // Append file to FormData
   
       const response = await axios.post(`${BASEURL}/api/save_student`, formData)  

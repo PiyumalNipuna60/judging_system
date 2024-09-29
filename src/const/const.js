@@ -13,19 +13,19 @@ export const NAVACTIONS = [
   },
   {
     title: 'Password reset',
-    icon: 'pi-home',
+    icon: 'pi-user-edit',
     route: '/password-reset',
     user: 'user'
   },
   {
-    title: 'Create User',
+    title: 'User Manage',
     icon: 'pi-user',
     route: '/manage-user',
     user: 'admin'
   },
   {
-    title: 'Add Sudent',
-    icon: 'pi-sign-out',
+    title: 'Student Manage',
+    icon: 'pi-user-edit',
     route: '/student-add',
     user: 'admin'
   },

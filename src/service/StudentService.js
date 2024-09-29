@@ -17,7 +17,7 @@ export async function searchStudentById(id) {
 
 export async function getStudentList() {
   try {
-    const response = await axios.get(`${BASEURL}/api/get_all_student`)
+    const response = await axios.post(`${BASEURL}/api/get_all_student`)
     if (response.status === 200) {
       return response.data
     } else {

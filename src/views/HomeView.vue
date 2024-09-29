@@ -26,11 +26,11 @@
           />
         </div>
       </div>
-      <div>
+      <div v-if="isTableVisible">
         <DataTable
           ref="dataTable"
-          v-model:selection="selectedudent"
-          :value="markingListArt"
+          v-model:selection="selectedStudent"
+          :value="filteredStudentList"
           tableStyle="min-width: 50rem"
           paginator
           :rows="10"
@@ -42,34 +42,42 @@
           @rowClick="onRowSelect"
           @rowUnSelect="onRowSelect"
         >
-          <Column field="serialNumber" header="Serial Number"></Column>
+          <Column field="serial_no" header="Serial Number"></Column>
           <Column field="mark_01" header="Mark 01">
             <template #body="slotProps">
-              {{ slotProps.data.mark_01 ? slotProps.data.mark_01 : '--' }}
+              {{ slotProps.data.marks?.mark_01 ? slotProps.data.marks.mark_01 : '--' }}
             </template>
           </Column>
           <Column field="mark_02" header="Mark 02">
             <template #body="slotProps">
-              {{ slotProps.data.mark_02 ? slotProps.data.mark_02 : '--' }}
+              {{ slotProps.data.marks?.mark_02 ? slotProps.data.marks.mark_02 : '--' }}
             </template>
           </Column>
           <Column field="mark_03" header="Mark 03">
             <template #body="slotProps">
-              {{ slotProps.data.mark_03 ? slotProps.data.mark_03 : '--' }}
+              {{ slotProps.data.marks?.mark_03 ? slotProps.data.marks.mark_03 : '--' }}
             </template>
           </Column>
-          <Column field="mark_04" header="Mark 04">
+          <Column header="Mark 04">
             <template #body="slotProps">
-              {{ slotProps.data.mark_04 ? slotProps.data.mark_04 : '--' }}
+              {{ slotProps.data.marks?.mark_04 ? slotProps.data.marks.mark_04 : '--' }}
             </template>
           </Column>
           <Column v-if="getLoggedUser?.stream !== 'Essay'" field="mark_05" header="Mark 05">
             <template #body="slotProps">
-              {{ slotProps.data.mark_05 ? slotProps.data.mark_05 : '--' }}
+              {{ slotProps.data.marks?.mark_05 ? slotProps.data.marks.mark_05 : '--' }}
             </template>
           </Column>
-          <Column field="total" header="Total"></Column>
+          <Column field="total" header="Total">
+            <template #body="slotProps">
+              {{ slotProps.data.marks?.total ? slotProps.data.marks.total : '--' }}
+            </template></Column
+          >
         </DataTable>
+      </div>
+      <div v-else class="empty-area-container">
+        <i class="pi pi-filter" style="font-size: 2rem"></i>
+        <p>Please select a District and Age group to dispaly student details.</p>
       </div>
     </section>
     <section class="sidebar-container">
@@ -81,7 +89,7 @@
         position="right"
       >
         <span class="p-text-secondary block mb-5"
-          >Student serial number: {{ editableStudentData.serialNumber }}</span
+          >Student serial number: {{ editableStudentData.serial_no }}</span
         >
         <section class="sidebar-content-container">
           <section class="sidebar-content-container__image-container">
@@ -106,8 +114,8 @@
           <section class="sidebar-content-container__form-container">
             <div class="input-field-container">
               <label for="username" class="font-semibold w-6rem">Mark 01</label>
-              <InputText
-                v-model="editableStudentData.mark_01"
+              <InputNumber
+                v-model="editableStudentData.marks.mark_01"
                 id="mark_01"
                 class="flex-auto"
                 autocomplete="off"
@@ -115,8 +123,8 @@
             </div>
             <div class="input-field-container">
               <label for="username" class="font-semibold w-6rem">Mark 02</label>
-              <InputText
-                v-model="editableStudentData.mark_02"
+              <InputNumber
+                v-model="editableStudentData.marks.mark_02"
                 id="mark_02"
                 class="flex-auto"
                 autocomplete="off"
@@ -124,8 +132,8 @@
             </div>
             <div class="input-field-container">
               <label for="username" class="font-semibold w-6rem">Mark 03</label>
-              <InputText
-                v-model="editableStudentData.mark_03"
+              <InputNumber
+                v-model="editableStudentData.marks.mark_03"
                 id="mark_03"
                 class="flex-auto"
                 autocomplete="off"
@@ -133,8 +141,8 @@
             </div>
             <div class="input-field-container">
               <label for="username" class="font-semibold w-6rem">Mark 04</label>
-              <InputText
-                v-model="editableStudentData.mark_04"
+              <InputNumber
+                v-model="editableStudentData.marks.mark_04"
                 id="mark_04"
                 class="flex-auto"
                 autocomplete="off"
@@ -142,8 +150,8 @@
             </div>
             <div class="input-field-container" v-if="getLoggedUser?.stream !== 'Essay'">
               <label for="username" class="font-semibold w-6rem">Mark 05</label>
-              <InputText
-                v-model="editableStudentData.mark_05"
+              <InputNumber
+                v-model="editableStudentData.marks.mark_05"
                 id="mark_05"
                 class="flex-auto"
                 autocomplete="off"
@@ -171,7 +179,7 @@ import { storeToRefs } from 'pinia'
 import { useHomeStore } from '../stores/HomeStore'
 import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
-import { useRouter } from 'vue-router'
+import { find } from 'lodash'
 import { DISTRICTS, AGEGROUPS } from '@/const/const'
 import Image from 'primevue/image'
 import FgePdfVue3 from 'fge-pdf-vue3'
@@ -181,27 +189,31 @@ const toast = useToast()
 const userStore = useUserStore()
 const homeStore = useHomeStore()
 
-const { markingList } = storeToRefs(homeStore)
+const { filteredStudentLists } = storeToRefs(homeStore)
 const { getLoggedUser } = storeToRefs(userStore)
 
 const dataTable = ref()
-const selectedudent = ref(null)
+const selectedStudent = ref(null)
 const selectedDistrict = ref(null)
 const selectedAgeGroup = ref(null)
 const ageGroups = ref(AGEGROUPS)
-const markingListArt = ref([])
+const filteredStudentList = ref([])
 const districts = ref([])
 const IsDialogVisible = ref(false)
+const isMarksAdding = ref(false)
+const isTableVisible = ref(false)
 const editableStudentData = ref({
-  serialNumber: null,
+  serialNo: null,
   district: null,
   ageGroup: null,
-  mark_01: null,
-  mark_02: null,
-  mark_03: null,
-  mark_04: null,
-  mark_05: null,
-  total: null
+  marks: {
+    mark_01: null,
+    mark_02: null,
+    mark_03: null,
+    mark_04: null,
+    mark_05: null,
+    total: null
+  }
 })
 
 const files = ref([
@@ -221,7 +233,6 @@ const signature = {
   agetic: true
 }
 
-
 const viewButton = ref({
   // print: true,
   openFile: true,
@@ -232,9 +243,7 @@ const viewButton = ref({
 })
 
 onMounted(async () => {
-  console.log('get logged user ___________', getLoggedUser);
-  
-  markingListArt.value = await homeStore.getMarkingLists()
+  filteredStudentList.value = await homeStore.getStudentList(getLoggedUser.value)  
   getDistrictList()
 })
 
@@ -265,64 +274,106 @@ const onRowSelect = (param) => {
     return
   }
   IsDialogVisible.value = !IsDialogVisible.value
+  if (!param.data.marks) {
+    isMarksAdding.value  = true
+    param.data.marks = editableStudentData.value.marks
+  } 
   editableStudentData.value = param.data
   // dataTable.value.blur()
 }
 
-const saveStudentDetails = () => {
+const saveStudentDetails = async () => {
   let totalMarks = 0
 
-  for (const key in editableStudentData.value) {
-    if (key.startsWith('mark_')) {
-      totalMarks += parseInt(editableStudentData.value[key])
+  for (const key in editableStudentData.value.marks) {
+    if (key.startsWith('mark_0') && editableStudentData.value.marks[key]) {
+      totalMarks += parseInt(editableStudentData.value.marks[key])
     }
   }
-
-  editableStudentData.value.total = totalMarks
+  
+  editableStudentData.value.marks.total = totalMarks
   IsDialogVisible.value = !IsDialogVisible.value
 
-  // End-point
+  try {     
+    if (isMarksAdding.value) {
+      editableStudentData.value.marks.teacher_id = getLoggedUser.value.teacher_id
+      editableStudentData.value.marks.student_id = editableStudentData.value.student_id
+      await homeStore.addStudentMarks(editableStudentData.value.marks)
+    } else {
+      await homeStore.updateStudentMarks(editableStudentData.value.marks)
+    }
+    filteredStudentList.value = await homeStore.getStudentList(getLoggedUser.value)
+    toast.add({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'student marks added succesfully',
+      life: 3000
+    })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Something went wrong',
+      life: 3000
+    })
+  }
 
-  toast.add({
-    severity: 'info',
-    summary: 'Info',
-    detail: 'student marks added succesfully',
-    life: 3000
-  })
+  isMarksAdding.value = false
+  clearStudentData()
+}
 
-  console.log('markings_____________', editableStudentData.value)
+const clearStudentData = () => {
+ editableStudentData.value = {
+  serialNo: null,
+  district: null,
+  ageGroup: null,
+  marks: {
+    mark_01: null,
+    mark_02: null,
+    mark_03: null,
+    mark_04: null,
+    mark_05: null,
+    total: null
+  }
+ }
 }
 
 const onDropdownChange = () => {
   if (selectedDistrict.value !== null && selectedAgeGroup.value === null) {
+    isTableVisible.value = false
     districtFilter()
     return
   } else if (selectedAgeGroup.value !== null && selectedDistrict.value === null) {
+    isTableVisible.value = false
     ageGroupFilter()
     return
   } else if (selectedAgeGroup.value === null && selectedAgeGroup.value === null) {
-    markingListArt.value = markingList.value
+    filteredStudentList.value = filteredStudentLists.value
+    isTableVisible.value = false
     return
   }
   commonFilter()
 }
 
 const ageGroupFilter = () => {
-  markingListArt.value = markingList.value.filter(
-    (item) => item.ageGroup === selectedAgeGroup.value
+  filteredStudentList.value = filteredStudentLists.value.filter(
+    (item) => item.age === selectedAgeGroup.value
   )
 }
 
 const districtFilter = () => {
-  markingListArt.value = markingList.value.filter(
-    (item) => item.district === selectedDistrict.value
+  filteredStudentList.value = filteredStudentLists.value.filter(
+    (item) => Number(item.district) === find(DISTRICTS, { name: selectedDistrict.value }).id
   )
 }
 
 const commonFilter = () => {
-  markingListArt.value = markingList.value.filter(
-    (item) => item.district === selectedDistrict.value && item.ageGroup === selectedAgeGroup.value
+  filteredStudentList.value = filteredStudentLists.value.filter(
+    (item) =>
+      Number(item.district) === find(DISTRICTS, { name: selectedDistrict.value }).id &&
+      item.age === selectedAgeGroup.value
   )
+  isTableVisible.value = true
 }
 
 const getDistrictList = () => {
@@ -337,6 +388,15 @@ const getDistrictList = () => {
   flex-grow: 1;
   display: flex;
   flex-direction: row;
+
+  .empty-area-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 50%;
+    justify-content: center;
+    color: #495057;
+  }
 
   .homepage-content-container {
     justify-content: center;
@@ -399,11 +459,15 @@ const getDistrictList = () => {
   }
 }
 
-#toolbarViewerRight, #viewFind, .sidebar-toggle, #pageNumber, #numPages{
+#toolbarViewerRight,
+#viewFind,
+.sidebar-toggle,
+#pageNumber,
+#numPages {
   display: none !important;
 }
 
-.sidebar-toggle{
+.sidebar-toggle {
   display: none !important;
 }
 </style>
