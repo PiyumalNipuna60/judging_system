@@ -11,12 +11,12 @@ export const NAVACTIONS = [
     route: '/',
     user: 'user'
   },
-  {
-    title: 'Password reset',
-    icon: 'pi-user-edit',
-    route: '/password-reset',
-    user: 'user'
-  },
+  // {
+  //   title: 'Password reset',
+  //   icon: 'pi-user-edit',
+  //   route: '/password-reset',
+  //   user: 'user'
+  // },
   {
     title: 'User Manage',
     icon: 'pi-user',
@@ -35,12 +35,12 @@ export const NAVACTIONS = [
     route: '/login',
     user: 'common'
   },
-  {
-    title: 'DB Populate',
-    icon: 'pi-sign-out',
-    route: '/populate',
-    user: 'common'
-  }
+  // {
+  //   title: 'DB Populate',
+  //   icon: 'pi-sign-out',
+  //   route: '/populate',
+  //   user: 'common'
+  // }
 ]
 
 export const DISTRICTS = [
