@@ -1,14 +1,20 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { getStudentLists, updateMarks, addMarks } from '../service/Homervice'
+import { getFilteredStudentList, updateMarks, addMarks, getStudentLists } from '../service/Homervice'
 
 export const useHomeStore = defineStore('HomeStore', () => {
   const filteredStudentList = ref([])
+  const allStudentList = ref([])
   // const doubleCount = computed(() =>)
 
   const getStudentList = async (params) => {
-    filteredStudentList.value = await getStudentLists(params)
+    filteredStudentList.value = await getFilteredStudentList(params)
     return filteredStudentList.value
+  }
+
+  const getAllStudents = async () => {
+    allStudentList.value = await getStudentLists()
+    return allStudentList.value
   }
   
   const addStudentMarks = async (params) => {
@@ -20,6 +26,7 @@ export const useHomeStore = defineStore('HomeStore', () => {
   }
 
   const filteredStudentLists = computed(() =>  filteredStudentList.value)
+  const allStudentLists = computed(() =>  allStudentList.value)
 
-  return { filteredStudentList, getStudentList, filteredStudentLists, addStudentMarks, updateStudentMarks }
+  return { filteredStudentList, getStudentList, filteredStudentLists, addStudentMarks, updateStudentMarks, getAllStudents, allStudentLists }
 })

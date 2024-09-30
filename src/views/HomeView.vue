@@ -94,20 +94,18 @@
         <section class="sidebar-content-container">
           <section class="sidebar-content-container__image-container">
             <div v-if="getLoggedUser?.stream !== 'Essay'">
-              <Image src="/src/assets/sample_drawing.webp" alt="Image" width="250" preview />
+              <Image
+                :src="getImageUrl(editableStudentData.serial_no)"
+                alt="Image"
+                width="500"
+                preview
+              />
             </div>
             <div v-else>
-              <!-- <fge-pdf-vue3
-                style="height: 100vh"
-                :viewButton="viewButton"
-                :viewSignature="viewSignature"
-                :signature="signature"
-                :page-number="1"
-                file-name="Custom fileName"
-                v-model:files="files"
-                :footer-visible="false"
-                :theme="'light'"
-              ></fge-pdf-vue3> -->
+              <PDFViewer
+                :source="getPdfUrl(editableStudentData.serial_no)"
+                style="height: 80vh"
+              />
             </div>
           </section>
           <Divider layout="vertical" />
@@ -175,13 +173,15 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { replace } from 'lodash'
 import { storeToRefs } from 'pinia'
 import { useHomeStore } from '../stores/HomeStore'
 import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
 import { find } from 'lodash'
-import { DISTRICTS, AGEGROUPS } from '@/const/const'
+import { DISTRICTS, AGEGROUPS, S3_BUCKET } from '@/const/const'
 import Image from 'primevue/image'
+import PDFViewer from 'pdf-viewer-vue'
 
 const toast = useToast()
 const userStore = useUserStore()
@@ -214,36 +214,19 @@ const editableStudentData = ref({
   }
 })
 
-const files = ref([
-  {
-    id: '6359b8a82736f8d11cd61190',
-    fileName: 'cv2.pdf',
-    pdf: '/src/assets/PE0449.pdf'
-  }
-])
-
-const viewSignature = {
-  adsib: true,
-  agetic: true
-}
-const signature = {
-  adsib: true,
-  agetic: true
-}
-
-const viewButton = ref({
-  // print: true,
-  openFile: true,
-  presentationMode: true,
-  // download: true,
-  // bookmark: true,
-  files: true
-})
 
 onMounted(async () => {
-  filteredStudentList.value = await homeStore.getStudentList(getLoggedUser.value)  
+  filteredStudentList.value = await homeStore.getStudentList(getLoggedUser.value)
   getDistrictList()
 })
+
+const getImageUrl = (serialNo) => {
+  return `${S3_BUCKET}image/${encodeURIComponent(replace(serialNo, /\//g, '-'))}.jpg`
+}
+
+const getPdfUrl = (serialNo) => {  
+  return `${S3_BUCKET}pdf/${encodeURIComponent(replace(serialNo, /\//g, '-'))}.pdf`
+}
 
 const onRowSelect = (param) => {
   if (selectedDistrict.value !== null && selectedAgeGroup.value === null) {
@@ -273,9 +256,9 @@ const onRowSelect = (param) => {
   }
   IsDialogVisible.value = !IsDialogVisible.value
   if (!param.data.marks) {
-    isMarksAdding.value  = true
+    isMarksAdding.value = true
     param.data.marks = editableStudentData.value.marks
-  } 
+  }
   editableStudentData.value = param.data
   // dataTable.value.blur()
 }
@@ -288,11 +271,11 @@ const saveStudentDetails = async () => {
       totalMarks += parseInt(editableStudentData.value.marks[key])
     }
   }
-  
+
   editableStudentData.value.marks.total = totalMarks
   IsDialogVisible.value = !IsDialogVisible.value
 
-  try {     
+  try {
     if (isMarksAdding.value) {
       editableStudentData.value.marks.teacher_id = getLoggedUser.value.teacher_id
       editableStudentData.value.marks.student_id = editableStudentData.value.student_id
@@ -321,19 +304,19 @@ const saveStudentDetails = async () => {
 }
 
 const clearStudentData = () => {
- editableStudentData.value = {
-  serialNo: null,
-  district: null,
-  ageGroup: null,
-  marks: {
-    mark_01: null,
-    mark_02: null,
-    mark_03: null,
-    mark_04: null,
-    mark_05: null,
-    total: null
+  editableStudentData.value = {
+    serialNo: null,
+    district: null,
+    ageGroup: null,
+    marks: {
+      mark_01: null,
+      mark_02: null,
+      mark_03: null,
+      mark_04: null,
+      mark_05: null,
+      total: null
+    }
   }
- }
 }
 
 const onDropdownChange = () => {
@@ -360,8 +343,6 @@ const ageGroupFilter = () => {
 }
 
 const districtFilter = () => {
-  console.log('filtered ___________-', filteredStudentLists.value);
-  
   filteredStudentList.value = filteredStudentLists.value.filter(
     (item) => Number(item.district) === find(DISTRICTS, { name: selectedDistrict.value }).id
   )
@@ -389,7 +370,7 @@ const getDistrictList = () => {
   display: flex;
   flex-direction: row;
 
-  .empty-area-container{
+  .empty-area-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -438,6 +419,9 @@ const getDistrictList = () => {
 
 .sidebar-content-container__image-container {
   width: 50rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidebar-content-container__form-container {
@@ -469,5 +453,9 @@ const getDistrictList = () => {
 
 .sidebar-toggle {
   display: none !important;
+}
+
+.sidebar-content-container__image-container > div {
+  width: 100%;
 }
 </style>

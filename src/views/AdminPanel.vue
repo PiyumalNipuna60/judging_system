@@ -73,21 +73,78 @@
               <Column field="total" header="Sub Total"></Column>
             </Row>
           </ColumnGroup>
-          <Column field="serialNumber" header="Serial Number" style="width: 15%"></Column>
-          <Column field="mark_01" header="Mark 01"></Column>
-          <Column field="mark_02" header="Mark 02"></Column>
-          <Column field="mark_03" header="Mark 03"></Column>
-          <Column field="mark_04" header="Mark 04"></Column>
-          <Column field="mark_05" header="Mark 05"></Column>
-          <Column field="total" sortable header="Sub Total"></Column>
-          <Column field="mark_01" header="Mark 01"></Column>
-          <Column field="mark_02" header="Mark 02"></Column>
-          <Column field="mark_03" header="Mark 03"></Column>
-          <Column field="mark_04" header="Mark 04"></Column>
-          <Column field="mark_05" header="Mark 05"></Column>
-          <Column field="total" sortable header="Sub Total"></Column>
-          <Column field="total" style="width: 6%"></Column>
-          <Column field="average" style="width: 6%"></Column>
+          <Column field="serial_no" header="Serial Number" style="width: 15%"></Column>
+          <Column field="mark_01" header="Mark 01">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[0]?.mark_01 ? slotProps.data.marks[0]?.mark_01 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_02" header="Mark 02">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[0]?.mark_02 ? slotProps.data.marks[0]?.mark_02 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_03" header="Mark 03">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[0]?.mark_03 ? slotProps.data.marks[0]?.mark_03 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_04" header="Mark 04">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[0]?.mark_04 ? slotProps.data.marks[0]?.mark_04 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_05" header="Mark 05">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[0]?.mark_05 ? slotProps.data.marks[0]?.mark_05 : '--' }}
+            </template>
+          </Column>
+          <Column field="total" sortable header="Sub Total">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[0]?.total ? slotProps.data.marks[0]?.total : '--' }}
+            </template>
+          </Column>
+
+
+          <Column field="mark_01" header="Mark 01">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[1]?.mark_01 ? slotProps.data.marks[1]?.mark_01 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_02" header="Mark 02">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[1]?.mark_02 ? slotProps.data.marks[1]?.mark_02 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_03" header="Mark 03">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[1]?.mark_03 ? slotProps.data.marks[1]?.mark_03 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_04" header="Mark 04">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[1]?.mark_04 ? slotProps.data.marks[1]?.mark_04 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_05" header="Mark 05">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[1]?.mark_05 ? slotProps.data.marks[1]?.mark_05 : '--' }}
+            </template>
+          </Column>
+          <Column field="total" sortable header="Sub Total">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[1]?.total ? slotProps.data.marks[1]?.total : '--' }}
+            </template>
+          </Column>
+          <Column field="total" style="width: 6%">
+            <template #body="slotProps">
+              {{ calculateRowTotal(slotProps) }}
+            </template>
+          </Column>
+          <Column field="average" style="width: 6%">
+            <template #body="slotProps">
+              {{ calculateRowAvg(slotProps) }}
+            </template></Column>
         </DataTable>
       </div>
     </section>
@@ -162,6 +219,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { sumBy } from 'lodash'
 import router from '@/router'
 import { storeToRefs } from 'pinia'
 import { useHomeStore } from '../stores/HomeStore'
@@ -170,7 +228,7 @@ import { useToast } from 'primevue/usetoast'
 const toast = useToast()
 const homeStore = useHomeStore()
 
-const { filteredStudentLists } = storeToRefs(homeStore)
+const { allStudentLists } = storeToRefs(homeStore)
 
 const items = ref([])
 const dataTable = ref()
@@ -219,8 +277,8 @@ const editableStudentData = ref({
 })
 
 onMounted(async () => {
-  studentList.value = await homeStore.getStudentList()
-  console.log('student list _____________', studentList.value, filteredStudentLists.value);
+  studentList.value = await homeStore.getAllStudents()
+  console.log('student list _____________', studentList.value, allStudentLists.value);
   
 })
 
@@ -263,28 +321,40 @@ const onDropdownChange = () => {
     ageGroupFilter()
     return
   } else if (selectedAgeGroup.value === null && selectedAgeGroup.value === null) {
-    studentList.value = filteredStudentLists.value
+    studentList.value = allStudentLists.value
     return
   }
   commonFilter()
 }
 
+const calculateRowTotal = (param) => {
+  console.log('log___________', sumBy(param.data.marks, 'total'));
+  return  sumBy(param.data.marks, 'total')
+  
+}
+
+const calculateRowAvg = (param) => {
+  console.log('log___________', sumBy(param.data.marks, 'total'));
+  return  sumBy(param.data.marks, 'total')/param.data.marks.length
+  
+}
+
 const ageGroupFilter = () => {
-  studentList.value = filteredStudentLists.value.filter(
+  studentList.value = allStudentLists.value.filter(
     (item) => item.ageGroup === selectedAgeGroup.value
   )
   console.log(studentList.value)
 }
 
 const districtFilter = () => {
-  studentList.value = filteredStudentLists.value.filter(
+  studentList.value = allStudentLists.value.filter(
     (item) => item.district === selectedDistrict.value
   )
   console.log(studentList.value)
 }
 
 const commonFilter = () => {
-  studentList.value = filteredStudentLists.value.filter(
+  studentList.value = allStudentLists.value.filter(
     (item) => item.district === selectedDistrict.value && item.ageGroup === selectedAgeGroup.value
   )
   console.log(studentList.value)
