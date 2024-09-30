@@ -43,7 +43,7 @@
             <p>Is Admin ?</p>
           </div>
           <div>
-            <Button type="button" @click="loginOnAction">Login</Button>
+            <Button type="button" @click="loginOnAction"  label="Login" :loading="isProcessing" ></Button>
           </div>
         </section>
       </div>
@@ -181,6 +181,7 @@ const IsDialogVisible = ref(false)
 const isOtpVerified = ref(false)
 const otpNumber = ref()
 const contact = ref(null)
+const isProcessing = ref(false)
 
 const sendOtpVerificationCode = async () => {
   try {
@@ -255,12 +256,14 @@ watch(
 )
 
 const loginOnAction = async () => {
+  isProcessing.value = true
   try {
     if (isAdminLogin.value) {
       await userStore.adminLogin(userName.value, password.value)
     } else {
       await userStore.userLogin(userName.value, password.value)
     }
+    isProcessing.value  = false
     router.push('/')
   } catch (error) {
     toast.add({

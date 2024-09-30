@@ -1,9 +1,7 @@
 import axios from 'axios'
 import { BASEURL } from '../const/const'
 
-export async function getStudentLists(params) {
-  
- 
+export async function getFilteredStudentList(params) {
   try {
     let response
     if (params) {
@@ -20,6 +18,19 @@ export async function getStudentLists(params) {
     if (response.status === 200) {
       return mapStudentData(response.data)
     } else {
+      throw new Error('Error at get filtered student list')
+    }
+  } catch (error) {
+    throw new Error('Error at get filtered student list', error)
+  }
+}
+
+export async function getStudentLists() {
+  try {
+    let response = await axios.get(`${BASEURL}/api/get_all_student_with_mark`)
+    if (response.status === 200) {
+      return response.data
+    } else {
       throw new Error('Error at get student list')
     }
   } catch (error) {
@@ -27,9 +38,9 @@ export async function getStudentLists(params) {
   }
 }
 
-export async function addMarks(params) {  
+export async function addMarks(params) {
   try {
-    const response = await axios.post(`${BASEURL}/api/save_mark`, params)    
+    const response = await axios.post(`${BASEURL}/api/save_mark`, params)
     if (response.status === 200) {
       return true
     } else {
@@ -40,9 +51,9 @@ export async function addMarks(params) {
   }
 }
 
-export async function updateMarks(params) {  
+export async function updateMarks(params) {
   try {
-    const response = await axios.put(`${BASEURL}/api/update_mark/${params.mark_id}`, params)    
+    const response = await axios.put(`${BASEURL}/api/update_mark/${params.mark_id}`, params)
     if (response.status === 201) {
       return true
     } else {
@@ -54,9 +65,8 @@ export async function updateMarks(params) {
 }
 
 async function mapStudentData(params) {
-  return params.map(student => ({
+  return params.map((student) => ({
     ...student,
     marks: student.marks[0]
-  }));
-  
+  }))
 }
