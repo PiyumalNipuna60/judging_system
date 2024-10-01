@@ -15,7 +15,7 @@
       </div>
       <Divider type="solid" />
 
-      <div>
+      <div v-if="!processing">
         <DataTable
           ref="dataTable"
           v-model:selection="selecteUser"
@@ -46,7 +46,7 @@
           </Column>
           <Column field="language" header="Language" style="width: 15%">
             <template #body="slotProps">
-              {{ slotProps.data.language !== '' ? slotProps.data.language : '--' }}
+              {{ slotProps.data.language !== null ? slotProps.data.language : '--' }}
             </template>
           </Column>
           <Column field="stream" header="Stream" style="width: 15%"></Column>
@@ -55,6 +55,40 @@
               <Button type="button" label="Remove" @click="removeUser(data)"></Button>
             </template>
           </Column>
+        </DataTable>
+      </div>
+      <div v-else>
+        <DataTable :value="skelatonArray">
+            <Column header="User Name">
+                <template #body>
+                    <Skeleton></Skeleton>
+                </template>
+            </Column>
+            <Column header="Contact">
+                <template #body>
+                    <Skeleton></Skeleton>
+                </template>
+            </Column>
+            <Column header="Districts" >
+                <template #body>
+                    <Skeleton></Skeleton>
+                </template>
+            </Column>
+            <Column header="Language" >
+                <template #body>
+                    <Skeleton></Skeleton>
+                </template>
+            </Column>
+            <Column header="Stream" >
+                <template #body>
+                    <Skeleton></Skeleton>
+                </template>
+            </Column>
+            <Column header="Action" >
+                <template #body>
+                    <Skeleton></Skeleton>
+                </template>
+            </Column>
         </DataTable>
       </div>
     </section>
@@ -159,10 +193,10 @@
 </template>
 <script setup>
 import { onMounted, ref, watch } from 'vue'
-import { storeToRefs } from 'pinia'
 import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
 import { DISTRICTS } from '@/const/const'
+import Skeleton from 'primevue/skeleton';
 
 const userStore = useUserStore()
 const toast = useToast()
@@ -177,6 +211,8 @@ const isContactInvalid = ref(false)
 const isButtonDisabled = ref(true)
 const streamList = ref(['Essay', 'Art'])
 const isUserUpdating = ref(false)
+const processing = ref(false)
+const skelatonArray = ref(new Array(4));
 const userData = ref({
   contact: null,
   userName: null,
@@ -187,7 +223,9 @@ const userData = ref({
 })
 
 onMounted(async () => {
+  processing.value = true
   usersList.value = await userStore.getUserLists()
+  processing.value = false
 })
 
 watch(
@@ -207,6 +245,7 @@ watch(
 
 const saveUserDetails = async () => {
   try {
+    processing.value = true
     if (isUserUpdating.value) {
       await userStore.updateUser(userData.value)
     } else {
@@ -237,10 +276,12 @@ const saveUserDetails = async () => {
       })
     }
   }
+  processing.value = false
 }
 
 const removeUser = async (param) => {
   try {
+    processing.value = true
     const response = await userStore.deleteUser(param?.teacher_id)
     usersList.value = await userStore.getUserLists()    
     if (response) {
@@ -259,6 +300,7 @@ const removeUser = async (param) => {
       life: 3000
     })
   }
+  processing.value = false
 }
 
 const addNewUser = async () => {

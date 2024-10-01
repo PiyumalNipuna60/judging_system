@@ -102,9 +102,7 @@
                   :invalid="isPasswordInvalid"
                   @blur="onConfirmPasswordBlur"
                 />
-                <label v-if="isPasswordInvalid" for="contact" class="contact-error-label"
-                  >Password must be same</label
-                >
+                <label v-if="isPasswordInvalid" for="contact" class="contact-error-label">Password must be same</label>
               </div>
               <div class="button-container">
                 <Button
@@ -235,11 +233,14 @@ const onOTPVerification = async () => {
 }
 
 onMounted(() => {
-  const loggedUser = localStorage.getItem('user')
-  if (loggedUser) {
-    userStore.setUserData(JSON.parse(loggedUser))
-    router.push('/')
-  }
+  // const loggedUser = localStorage.getItem('user')
+  // console.log('logged user __________', loggedUser);
+  // if (loggedUser) {
+  //   userStore.setUserData(JSON.parse(loggedUser))
+  //   console.log('logged user __________', loggedUser);
+    
+  //   router.push('/')
+  // }
 })
 
 watch(

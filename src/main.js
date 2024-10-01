@@ -30,6 +30,9 @@ import Checkbox from 'primevue/checkbox';
 import Image from 'primevue/image';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
+import Skeleton from 'primevue/skeleton';
+
+import ExcelJS from 'exceljs'; 
 
 import './assets/main.css'
 import 'primevue/resources/themes/saga-blue/theme.css'
@@ -37,7 +40,6 @@ import 'primevue/resources/primevue.min.css'
 import 'primeicons/primeicons.css'
 import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
-import ExcelJS from 'exceljs'; 
 
 
 const app = createApp(App)
@@ -70,6 +72,7 @@ app.component('Checkbox', Checkbox)
 app.component('Image', Image)
 app.component('IconField', IconField)
 app.component('InputIcon', InputIcon)
+app.component('Skeleton', Skeleton)
 
 app.config.globalProperties.$exceljs = ExcelJS;
 

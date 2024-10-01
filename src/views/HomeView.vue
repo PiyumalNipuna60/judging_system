@@ -75,6 +75,40 @@
           >
         </DataTable>
       </div>
+      <!-- <div v-else-if="processing" class="empty-area-container">
+        <DataTable :value="skelatonArray">
+            <Column header="User Name">
+                <template #body>
+                    <Skeleton></Skeleton>
+                </template>
+            </Column>
+            <Column header="Contact">
+                <template #body>
+                    <Skeleton></Skeleton>
+                </template>
+            </Column>
+            <Column header="Districts" >
+                <template #body>
+                    <Skeleton></Skeleton>
+                </template>
+            </Column>
+            <Column header="Language" >
+                <template #body>
+                    <Skeleton></Skeleton>
+                </template>
+            </Column>
+            <Column header="Stream" >
+                <template #body>
+                    <Skeleton></Skeleton>
+                </template>
+            </Column>
+            <Column header="Action" >
+                <template #body>
+                    <Skeleton></Skeleton>
+                </template>
+            </Column>
+        </DataTable>
+      </div> -->
       <div v-else class="empty-area-container">
         <i class="pi pi-filter" style="font-size: 2rem"></i>
         <p>Please select a District and Age group to dispaly student details.</p>
@@ -102,7 +136,12 @@
               />
             </div>
             <div v-else>
-              <embed :src="getPdfUrl(editableStudentData.serial_no)" type="application/pdf" width="100%" height="600px">
+              <embed
+                :src="getPdfUrl(editableStudentData.serial_no)"
+                type="application/pdf"
+                width="100%"
+                height="600px"
+              />
             </div>
           </section>
           <Divider layout="vertical" />
@@ -113,8 +152,13 @@
                 v-model="editableStudentData.marks.mark_01"
                 id="mark_01"
                 class="flex-auto"
+                :invalid="!markValidation.mark_01"
                 autocomplete="off"
+                @blur="onConfirmPasswordBlur('mark_01', editableStudentData.marks.mark_01)"
               />
+              <label v-if="!markValidation.mark_01" for="contact" class="contact-error-label"
+                >Mark must be below {{ streamType === 'Essay' ? 30 : 20 }}</label
+              >
             </div>
             <div class="input-field-container">
               <label for="username" class="font-semibold w-6rem">Mark 02</label>
@@ -122,8 +166,13 @@
                 v-model="editableStudentData.marks.mark_02"
                 id="mark_02"
                 class="flex-auto"
+                :invalid="!markValidation.mark_02"
                 autocomplete="off"
+                @blur="onConfirmPasswordBlur('mark_02', editableStudentData.marks.mark_02)"
               />
+              <label v-if="!markValidation.mark_02" for="contact" class="contact-error-label"
+                >Mark must be below {{ streamType === 'Essay' ? 30 : 20 }}</label
+              >
             </div>
             <div class="input-field-container">
               <label for="username" class="font-semibold w-6rem">Mark 03</label>
@@ -131,8 +180,13 @@
                 v-model="editableStudentData.marks.mark_03"
                 id="mark_03"
                 class="flex-auto"
+                :invalid="!markValidation.mark_03"
                 autocomplete="off"
+                @blur="onConfirmPasswordBlur('mark_03', editableStudentData.marks.mark_03)"
               />
+              <label v-if="!markValidation.mark_03" for="contact" class="contact-error-label"
+                >Mark must be below 20</label
+              >
             </div>
             <div class="input-field-container">
               <label for="username" class="font-semibold w-6rem">Mark 04</label>
@@ -140,22 +194,37 @@
                 v-model="editableStudentData.marks.mark_04"
                 id="mark_04"
                 class="flex-auto"
+                :invalid="!markValidation.mark_04"
                 autocomplete="off"
+                @blur="onConfirmPasswordBlur('mark_04', editableStudentData.marks.mark_04)"
               />
+              <label v-if="!markValidation.mark_04" for="contact" class="contact-error-label"
+                >Mark must be below 20</label
+              >
             </div>
-            <div class="input-field-container" v-if="getLoggedUser?.stream !== 'Essay'">
+            <div class="input-field-container" v-if="streamType !== 'Essay'">
               <label for="username" class="font-semibold w-6rem">Mark 05</label>
               <InputNumber
                 v-model="editableStudentData.marks.mark_05"
                 id="mark_05"
                 class="flex-auto"
+                :invalid="!markValidation.mark_05"
                 autocomplete="off"
+                @blur="onConfirmPasswordBlur('mark_05', editableStudentData.marks.mark_05)"
               />
+              <label v-if="!markValidation.mark_05" for="contact" class="contact-error-label"
+                >Mark must be below 20</label
+              >
             </div>
           </section>
         </section>
         <div class="button-section">
-          <Button type="button" label="Save" @click="saveStudentDetails"></Button>
+          <Button
+            type="button"
+            label="Save"
+            :disabled="!isSaveDisabled"
+            @click="saveStudentDetails"
+          ></Button>
           <Button
             type="button"
             label="Cancel"
@@ -164,6 +233,25 @@
           ></Button>
         </div>
       </Sidebar>
+    </section>
+    <section class="criteria-explanation-section">
+      <div v-if="streamType === 'Art'"> 
+        <li>Mark_01: Depicting the appropriate atmosphere and environment for the topic.</li>
+      <li>Mark_02: The way images are arranged within the space.</li>
+      <li>Mark_03: Applications of style-related theories.</li>
+      <li>Mark_04: Proficiency in art medium and techniques.</li>
+      <li>Mark_05: Expressiveness and overall finish.</li>
+      </div>
+      <div v-else> 
+        <ul>
+          <li>Mark_01: Content - Presenting insightful concepts related to the subject.</li>
+      <li>Mark_02: Follow the rules of language - Grammer and Spelling.</li>
+      <li>Mark_03: Technical skills - Verse division, subject separation, punctuation, and handwriting.</li>
+      <li>Mark_04: Strength of expressiveness and overall value.</li>
+        </ul>
+
+      </div>
+  
     </section>
   </section>
 </template>
@@ -195,8 +283,19 @@ const ageGroups = ref(AGEGROUPS)
 const filteredStudentList = ref([])
 const districts = ref([])
 const IsDialogVisible = ref(false)
+const markValidation = ref({
+  mark_01: true,
+  mark_02: true,
+  mark_03: true,
+  mark_04: true,
+  mark_05: true
+})
 const isMarksAdding = ref(false)
 const isTableVisible = ref(false)
+const streamType = ref(getLoggedUser.value?.stream)
+const isSaveDisabled = ref(false)
+// const processing = ref(false)
+// const skelatonArray = ref(new Array(10))
 const editableStudentData = ref({
   serialNo: null,
   district: null,
@@ -211,7 +310,6 @@ const editableStudentData = ref({
   }
 })
 
-
 onMounted(async () => {
   filteredStudentList.value = await homeStore.getStudentList(getLoggedUser.value)
   getDistrictList()
@@ -221,7 +319,7 @@ const getImageUrl = (serialNo) => {
   return `${S3_BUCKET}image/${encodeURIComponent(replace(serialNo, /\//g, '-'))}.jpg`
 }
 
-const getPdfUrl = (serialNo) => {  
+const getPdfUrl = (serialNo) => {
   return `${S3_BUCKET}pdf/${encodeURIComponent(replace(serialNo, /\//g, '-'))}.pdf`
 }
 
@@ -257,12 +355,11 @@ const onRowSelect = (param) => {
     param.data.marks = editableStudentData.value.marks
   }
   editableStudentData.value = param.data
-  // dataTable.value.blur()
 }
 
 const saveStudentDetails = async () => {
   let totalMarks = 0
-
+  // processing.value = true
   for (const key in editableStudentData.value.marks) {
     if (key.startsWith('mark_0') && editableStudentData.value.marks[key]) {
       totalMarks += parseInt(editableStudentData.value.marks[key])
@@ -298,6 +395,7 @@ const saveStudentDetails = async () => {
 
   isMarksAdding.value = false
   clearStudentData()
+  // processing.value = false
 }
 
 const clearStudentData = () => {
@@ -358,6 +456,81 @@ const getDistrictList = () => {
   getLoggedUser.value.districtDetails?.forEach((element) => {
     districts.value.push(DISTRICTS.find((ele) => ele.id === element).name)
   })
+}
+
+const onConfirmPasswordBlur = (markType, mark) => {
+  switch (markType) {
+    case 'mark_01':
+      streamType.value === 'Essay'
+        ? (markValidation.value.mark_01 = mark > 30 ? false : true)
+        : (markValidation.value.mark_01 = mark > 20 ? false : true)
+      isSaveDisabled.value = checkDisability()
+      break
+    case 'mark_02':
+      streamType.value === 'Essay'
+        ? (markValidation.value.mark_02 = mark > 30 ? false : true)
+        : (markValidation.value.mark_02 = mark > 20 ? false : true)
+      isSaveDisabled.value = checkDisability()
+      break
+    case 'mark_03':
+      markValidation.value.mark_03 = mark > 20 ? false : true
+      isSaveDisabled.value = checkDisability()
+      break
+    case 'mark_04':
+      markValidation.value.mark_04 = mark > 20 ? false : true
+      isSaveDisabled.value = checkDisability()
+      break
+    case 'mark_05':
+      markValidation.value.mark_05 = mark > 20 ? false : true
+      isSaveDisabled.value = checkDisability()
+      break
+  }
+}
+
+const checkDisability = () => {
+  if (streamType.value === 'Essay') {
+    if (
+      editableStudentData.value.marks.mark_01 &&
+      editableStudentData.value.marks.mark_02 &&
+      editableStudentData.value.marks.mark_03 &&
+      editableStudentData.value.marks.mark_04
+    ) {
+      return (
+        markValidation.value.mark_01 &&
+        markValidation.value.mark_02 &&
+        markValidation.value.mark_03 &&
+        markValidation.value.mark_04
+      )
+    } else {
+      return false
+    }
+  }
+
+  console.log(
+    'diability ',
+    markValidation.value.mark_01,
+    markValidation.value.mark_02,
+    markValidation.value.mark_03,
+    markValidation.value.mark_04,
+    markValidation.value.mark_05
+  )
+  if (
+    editableStudentData.value.marks.mark_01 &&
+    editableStudentData.value.marks.mark_02 &&
+    editableStudentData.value.marks.mark_03 &&
+    editableStudentData.value.marks.mark_04 &&
+    editableStudentData.value.marks.mark_05
+  ) {
+    return (
+      markValidation.value.mark_01 &&
+      markValidation.value.mark_02 &&
+      markValidation.value.mark_03 &&
+      markValidation.value.mark_04 &&
+      markValidation.value.mark_05
+    )
+  } else {
+    return false
+  }
 }
 </script>
 
@@ -454,5 +627,12 @@ const getDistrictList = () => {
 
 .sidebar-content-container__image-container > div {
   width: 100%;
+}
+
+.criteria-explanation-section{
+  position: absolute;
+    font-size: 12px;
+    right: 28px;
+    top: 81px;
 }
 </style>
