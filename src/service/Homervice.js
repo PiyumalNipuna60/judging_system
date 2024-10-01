@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { BASEURL } from '../const/const'
+import { sumBy } from 'lodash'
 
 export async function getFilteredStudentList(params) {
   try {
@@ -29,7 +30,7 @@ export async function getStudentLists() {
   try {
     let response = await axios.get(`${BASEURL}/api/get_all_student_with_mark`)
     if (response.status === 200) {
-      return response.data
+      return mapCalculations(response.data)
     } else {
       throw new Error('Error at get student list')
     }
@@ -68,5 +69,13 @@ async function mapStudentData(params) {
   return params.map((student) => ({
     ...student,
     marks: student.marks[0]
+  }))
+}
+
+async function mapCalculations(params) {
+  return params.map((student) => ({
+    ...student,
+    finalTotal: sumBy(student.marks, 'total'),
+    average: Number(sumBy(student.marks, 'total') / student.marks.length).toFixed(2)
   }))
 }

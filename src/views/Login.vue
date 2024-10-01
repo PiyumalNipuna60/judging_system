@@ -260,8 +260,10 @@ const loginOnAction = async () => {
   try {
     if (isAdminLogin.value) {
       await userStore.adminLogin(userName.value, password.value)
+      router.push('/dashboard')
     } else {
       await userStore.userLogin(userName.value, password.value)
+      router.push('/')
     }
     isProcessing.value  = false
     router.push('/')
