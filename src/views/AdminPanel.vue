@@ -31,8 +31,9 @@
           ref="dataTable"
           v-model:selection="selectedudent"
           :value="studentList"
-          tableStyle="min-width: 50rem"
+          tableStyle="max-width: 50rem"
           paginator
+          scrollable 
           :rows="10"
           :rowsPerPageOptions="[10, 20, 50]"
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
@@ -55,6 +56,7 @@
               <Column header="Serial Number" sortable :rowspan="2" />
               <Column header="Examiner 1" :colspan="6" />
               <Column header="Examiner 2" :colspan="6" />
+              <Column header="Examiner 3" :colspan="6" />
               <Column header="Total" sortable :rowspan="2" />
               <Column header="Average" sortable :rowspan="2" />
             </Row>
@@ -65,6 +67,14 @@
               <Column field="mark_04" header="Mark 04"></Column>
               <Column field="mark_05" header="Mark 05"></Column>
               <Column field="total" header="Sub Total"></Column>
+
+              <Column field="mark_01" header="Mark 01"></Column>
+              <Column field="mark_02" header="Mark 02"></Column>
+              <Column field="mark_03" header="Mark 03"></Column>
+              <Column field="mark_04" header="Mark 04"></Column>
+              <Column field="mark_05" header="Mark 05"></Column>
+              <Column field="total" header="Sub Total"></Column>
+
               <Column field="mark_01" header="Mark 01"></Column>
               <Column field="mark_02" header="Mark 02"></Column>
               <Column field="mark_03" header="Mark 03"></Column>
@@ -73,7 +83,7 @@
               <Column field="total" header="Sub Total"></Column>
             </Row>
           </ColumnGroup>
-          <Column field="serial_no" header="Serial Number" style="width: 15%"></Column>
+          <Column field="serial_no" header="Serial Number" style="min-width: 200px"></Column>
           <Column field="mark_01" header="Mark 01">
             <template #body="slotProps">
               {{ slotProps.data.marks[0]?.mark_01 ? slotProps.data.marks[0]?.mark_01 : '--' }}
@@ -136,15 +146,47 @@
               {{ slotProps.data.marks[1]?.total ? slotProps.data.marks[1]?.total : '--' }}
             </template>
           </Column>
-          <Column field="total" style="width: 6%">
+
+          <Column field="mark_01" header="Mark 01">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[2]?.mark_01 ? slotProps.data.marks[2]?.mark_01 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_02" header="Mark 02">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[2]?.mark_02 ? slotProps.data.marks[2]?.mark_02 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_03" header="Mark 03">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[2]?.mark_03 ? slotProps.data.marks[2]?.mark_03 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_04" header="Mark 04">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[2]?.mark_04 ? slotProps.data.marks[2]?.mark_04 : '--' }}
+            </template>
+          </Column>
+          <Column field="mark_05" header="Mark 05">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[2]?.mark_05 ? slotProps.data.marks[2]?.mark_05 : '--' }}
+            </template>
+          </Column>
+          <Column field="total" sortable header="Sub Total">
+            <template #body="slotProps">
+              {{ slotProps.data.marks[2]?.total ? slotProps.data.marks[2]?.total : '--' }}
+            </template>
+          </Column>
+          <Column field="total" style="width: 5%">
             <template #body="slotProps">
               {{ calculateRowTotal(slotProps) }}
             </template>
           </Column>
-          <Column field="average" style="width: 6%">
+          <Column field="average" style="width: 5%">
             <template #body="slotProps">
               {{ calculateRowAvg(slotProps) }}
-            </template></Column>
+            </template>
+          </Column>
         </DataTable>
       </div>
     </section>
@@ -360,6 +402,8 @@ const commonFilter = () => {
   console.log(studentList.value)
 }
 const exportCSV = () => {
+  console.log('datatable.value', dataTable.value);
+  
   dataTable.value.exportCSV()
   dataTable.value.exportXL()
 }
@@ -404,6 +448,21 @@ const exportCSV = () => {
 
   .p-datatable-wrapper {
     height: 485px;
+  }
+
+  .p-datatable{
+    // overflow: scroll;
+    max-width: 1300px;
+    font-size: 15px;
+  }
+
+  .p-datatable .p-datatable-tbody > tr > td, .p-datatable .p-datatable-thead > tr > th {
+    padding: 0.5rem 0.5rem;
+  }
+
+  .p-paginator-bottom{
+    // position: fixed;
+    // width: 74vw;
   }
 }
 
