@@ -38,8 +38,10 @@ export const useUserStore = defineStore('UserStore', () => {
     if (loggedUser.value) {
       if (loggedUser.value.userType === 'admin') {
         navRoutes.value = NAVACTIONS.filter((route) => route.user === 'admin')
+        router.push('/dashboard')
       } else {
         navRoutes.value = NAVACTIONS.filter((route) => route.user === 'user')
+        router.push('/')
       }
       navRoutes.value.push(...NAVACTIONS.filter((route) => route.user === 'common'))
     } else {
