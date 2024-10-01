@@ -266,6 +266,7 @@ const loginOnAction = async () => {
     isProcessing.value  = false
     router.push('/')
   } catch (error) {
+    isProcessing.value  = false
     toast.add({
       severity: 'error',
       summary: 'Error',

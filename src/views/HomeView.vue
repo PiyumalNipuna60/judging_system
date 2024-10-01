@@ -102,10 +102,7 @@
               />
             </div>
             <div v-else>
-              <!-- <PDFViewer
-                :source="getPdfUrl(editableStudentData.serial_no)"
-                style="height: 80vh"
-              /> -->
+              <embed :src="getPdfUrl(editableStudentData.serial_no)" type="application/pdf" width="100%" height="600px">
             </div>
           </section>
           <Divider layout="vertical" />
