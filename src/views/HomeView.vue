@@ -102,10 +102,10 @@
               />
             </div>
             <div v-else>
-              <PDFViewer
+              <!-- <PDFViewer
                 :source="getPdfUrl(editableStudentData.serial_no)"
                 style="height: 80vh"
-              />
+              /> -->
             </div>
           </section>
           <Divider layout="vertical" />
@@ -181,7 +181,7 @@ import { useUserStore } from '../stores/UserStore'
 import { find } from 'lodash'
 import { DISTRICTS, AGEGROUPS, S3_BUCKET } from '@/const/const'
 import Image from 'primevue/image'
-import PDFViewer from 'pdf-viewer-vue'
+// import PDFViewer from 'pdf-viewer-vue'
 
 const toast = useToast()
 const userStore = useUserStore()
