@@ -16,6 +16,7 @@
   "dependencies": {
     "@primevue/themes": "^4.0.4",
     "axios": "^1.7.4",
+    "exceljs": "^4.4.0",
     "lodash": "^4.17.21",
     "pinia": "^2.1.7",
     "primeflex": "^3.3.1",

@@ -37,6 +37,8 @@ import 'primevue/resources/primevue.min.css'
 import 'primeicons/primeicons.css'
 import 'primeflex/primeflex.css'
 import 'primeicons/primeicons.css'
+import ExcelJS from 'exceljs'; 
+
 
 const app = createApp(App)
 
@@ -68,6 +70,8 @@ app.component('Checkbox', Checkbox)
 app.component('Image', Image)
 app.component('IconField', IconField)
 app.component('InputIcon', InputIcon)
+
+app.config.globalProperties.$exceljs = ExcelJS;
 
 app.use(PrimeVue, {
   Theme: {
