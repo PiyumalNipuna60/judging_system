@@ -31,11 +31,10 @@
           <label class="font-semibold mb-2">Student serial number</label>
           <InputText
             v-model="studentData.serialNo"
-            id="mark_03"
+            placeholder="Enter student serial number" 
             class="flex-auto"
-            autocomplete="off"
-            :disable="isStudentUpdating"
-          />
+            :disabled="isStudentUpdating"
+            />
         </div>
         <div class="flex flex-row">
           <div class="input-field-container">
@@ -149,6 +148,7 @@
           type="button"
           :label="isStudentUpdating ? 'Update student' : 'Add student'"
           class="mr-2"
+          :loading="isProcessing"
           @click="addNewStudent"
         ></Button>
         <Button
@@ -195,6 +195,7 @@ const filesProcessing = ref(false)
 const ruleImageUrl = ref()
 const studentList = ref([])
 const isStudentUpdating = ref(false)
+const isProcessing = ref(false)
 
 onMounted(async () => {
   await getAllStudents()
@@ -202,6 +203,7 @@ onMounted(async () => {
 
 const getAllStudents = async () => {
   try {
+    isProcessing.value = true
     studentList.value = await studentStore.getAllStudents()
     console.log('student lust _', studentList.value)
   } catch (error) {
@@ -212,6 +214,7 @@ const getAllStudents = async () => {
       life: 3000
     })
   }
+  isProcessing.value = false
 }
 
 const onStreamSelect = async (event) => {
@@ -230,6 +233,7 @@ const onStreamSelect = async (event) => {
 
 const addNewStudent = async () => {
   try {
+    isProcessing.value = true
     if (isStudentUpdating.value) {
       await studentStore.updateStudentData(studentData.value)
     } else {
@@ -249,6 +253,8 @@ const addNewStudent = async () => {
       life: 3000
     })
   }
+  clearStudentData()
+  isProcessing.value = false
 }
 
 const onStudentIdSelect = (param) => {
@@ -289,6 +295,7 @@ const onDistrictelect = (param) => {
 
 const removeStudentData = async () => {
   try {
+    isProcessing.value = true
     await studentStore.removeStudentData(studentData.value.id)
     getAllStudents()
     toast.add({
@@ -305,6 +312,7 @@ const removeStudentData = async () => {
       life: 3000
     })
   }
+  isProcessing.value = false
 }
 
 const clearStudentData = () => {
