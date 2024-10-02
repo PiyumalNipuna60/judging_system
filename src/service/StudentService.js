@@ -35,8 +35,10 @@ export async function addStudent(studentData) {
     formData.append('district', studentData.district.id)
     formData.append('ageGroup', studentData.ageGroup)
     formData.append('stream', studentData.stream)
-    formData.append('language', studentData.language)
-    // formData.append('file', studentData.uploadedFile.file,  studentData.uploadedFile.name); // Append file to FormData
+    if(studentData.language){
+      formData.append('language', studentData.language)
+    }
+        // formData.append('file', studentData.uploadedFile.file,  studentData.uploadedFile.name); // Append file to FormData
     const response = await axios.post(`${BASEURL}/api/save_student`, formData)
     if (response.status === 200) {
       return response.data.user
@@ -55,7 +57,9 @@ export async function updateStudent(studentData) {
     formData.append('district', studentData.district.id)
     formData.append('ageGroup', studentData.ageGroup)
     formData.append('stream', studentData.stream)
-    formData.append('language', studentData.language)
+    if(studentData.language){
+      formData.append('language', studentData.language)
+    }
     const response = await axios.post(`${BASEURL}/api/update_student/${studentData.id}`, formData)
     if (response.status === 200) {
       return response.data.user

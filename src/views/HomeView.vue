@@ -9,6 +9,8 @@
           <Dropdown
             v-model="selectedDistrict"
             :options="districts"
+            optionLabel="name"
+            optionValue="id"
             showClear
             placeholder="Select a District"
             class="w-full md:w-14rem flex flex-row relative"
@@ -30,7 +32,7 @@
         <DataTable
           ref="dataTable"
           v-model:selection="selectedStudent"
-          :value="filteredStudentList"
+          :value="studentList"
           tableStyle="min-width: 50rem"
           paginator
           :rows="10"
@@ -121,6 +123,7 @@
         header="Update student marks"
         :style="{ width: '70rem' }"
         position="right"
+        @hide="onSideBarBlur"
       >
         <span class="p-text-secondary block mb-5"
           >Student serial number: {{ editableStudentData.serial_no }}</span
@@ -128,16 +131,16 @@
         <section class="sidebar-content-container">
           <section class="sidebar-content-container__image-container">
             <div v-if="getLoggedUser?.stream !== 'Essay'">
-              <Image
-                :src="getImageUrl(editableStudentData.serial_no)"
-                alt="Image"
-                width="500"
-                preview
+              <embed
+                :src="pdfFileUrl"
+                type="application/pdf"
+                width="100%"
+                height="600px"
               />
             </div>
             <div v-else>
               <embed
-                :src="getPdfUrl(editableStudentData.serial_no)"
+                :src="pdfFileUrl"
                 type="application/pdf"
                 width="100%"
                 height="600px"
@@ -235,23 +238,24 @@
       </Sidebar>
     </section>
     <section class="criteria-explanation-section">
-      <div v-if="streamType === 'Art'"> 
+      <div v-if="streamType === 'Art'">
         <li>Mark_01: Depicting the appropriate atmosphere and environment for the topic.</li>
-      <li>Mark_02: The way images are arranged within the space.</li>
-      <li>Mark_03: Applications of style-related theories.</li>
-      <li>Mark_04: Proficiency in art medium and techniques.</li>
-      <li>Mark_05: Expressiveness and overall finish.</li>
+        <li>Mark_02: The way images are arranged within the space.</li>
+        <li>Mark_03: Applications of style-related theories.</li>
+        <li>Mark_04: Proficiency in art medium and techniques.</li>
+        <li>Mark_05: Expressiveness and overall finish.</li>
       </div>
-      <div v-else> 
+      <div v-else>
         <ul>
           <li>Mark_01: Content - Presenting insightful concepts related to the subject.</li>
-      <li>Mark_02: Follow the rules of language - Grammer and Spelling.</li>
-      <li>Mark_03: Technical skills - Verse division, subject separation, punctuation, and handwriting.</li>
-      <li>Mark_04: Strength of expressiveness and overall value.</li>
+          <li>Mark_02: Follow the rules of language - Grammer and Spelling.</li>
+          <li>
+            Mark_03: Technical skills - Verse division, subject separation, punctuation, and
+            handwriting.
+          </li>
+          <li>Mark_04: Strength of expressiveness and overall value.</li>
         </ul>
-
       </div>
-  
     </section>
   </section>
 </template>
@@ -263,10 +267,7 @@ import { storeToRefs } from 'pinia'
 import { useHomeStore } from '../stores/HomeStore'
 import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
-import { find } from 'lodash'
 import { DISTRICTS, AGEGROUPS, S3_BUCKET } from '@/const/const'
-import Image from 'primevue/image'
-// import PDFViewer from 'pdf-viewer-vue'
 
 const toast = useToast()
 const userStore = useUserStore()
@@ -280,7 +281,7 @@ const selectedStudent = ref(null)
 const selectedDistrict = ref(null)
 const selectedAgeGroup = ref(null)
 const ageGroups = ref(AGEGROUPS)
-const filteredStudentList = ref([])
+const studentList = ref([])
 const districts = ref([])
 const IsDialogVisible = ref(false)
 const markValidation = ref({
@@ -292,8 +293,9 @@ const markValidation = ref({
 })
 const isMarksAdding = ref(false)
 const isTableVisible = ref(false)
-const streamType = ref(getLoggedUser.value?.stream)
+const streamType = ref(false)
 const isSaveDisabled = ref(false)
+const pdfFileUrl = ref()
 // const processing = ref(false)
 // const skelatonArray = ref(new Array(10))
 const editableStudentData = ref({
@@ -311,44 +313,25 @@ const editableStudentData = ref({
 })
 
 onMounted(async () => {
-  filteredStudentList.value = await homeStore.getStudentList(getLoggedUser.value)
+  streamType.value = getLoggedUser.value?.stream
+  studentList.value = await homeStore.getStudentList(getLoggedUser.value)
   getDistrictList()
 })
 
-const getImageUrl = (serialNo) => {
-  return `${S3_BUCKET}image/${encodeURIComponent(replace(serialNo, /\//g, '-'))}.jpg`
+const onSideBarBlur = () => {
+  clearStudentData()
 }
 
 const getPdfUrl = (serialNo) => {
-  return `${S3_BUCKET}pdf/${encodeURIComponent(replace(serialNo, /\//g, '-'))}.pdf`
+  if (getLoggedUser?.stream !== 'Essay') {
+    pdfFileUrl.value = `${S3_BUCKET}pdf/${replace(replace(serialNo, /\//g, '-'), / /g, '+')}.pdf`
+  } else {
+    pdfFileUrl.value = `${S3_BUCKET}image/${replace(replace(serialNo, /\//g, '-'), / /g, '+')}.pdf`
+  }
 }
 
 const onRowSelect = (param) => {
-  if (selectedDistrict.value !== null && selectedAgeGroup.value === null) {
-    toast.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'Please select an Age group.',
-      life: 3000
-    })
-    return
-  } else if (selectedAgeGroup.value !== null && selectedDistrict.value === null) {
-    toast.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'Please select a District.',
-      life: 3000
-    })
-    return
-  } else if (selectedAgeGroup.value === null && selectedAgeGroup.value === null) {
-    toast.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'Please select a District and Age group.',
-      life: 3000
-    })
-    return
-  }
+  getPdfUrl(param.data.serial_no)
   IsDialogVisible.value = !IsDialogVisible.value
   if (!param.data.marks) {
     isMarksAdding.value = true
@@ -367,8 +350,6 @@ const saveStudentDetails = async () => {
   }
 
   editableStudentData.value.marks.total = totalMarks
-  IsDialogVisible.value = !IsDialogVisible.value
-
   try {
     if (isMarksAdding.value) {
       editableStudentData.value.marks.teacher_id = getLoggedUser.value.teacher_id
@@ -377,7 +358,9 @@ const saveStudentDetails = async () => {
     } else {
       await homeStore.updateStudentMarks(editableStudentData.value.marks)
     }
-    filteredStudentList.value = await homeStore.getStudentList(getLoggedUser.value)
+    studentList.value = await homeStore.getStudentList(getLoggedUser.value)
+    IsDialogVisible.value = !IsDialogVisible.value
+    onDropdownChange()
     toast.add({
       severity: 'info',
       summary: 'Info',
@@ -415,46 +398,23 @@ const clearStudentData = () => {
 }
 
 const onDropdownChange = () => {
-  if (selectedDistrict.value !== null && selectedAgeGroup.value === null) {
-    isTableVisible.value = false
-    districtFilter()
-    return
-  } else if (selectedAgeGroup.value !== null && selectedDistrict.value === null) {
-    isTableVisible.value = false
-    ageGroupFilter()
-    return
-  } else if (selectedAgeGroup.value === null && selectedAgeGroup.value === null) {
-    filteredStudentList.value = filteredStudentLists.value
-    isTableVisible.value = false
-    return
+  studentList.value = filteredStudentLists.value
+  if (selectedDistrict.value !== null) {
+    studentList.value = studentList.value.filter(
+      (item) => Number(item.district) === selectedDistrict.value
+    )
+    if (selectedAgeGroup.value !== null) {
+      studentList.value = studentList.value.filter((item) => item.age === selectedAgeGroup.value)
+      isTableVisible.value = true
+      return
+    }
   }
-  commonFilter()
-}
-
-const ageGroupFilter = () => {
-  filteredStudentList.value = filteredStudentLists.value.filter(
-    (item) => item.age === selectedAgeGroup.value
-  )
-}
-
-const districtFilter = () => {
-  filteredStudentList.value = filteredStudentLists.value.filter(
-    (item) => Number(item.district) === find(DISTRICTS, { name: selectedDistrict.value }).id
-  )
-}
-
-const commonFilter = () => {
-  filteredStudentList.value = filteredStudentLists.value.filter(
-    (item) =>
-      Number(item.district) === find(DISTRICTS, { name: selectedDistrict.value }).id &&
-      item.age === selectedAgeGroup.value
-  )
-  isTableVisible.value = true
+  isTableVisible.value = false
 }
 
 const getDistrictList = () => {
   getLoggedUser.value.districtDetails?.forEach((element) => {
-    districts.value.push(DISTRICTS.find((ele) => ele.id === element).name)
+    districts.value.push(DISTRICTS.find((ele) => ele.id === element))
   })
 }
 
@@ -506,14 +466,6 @@ const checkDisability = () => {
     }
   }
 
-  console.log(
-    'diability ',
-    markValidation.value.mark_01,
-    markValidation.value.mark_02,
-    markValidation.value.mark_03,
-    markValidation.value.mark_04,
-    markValidation.value.mark_05
-  )
   if (
     editableStudentData.value.marks.mark_01 &&
     editableStudentData.value.marks.mark_02 &&
@@ -629,10 +581,10 @@ const checkDisability = () => {
   width: 100%;
 }
 
-.criteria-explanation-section{
+.criteria-explanation-section {
   position: absolute;
-    font-size: 12px;
-    right: 28px;
-    top: 81px;
+  font-size: 12px;
+  right: 28px;
+  top: 81px;
 }
 </style>
