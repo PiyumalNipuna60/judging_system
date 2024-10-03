@@ -239,21 +239,21 @@
     </section>
     <section class="criteria-explanation-section">
       <div v-if="streamType === 'Art'">
-        <li>Mark_01: Depicting the appropriate atmosphere and environment for the topic.</li>
-        <li>Mark_02: The way images are arranged within the space.</li>
-        <li>Mark_03: Applications of style-related theories.</li>
-        <li>Mark_04: Proficiency in art medium and techniques.</li>
-        <li>Mark_05: Expressiveness and overall finish.</li>
+        <li>Mark_01: Depicting the appropriate atmosphere and environment for the topic. (මාතෘකාවට උචිත වාතාවරණය සහ පරිසරය දැක්වීම)</li>
+        <li>Mark_02: The way images are arranged within the space. (අවකාශය මත රූප සංචරණය කර ඇති ආකාරය)</li>
+        <li>Mark_03: Applications of style-related theories. (ශෛලියට අදාල සිද්ධාන්ත භාවිතය)</li>
+        <li>Mark_04: Proficiency in art medium and techniques. (චිත්‍ර මාධ්‍ය සහ ශිල්ප ක්‍රම භාවිතයේ කුසලතාව)</li>
+        <li>Mark_05: Expressiveness and overall finish. (භාව ප්‍රකාශය සහ සමස්ත නිමාව)</li>
       </div>
       <div v-else>
         <ul>
-          <li>Mark_01: Content - Presenting insightful concepts related to the subject.</li>
-          <li>Mark_02: Follow the rules of language - Grammer and Spelling.</li>
+          <li>Mark_01: Content - Presenting insightful concepts related to the subject. (අන්තර්ගතය - මාතෘකාවට අදාල සාරවත් අදහස් ඉදිරිපත් කිරීම)</li>
+          <li>Mark_02: Follow the rules of language - Grammer and Spelling. (භාෂා රීතින් අනුගමනය - උක්ත ආඛ්‍යාත සම්බන්ධය, අක්ෂර වින්‍යාසය)</li>
           <li>
             Mark_03: Technical skills - Verse division, subject separation, punctuation, and
-            handwriting.
+            handwriting (ශිල්පීය දක්ෂතා - පද බෙදීම, ජේද වෙන්කිරීම, විරාම ලක්ෂණ සහ අත් අකුරු).
           </li>
-          <li>Mark_04: Strength of expressiveness and overall value.</li>
+          <li>Mark_04: Strength of expressiveness and overall value. (ප්‍රකාශන ශක්තිය සහ සමස්ත අගය)</li>
         </ul>
       </div>
     </section>
@@ -337,7 +337,7 @@ const onRowSelect = (param) => {
     isMarksAdding.value = true
     param.data.marks = editableStudentData.value.marks
   }
-  editableStudentData.value = param.data
+  editableStudentData.value = {...param.data}
 }
 
 const saveStudentDetails = async () => {
@@ -358,7 +358,7 @@ const saveStudentDetails = async () => {
     } else {
       await homeStore.updateStudentMarks(editableStudentData.value.marks)
     }
-    studentList.value = await homeStore.getStudentList(getLoggedUser.value)
+    studentList.value = await homeStore.getStudentList(getLoggedUser.value)    
     IsDialogVisible.value = !IsDialogVisible.value
     onDropdownChange()
     toast.add({
@@ -398,7 +398,7 @@ const clearStudentData = () => {
 }
 
 const onDropdownChange = () => {
-  studentList.value = filteredStudentLists.value
+  studentList.value = filteredStudentLists.value  
   if (selectedDistrict.value !== null) {
     studentList.value = studentList.value.filter(
       (item) => Number(item.district) === selectedDistrict.value
@@ -413,7 +413,7 @@ const onDropdownChange = () => {
 }
 
 const getDistrictList = () => {
-  getLoggedUser.value.districtDetails?.forEach((element) => {
+  getLoggedUser.value.districtList?.forEach((element) => {
     districts.value.push(DISTRICTS.find((ele) => ele.id === element))
   })
 }
@@ -584,7 +584,15 @@ const checkDisability = () => {
 .criteria-explanation-section {
   position: absolute;
   font-size: 12px;
-  right: 28px;
-  top: 81px;
+  right: 0px;
+  top: 37px;
+    max-width: 740px;
+
+   li {
+    background: #b6dfff;
+    padding: 2px;
+    border-radius: 5px;
+    margin: 2px;
+}
 }
 </style>

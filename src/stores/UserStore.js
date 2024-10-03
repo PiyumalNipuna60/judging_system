@@ -88,7 +88,7 @@ export const useUserStore = defineStore('UserStore', () => {
         isLoggedIn.value = true
         setUserData(response)
         response.userType = 'user'
-        response.districtDetails = [1,2,3]
+        response.districtList = response.district_details.map(detail => detail.district_id);
         localStorage.setItem('user', JSON.stringify(response))
       }
       return
