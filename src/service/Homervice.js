@@ -7,7 +7,7 @@ export async function getFilteredStudentList(params) {
     let response
     if (params) {
       const requset = {
-        districts: params.districtDetails,
+        districts: params.districtList,
         stream: params.stream,
         language: params.language,
         teacherId: params.teacher_id
@@ -17,7 +17,7 @@ export async function getFilteredStudentList(params) {
       response = await axios.post(`${BASEURL}/api/get_all_student`)
     }
     if (response.status === 200) {
-      return mapStudentData(response.data)
+      return mapStudentData(response.data, params.teacher_id)
     } else {
       throw new Error('Error at get filtered student list')
     }
@@ -65,11 +65,18 @@ export async function updateMarks(params) {
   }
 }
 
-async function mapStudentData(params) {
-  return params.map((student) => ({
-    ...student,
-    marks: student.marks[0]
-  }))
+async function mapStudentData(params, teacherId) {
+  const filteredStudents = params.filter(student => {
+    if (student.marking_status >= 3) {
+        const teacherMark = student.marks.find(mark => mark.teacher_id === teacherId)
+        if (!teacherMark) {
+            return false
+        }
+    }
+    student.marks = student.marks.find(mark => mark.teacher_id === teacherId)
+    return true
+})
+return filteredStudents
 }
 
 async function mapCalculations(params) {
