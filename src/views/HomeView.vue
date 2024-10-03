@@ -13,7 +13,7 @@
             optionValue="id"
             showClear
             placeholder="Select a District"
-            class="w-full md:w-14rem flex flex-row relative"
+            class="w-full md:w-12rem flex flex-row relative"
             @change="onDropdownChange"
           />
         </div>
@@ -23,8 +23,18 @@
             :options="ageGroups"
             showClear
             placeholder="Select an Age Group"
-            class="w-full md:w-14rem flex flex-row relative"
+            class="w-full md:w-10rem flex flex-row relative"
             @change="onDropdownChange"
+          />
+        </div>
+        <div class="homepage-content-container_dropdown">
+          <Dropdown
+            v-model="selectedStatus"
+            :options="statusList"
+            showClear
+            placeholder="Select an Age Group"
+            class="w-full md:w-10rem flex flex-row relative"
+            @change="onMarkingStatusChange"
           />
         </div>
       </div>
@@ -131,20 +141,10 @@
         <section class="sidebar-content-container">
           <section class="sidebar-content-container__image-container">
             <div v-if="getLoggedUser?.stream !== 'Essay'">
-              <embed
-                :src="pdfFileUrl"
-                type="application/pdf"
-                width="100%"
-                height="600px"
-              />
+              <embed :src="pdfFileUrl" type="application/pdf" width="100%" height="600px" />
             </div>
             <div v-else>
-              <embed
-                :src="pdfFileUrl"
-                type="application/pdf"
-                width="100%"
-                height="600px"
-              />
+              <embed :src="pdfFileUrl" type="application/pdf" width="100%" height="600px" />
             </div>
           </section>
           <Divider layout="vertical" />
@@ -239,21 +239,37 @@
     </section>
     <section class="criteria-explanation-section">
       <div v-if="streamType === 'Art'">
-        <li>Mark_01: Depicting the appropriate atmosphere and environment for the topic. (මාතෘකාවට උචිත වාතාවරණය සහ පරිසරය දැක්වීම)</li>
-        <li>Mark_02: The way images are arranged within the space. (අවකාශය මත රූප සංචරණය කර ඇති ආකාරය)</li>
+        <li>
+          Mark_01: Depicting the appropriate atmosphere and environment for the topic. (මාතෘකාවට
+          උචිත වාතාවරණය සහ පරිසරය දැක්වීම)
+        </li>
+        <li>
+          Mark_02: The way images are arranged within the space. (අවකාශය මත රූප සංචරණය කර ඇති ආකාරය)
+        </li>
         <li>Mark_03: Applications of style-related theories. (ශෛලියට අදාල සිද්ධාන්ත භාවිතය)</li>
-        <li>Mark_04: Proficiency in art medium and techniques. (චිත්‍ර මාධ්‍ය සහ ශිල්ප ක්‍රම භාවිතයේ කුසලතාව)</li>
+        <li>
+          Mark_04: Proficiency in art medium and techniques. (චිත්‍ර මාධ්‍ය සහ ශිල්ප ක්‍රම භාවිතයේ
+          කුසලතාව)
+        </li>
         <li>Mark_05: Expressiveness and overall finish. (භාව ප්‍රකාශය සහ සමස්ත නිමාව)</li>
       </div>
       <div v-else>
         <ul>
-          <li>Mark_01: Content - Presenting insightful concepts related to the subject. (අන්තර්ගතය - මාතෘකාවට අදාල සාරවත් අදහස් ඉදිරිපත් කිරීම)</li>
-          <li>Mark_02: Follow the rules of language - Grammer and Spelling. (භාෂා රීතින් අනුගමනය - උක්ත ආඛ්‍යාත සම්බන්ධය, අක්ෂර වින්‍යාසය)</li>
+          <li>
+            Mark_01: Content - Presenting insightful concepts related to the subject. (අන්තර්ගතය -
+            මාතෘකාවට අදාල සාරවත් අදහස් ඉදිරිපත් කිරීම)
+          </li>
+          <li>
+            Mark_02: Follow the rules of language - Grammer and Spelling. (භාෂා රීතින් අනුගමනය -
+            උක්ත ආඛ්‍යාත සම්බන්ධය, අක්ෂර වින්‍යාසය)
+          </li>
           <li>
             Mark_03: Technical skills - Verse division, subject separation, punctuation, and
             handwriting (ශිල්පීය දක්ෂතා - පද බෙදීම, ජේද වෙන්කිරීම, විරාම ලක්ෂණ සහ අත් අකුරු).
           </li>
-          <li>Mark_04: Strength of expressiveness and overall value. (ප්‍රකාශන ශක්තිය සහ සමස්ත අගය)</li>
+          <li>
+            Mark_04: Strength of expressiveness and overall value. (ප්‍රකාශන ශක්තිය සහ සමස්ත අගය)
+          </li>
         </ul>
       </div>
     </section>
@@ -280,7 +296,9 @@ const dataTable = ref()
 const selectedStudent = ref(null)
 const selectedDistrict = ref(null)
 const selectedAgeGroup = ref(null)
+const selectedStatus = ref(null)
 const ageGroups = ref(AGEGROUPS)
+const statusList = ref(['Unmarked', 'All'])
 const studentList = ref([])
 const districts = ref([])
 const IsDialogVisible = ref(false)
@@ -337,7 +355,7 @@ const onRowSelect = (param) => {
     isMarksAdding.value = true
     param.data.marks = editableStudentData.value.marks
   }
-  editableStudentData.value = {...param.data}
+  editableStudentData.value = { ...param.data }
 }
 
 const saveStudentDetails = async () => {
@@ -358,9 +376,9 @@ const saveStudentDetails = async () => {
     } else {
       await homeStore.updateStudentMarks(editableStudentData.value.marks)
     }
-    studentList.value = await homeStore.getStudentList(getLoggedUser.value)    
+    studentList.value = await homeStore.getStudentList(getLoggedUser.value)
     IsDialogVisible.value = !IsDialogVisible.value
-    onDropdownChange()
+    onMarkingStatusChange()
     toast.add({
       severity: 'info',
       summary: 'Info',
@@ -398,7 +416,7 @@ const clearStudentData = () => {
 }
 
 const onDropdownChange = () => {
-  studentList.value = filteredStudentLists.value  
+  studentList.value = filteredStudentLists.value
   if (selectedDistrict.value !== null) {
     studentList.value = studentList.value.filter(
       (item) => Number(item.district) === selectedDistrict.value
@@ -410,6 +428,20 @@ const onDropdownChange = () => {
     }
   }
   isTableVisible.value = false
+}
+
+const onMarkingStatusChange = () => {
+  onDropdownChange()
+  if (selectedStatus.value === 'Unmarked') {
+    studentList.value = studentList.value.filter((student) => {
+    if (student.marking_status <= 2) {      
+      return !student.marks
+    }
+    return false
+  })
+} else {
+  onDropdownChange()
+}  
 }
 
 const getDistrictList = () => {
@@ -586,13 +618,13 @@ const checkDisability = () => {
   font-size: 12px;
   right: 0px;
   top: 37px;
-    max-width: 740px;
+  max-width: 740px;
 
-   li {
+  li {
     background: #b6dfff;
     padding: 2px;
     border-radius: 5px;
     margin: 2px;
-}
+  }
 }
 </style>

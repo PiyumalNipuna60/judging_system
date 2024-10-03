@@ -37,6 +37,16 @@
             @change="onDropdownChange"
           />
         </div>
+        <div class="homepage-content-container_dropdown">
+          <Dropdown
+            v-model="selectedStatus"
+            :options="statusList"
+            showClear
+            placeholder="Select an Age Group"
+            class="w-full md:w-10rem flex flex-row relative"
+            @change="onMarkingStatusChange"
+          />
+        </div>
       </div>
       <div v-if="!processing" class="admin-data-table-container">
         <DataTable
@@ -366,6 +376,8 @@ const studentList = ref([])
 const districts = ref(DISTRICTS)
 const skelatonArray = ref(new Array(12))
 const processing = ref(true)
+const statusList = ref(['Unmarked', 'All'])
+const selectedStatus = ref(null)
 
 onMounted(async () => {
   processing.value = true
@@ -375,7 +387,6 @@ onMounted(async () => {
 
 const onDropdownChange = () => {
   studentList.value = allStudentLists.value
-  console.log('sele______', selectedDistrict.value, selectedAgeGroup.value, selectedMedium.value)
   if (selectedDistrict.value !== null) {
     studentList.value = studentList.value.filter(
       (item) => Number(item.district) === selectedDistrict.value
@@ -387,6 +398,20 @@ const onDropdownChange = () => {
   if (selectedMedium.value !== null) {
     studentList.value = studentList.value.filter((item) => item.stream === selectedMedium.value)
   }
+}
+
+const onMarkingStatusChange = () => {
+  onDropdownChange()
+  if (selectedStatus.value === 'Unmarked') {
+    studentList.value = studentList.value.filter((student) => {
+    if (student.marking_status <= 2) {      
+      return true
+    }
+    return false
+  })
+} else {
+  onDropdownChange()
+}  
 }
 
 const exportCSV = () => {
