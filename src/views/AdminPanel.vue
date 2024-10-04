@@ -47,6 +47,9 @@
             @change="onMarkingStatusChange"
           />
         </div>
+        <div class="homepage-content-container_dropdown">
+          <Button icon="pi pi-refresh" text rounded raised aria-label="Filter" :loading="processing" @click="onRefresh" />
+        </div>
       </div>
       <div v-if="!processing" class="admin-data-table-container">
         <DataTable
@@ -384,6 +387,14 @@ onMounted(async () => {
   studentList.value = await homeStore.getAllStudents()
   processing.value = false
 })
+
+const onRefresh = async() => {
+  processing.value = true
+  studentList.value = await homeStore.getAllStudents()
+  onMarkingStatusChange()
+  processing.value = false
+
+}
 
 const onDropdownChange = () => {
   studentList.value = allStudentLists.value

@@ -87,40 +87,6 @@
           >
         </DataTable>
       </div>
-      <!-- <div v-else-if="processing" class="empty-area-container">
-        <DataTable :value="skelatonArray">
-            <Column header="User Name">
-                <template #body>
-                    <Skeleton></Skeleton>
-                </template>
-            </Column>
-            <Column header="Contact">
-                <template #body>
-                    <Skeleton></Skeleton>
-                </template>
-            </Column>
-            <Column header="Districts" >
-                <template #body>
-                    <Skeleton></Skeleton>
-                </template>
-            </Column>
-            <Column header="Language" >
-                <template #body>
-                    <Skeleton></Skeleton>
-                </template>
-            </Column>
-            <Column header="Stream" >
-                <template #body>
-                    <Skeleton></Skeleton>
-                </template>
-            </Column>
-            <Column header="Action" >
-                <template #body>
-                    <Skeleton></Skeleton>
-                </template>
-            </Column>
-        </DataTable>
-      </div> -->
       <div v-else class="empty-area-container">
         <i class="pi pi-filter" style="font-size: 2rem"></i>
         <p>Please select a District and Age group to dispaly student details.</p>
@@ -130,7 +96,7 @@
       <Sidebar
         v-model:visible="IsDialogVisible"
         modal
-        header="Update student marks"
+        :header="isMarksAdding ? 'Add Student marks':'Update student marks'"
         :style="{ width: '70rem' }"
         position="right"
         @hide="onSideBarBlur"
@@ -187,9 +153,7 @@
                 autocomplete="off"
                 @blur="onConfirmPasswordBlur('mark_03', editableStudentData.marks.mark_03)"
               />
-              <label v-if="!markValidation.mark_03" for="contact" class="contact-error-label"
-                >Mark must be 1 - 20</label
-              >
+              <label v-if="!markValidation.mark_03" for="contact" class="contact-error-label">Mark must be 1 - 20</label>
             </div>
             <div class="input-field-container">
               <label for="username" class="font-semibold">Mark 04 (out Of 20)</label>
@@ -224,7 +188,9 @@
         <div class="button-section">
           <Button
             type="button"
-            label="Save"
+            class="mr-2"
+            :label="isMarksAdding ? 'Add Marks':'Update Marks'"
+            :loading="processing"
             :disabled="!isSaveDisabled"
             @click="saveStudentDetails"
           ></Button>
@@ -314,8 +280,7 @@ const isTableVisible = ref(false)
 const streamType = ref(false)
 const isSaveDisabled = ref(false)
 const pdfFileUrl = ref()
-// const processing = ref(false)
-// const skelatonArray = ref(new Array(10))
+const processing = ref(true)
 const editableStudentData = ref({
   serialNo: null,
   district: null,
@@ -333,9 +298,11 @@ const editableStudentData = ref({
 })
 
 onMounted(async () => {
+  processing.value = true
   streamType.value = getLoggedUser.value?.stream
   studentList.value = await homeStore.getStudentList(getLoggedUser.value)
   getDistrictList()
+  processing.value = false
 })
 
 const onSideBarBlur = () => {
@@ -361,6 +328,7 @@ const onRowSelect = (param) => {
 
   if (param.data.marks) {
     editableStudentData.value.marks = param.data.marks
+    isMarksAdding.value = false
     } else {
       isMarksAdding.value = true
     }
@@ -368,7 +336,7 @@ const onRowSelect = (param) => {
 
 const saveStudentDetails = async () => {
   let totalMarks = 0
-  // processing.value = true
+  processing.value = true
   for (const key in editableStudentData.value.marks) {
     if (key.startsWith('mark_0') && editableStudentData.value.marks[key]) {
       totalMarks += parseInt(editableStudentData.value.marks[key])
@@ -404,7 +372,7 @@ const saveStudentDetails = async () => {
 
   isMarksAdding.value = false
   clearStudentData()
-  // processing.value = false
+  processing.value = false
 }
 
 const clearStudentData = () => {
