@@ -164,7 +164,7 @@
               >
             </div>
             <div class="input-field-container">
-              <label for="username" class="font-semibold w-6rem">Mark 02 {{getLoggedUser?.stream === 'Essay' ? ' (out Of 30)' : ' (out Of 20)'}}</label>
+              <label for="username" class="font-semibold">Mark 02 {{getLoggedUser?.stream === 'Essay' ? ' (out Of 30)' : ' (out Of 20)'}}</label>
               <InputNumber
                 v-model="editableStudentData.marks.mark_02"
                 id="mark_02"
@@ -178,7 +178,7 @@
               >
             </div>
             <div class="input-field-container">
-              <label for="username" class="font-semibold w-6rem">Mark 03 (out Of 20)</label>
+              <label for="username" class="font-semibold">Mark 03 (out Of 20)</label>
               <InputNumber
                 v-model="editableStudentData.marks.mark_03"
                 id="mark_03"
@@ -192,7 +192,7 @@
               >
             </div>
             <div class="input-field-container">
-              <label for="username" class="font-semibold w-6rem">Mark 04 (out Of 20)</label>
+              <label for="username" class="font-semibold">Mark 04 (out Of 20)</label>
               <InputNumber
                 v-model="editableStudentData.marks.mark_04"
                 id="mark_04"
@@ -206,7 +206,7 @@
               >
             </div>
             <div class="input-field-container" v-if="streamType !== 'Essay'">
-              <label for="username" class="font-semibold w-6rem">Mark 05 (out Of 20)</label>
+              <label for="username" class="font-semibold">Mark 05 (out Of 20)</label>
               <InputNumber
                 v-model="editableStudentData.marks.mark_05"
                 id="mark_05"
