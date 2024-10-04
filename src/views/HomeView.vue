@@ -321,6 +321,7 @@ const editableStudentData = ref({
   district: null,
   ageGroup: null,
   language: null,
+  student_id: null,
   marks: {
     mark_01: null,
     mark_02: null,
@@ -353,6 +354,7 @@ const onRowSelect = (param) => {
   getPdfUrl(param.data.serial_no)
   IsDialogVisible.value = !IsDialogVisible.value
   editableStudentData.value.serial_no = param.data.serial_no
+  editableStudentData.value.student_id = param.data.student_id
   editableStudentData.value.district = param.data.district
   editableStudentData.value.ageGroup = param.data.age
   editableStudentData.value.language = param.data.language
@@ -411,6 +413,7 @@ const clearStudentData = () => {
     district: null,
     ageGroup: null,
     language: null,
+    student_id: null,
     marks: {
       mark_01: null,
       mark_02: null,
