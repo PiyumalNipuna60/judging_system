@@ -55,27 +55,27 @@
           @rowUnSelect="onRowSelect"
         >
           <Column field="serial_no" header="Serial Number"></Column>
-          <Column field="mark_01" header="Mark 01">
+          <Column field="mark_01" :header="getLoggedUser?.stream === 'Essay' ? 'Mark 01 (out of 30)' : 'Mark 01 (out of 20)'">
             <template #body="slotProps">
               {{ slotProps.data.marks?.mark_01 ? slotProps.data.marks.mark_01 : '--' }}
             </template>
           </Column>
-          <Column field="mark_02" header="Mark 02">
+          <Column field="mark_02" :header="getLoggedUser?.stream === 'Essay' ? 'Mark 02 (out of 30)' : 'Mark 02 (out of 20)'">
             <template #body="slotProps">
               {{ slotProps.data.marks?.mark_02 ? slotProps.data.marks.mark_02 : '--' }}
             </template>
           </Column>
-          <Column field="mark_03" header="Mark 03">
+          <Column field="mark_03" header="Mark 03 (out of 20)">
             <template #body="slotProps">
               {{ slotProps.data.marks?.mark_03 ? slotProps.data.marks.mark_03 : '--' }}
             </template>
           </Column>
-          <Column header="Mark 04">
+          <Column header="Mark 04 (out of 20)">
             <template #body="slotProps">
               {{ slotProps.data.marks?.mark_04 ? slotProps.data.marks.mark_04 : '--' }}
             </template>
           </Column>
-          <Column v-if="getLoggedUser?.stream !== 'Essay'" field="mark_05" header="Mark 05">
+          <Column v-if="getLoggedUser?.stream !== 'Essay'" field="mark_05" header="Mark 05 (out of 20)">
             <template #body="slotProps">
               {{ slotProps.data.marks?.mark_05 ? slotProps.data.marks.mark_05 : '--' }}
             </template>
@@ -160,7 +160,7 @@
                 @blur="onConfirmPasswordBlur('mark_01', editableStudentData.marks.mark_01)"
               />
               <label v-if="!markValidation.mark_01" for="contact" class="contact-error-label"
-                >Mark must be below {{ streamType === 'Essay' ? 30 : 20 }}</label
+                >Mark must be 1 - {{ streamType === 'Essay' ? 30 : 20 }}</label
               >
             </div>
             <div class="input-field-container">
@@ -174,7 +174,7 @@
                 @blur="onConfirmPasswordBlur('mark_02', editableStudentData.marks.mark_02)"
               />
               <label v-if="!markValidation.mark_02" for="contact" class="contact-error-label"
-                >Mark must be below {{ streamType === 'Essay' ? 30 : 20 }}</label
+                >Mark must 1 - {{ streamType === 'Essay' ? 30 : 20 }}</label
               >
             </div>
             <div class="input-field-container">
@@ -188,7 +188,7 @@
                 @blur="onConfirmPasswordBlur('mark_03', editableStudentData.marks.mark_03)"
               />
               <label v-if="!markValidation.mark_03" for="contact" class="contact-error-label"
-                >Mark must be below 20</label
+                >Mark must be 1 - 20</label
               >
             </div>
             <div class="input-field-container">
@@ -202,7 +202,7 @@
                 @blur="onConfirmPasswordBlur('mark_04', editableStudentData.marks.mark_04)"
               />
               <label v-if="!markValidation.mark_04" for="contact" class="contact-error-label"
-                >Mark must be below 20</label
+                >Mark must be 1 - 20</label
               >
             </div>
             <div class="input-field-container" v-if="streamType !== 'Essay'">
@@ -216,7 +216,7 @@
                 @blur="onConfirmPasswordBlur('mark_05', editableStudentData.marks.mark_05)"
               />
               <label v-if="!markValidation.mark_05" for="contact" class="contact-error-label"
-                >Mark must be below 20</label
+                >Mark must be 1 - 20</label
               >
             </div>
           </section>
@@ -320,6 +320,7 @@ const editableStudentData = ref({
   serialNo: null,
   district: null,
   ageGroup: null,
+  language: null,
   marks: {
     mark_01: null,
     mark_02: null,
@@ -351,11 +352,16 @@ const getPdfUrl = (serialNo) => {
 const onRowSelect = (param) => {
   getPdfUrl(param.data.serial_no)
   IsDialogVisible.value = !IsDialogVisible.value
-  if (!param.data.marks) {
-    isMarksAdding.value = true
-    param.data.marks = editableStudentData.value.marks
-  }
-  editableStudentData.value = { ...param.data }
+  editableStudentData.value.serial_no = param.data.serial_no
+  editableStudentData.value.district = param.data.district
+  editableStudentData.value.ageGroup = param.data.age
+  editableStudentData.value.language = param.data.language
+
+  if (param.data.marks) {
+    editableStudentData.value.marks = param.data.marks
+    } else {
+      isMarksAdding.value = true
+    }
 }
 
 const saveStudentDetails = async () => {
@@ -404,6 +410,7 @@ const clearStudentData = () => {
     serialNo: null,
     district: null,
     ageGroup: null,
+    language: null,
     marks: {
       mark_01: null,
       mark_02: null,
