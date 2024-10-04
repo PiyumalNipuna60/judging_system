@@ -55,27 +55,27 @@
           @rowUnSelect="onRowSelect"
         >
           <Column field="serial_no" header="Serial Number"></Column>
-          <Column field="mark_01" :header="getLoggedUser?.stream === 'Essay' ? 'Mark 01 (out of 30)' : 'Mark 01 (out of 20)'">
+          <Column field="mark_01" :header="getLoggedUser?.stream === 'Essay' ? 'Mark 01 (out Of 30)' : 'Mark 01 (out Of 20)'">
             <template #body="slotProps">
               {{ slotProps.data.marks?.mark_01 ? slotProps.data.marks.mark_01 : '--' }}
             </template>
           </Column>
-          <Column field="mark_02" :header="getLoggedUser?.stream === 'Essay' ? 'Mark 02 (out of 30)' : 'Mark 02 (out of 20)'">
+          <Column field="mark_02" :header="getLoggedUser?.stream === 'Essay' ? 'Mark 02 (out Of 30)' : 'Mark 02 (out Of 20)'">
             <template #body="slotProps">
               {{ slotProps.data.marks?.mark_02 ? slotProps.data.marks.mark_02 : '--' }}
             </template>
           </Column>
-          <Column field="mark_03" header="Mark 03 (out of 20)">
+          <Column field="mark_03" header="Mark 03 (out Of 20)">
             <template #body="slotProps">
               {{ slotProps.data.marks?.mark_03 ? slotProps.data.marks.mark_03 : '--' }}
             </template>
           </Column>
-          <Column header="Mark 04 (out of 20)">
+          <Column header="Mark 04 (out Of 20)">
             <template #body="slotProps">
               {{ slotProps.data.marks?.mark_04 ? slotProps.data.marks.mark_04 : '--' }}
             </template>
           </Column>
-          <Column v-if="getLoggedUser?.stream !== 'Essay'" field="mark_05" header="Mark 05 (out of 20)">
+          <Column v-if="getLoggedUser?.stream !== 'Essay'" field="mark_05" header="Mark 05 (out Of 20)">
             <template #body="slotProps">
               {{ slotProps.data.marks?.mark_05 ? slotProps.data.marks.mark_05 : '--' }}
             </template>
@@ -150,7 +150,7 @@
           <Divider layout="vertical" />
           <section class="sidebar-content-container__form-container">
             <div class="input-field-container">
-              <label for="username" class="font-semibold w-6rem">Mark 01</label>
+              <label for="username" class="font-semibold">Mark 01 {{getLoggedUser?.stream === 'Essay' ? ' (out Of 30)' : ' (out Of 20)'}}</label>
               <InputNumber
                 v-model="editableStudentData.marks.mark_01"
                 id="mark_01"
@@ -164,7 +164,7 @@
               >
             </div>
             <div class="input-field-container">
-              <label for="username" class="font-semibold w-6rem">Mark 02</label>
+              <label for="username" class="font-semibold w-6rem">Mark 02 {{getLoggedUser?.stream === 'Essay' ? ' (out Of 30)' : ' (out Of 20)'}}</label>
               <InputNumber
                 v-model="editableStudentData.marks.mark_02"
                 id="mark_02"
@@ -178,7 +178,7 @@
               >
             </div>
             <div class="input-field-container">
-              <label for="username" class="font-semibold w-6rem">Mark 03</label>
+              <label for="username" class="font-semibold w-6rem">Mark 03 (out Of 20)</label>
               <InputNumber
                 v-model="editableStudentData.marks.mark_03"
                 id="mark_03"
@@ -192,7 +192,7 @@
               >
             </div>
             <div class="input-field-container">
-              <label for="username" class="font-semibold w-6rem">Mark 04</label>
+              <label for="username" class="font-semibold w-6rem">Mark 04 (out Of 20)</label>
               <InputNumber
                 v-model="editableStudentData.marks.mark_04"
                 id="mark_04"
@@ -206,7 +206,7 @@
               >
             </div>
             <div class="input-field-container" v-if="streamType !== 'Essay'">
-              <label for="username" class="font-semibold w-6rem">Mark 05</label>
+              <label for="username" class="font-semibold w-6rem">Mark 05 (out Of 20)</label>
               <InputNumber
                 v-model="editableStudentData.marks.mark_05"
                 id="mark_05"
