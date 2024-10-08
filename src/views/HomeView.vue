@@ -107,10 +107,14 @@
         <section class="sidebar-content-container">
           <section class="sidebar-content-container__image-container">
             <div v-if="getLoggedUser?.stream !== 'Essay'">
-              <img :src="pdfFileUrl" width="100%" height="600px" />
+              <img v-if="!imageError" :src="pdfFileUrl" width="100%" height="600px" @error="imageError = true" 
+              />
+              <p v-if="imageError">Image loading error</p>
             </div>
             <div v-else>
-              <embed :src="pdfFileUrl+'#zoom=100&toolbar=0'" type="application/pdf" width="100%" height="600px" />
+              <embed v-if="!pdfError" :src="pdfFileUrl+'#zoom=100&toolbar=0'" type="application/pdf" width="100%" height="600px" @error="pdfError = true" @load="pdfError = false"
+              />
+              <p v-if="pdfError">PDF loading error</p>
             </div>
           </section>
           <Divider layout="vertical" />
@@ -281,6 +285,8 @@ const streamType = ref(false)
 const isSaveDisabled = ref(false)
 const pdfFileUrl = ref()
 const processing = ref(true)
+const imageError = ref(false)
+const pdfError = ref(false)
 const editableStudentData = ref({
   serialNo: null,
   district: null,
@@ -309,16 +315,26 @@ const onSideBarBlur = () => {
   clearStudentData()
 }
 
-const getPdfUrl = (serialNo) => {  
+const getPdfUrl = async(serialNo) => {  
   if (getLoggedUser.value?.stream === 'Essay') {
+    try {
+        const response = await fetch(`${S3_BUCKET}pdf/${replace(replace(serialNo, /\//g, ''), / /g, '+')}.pdf`, { method: 'HEAD' });
+        console.log('response log _________', response);
+        
+        if (!response.ok) {
+          pdfError.value = true;
+        }
+      } catch (error) {
+        pdfError.value = true;
+      }
     pdfFileUrl.value = `${S3_BUCKET}pdf/${replace(replace(serialNo, /\//g, ''), / /g, '+')}.pdf`
   } else {
     pdfFileUrl.value = `${S3_BUCKET}image/${replace(replace(serialNo, /\//g, ''), / /g, '+')}.jpeg`
   }
 }
 
-const onRowSelect = (param) => {
-  getPdfUrl(param.data.serial_no)  
+const onRowSelect = async(param) => {
+  await getPdfUrl(param.data.serial_no)  
   IsDialogVisible.value = !IsDialogVisible.value
   editableStudentData.value.serial_no = param.data.serial_no
   editableStudentData.value.student_id = param.data.student_id
