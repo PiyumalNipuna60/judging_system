@@ -114,6 +114,17 @@
             @blur="onFieldEdited"
           />
         </div>
+        <div class="input-field-container" v-if="!isUserUpdating">
+          <label for="username" class="font-semibold">Password</label>
+          <InputText
+            v-model="userData.password"
+            id="mark_02"
+            class="flex-auto"
+            autocomplete="off"
+            :disabled="isUserUpdating"
+            @blur="onFieldEdited"
+          />
+        </div>
         <div class="input-field-container">
           <label for="username" class="font-semibold">Stream</label>
           <Dropdown
@@ -206,6 +217,7 @@ const processing = ref(false)
 const skelatonArray = ref(new Array(4))
 const userData = ref({
   userName: null,
+  password: null,
   availableDistricts: [],
   language: null,
   stream: null
@@ -220,6 +232,7 @@ onMounted(async () => {
 const onFieldEdited = () => {
   if (
     userData.value.userName &&
+    userData.value.password &&
     userData.value.availableDistricts.length > 0 &&
     userData.value.stream
   ) {
@@ -331,6 +344,7 @@ const onClear = () => {
 const clearUserData = () => {
   userData.value = {
     userName: null,
+    password: null,
     availableDistricts: [],
     language: null,
     stream: null
