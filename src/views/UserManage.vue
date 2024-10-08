@@ -30,11 +30,15 @@
           selectionMode="single"
           dataKey="id"
           @rowClick="onRowSelect"
-          @Blur="onBlurSelect"
-          @row-unselect="onUnSelect"
         >
           <Column field="user_name" header="User Name" style="width: 15%"></Column>
-          <Column field="contact" header="Contact" style="width: 15%"></Column>
+          <Column field="contact" header="Contact" style="width: 15%">
+            <template #body="{ data }">
+              <div>
+                  {{ data.contact ? data.contact : '--'  }}
+              </div>
+            </template>
+          </Column>
           <Column field="availableDistricts" header="Districts" style="width: 30%">
             <template #body="{ data }">
               <div class="district-chip-container">
@@ -59,36 +63,36 @@
       </div>
       <div v-else>
         <DataTable :value="skelatonArray">
-            <Column header="User Name">
-                <template #body>
-                    <Skeleton></Skeleton>
-                </template>
-            </Column>
-            <Column header="Contact">
-                <template #body>
-                    <Skeleton></Skeleton>
-                </template>
-            </Column>
-            <Column header="Districts" >
-                <template #body>
-                    <Skeleton></Skeleton>
-                </template>
-            </Column>
-            <Column header="Language" >
-                <template #body>
-                    <Skeleton></Skeleton>
-                </template>
-            </Column>
-            <Column header="Stream" >
-                <template #body>
-                    <Skeleton></Skeleton>
-                </template>
-            </Column>
-            <Column header="Action" >
-                <template #body>
-                    <Skeleton></Skeleton>
-                </template>
-            </Column>
+          <Column header="User Name">
+            <template #body>
+              <Skeleton></Skeleton>
+            </template>
+          </Column>
+          <Column header="Contact">
+            <template #body>
+              <Skeleton></Skeleton>
+            </template>
+          </Column>
+          <Column header="Districts">
+            <template #body>
+              <Skeleton></Skeleton>
+            </template>
+          </Column>
+          <Column header="Language">
+            <template #body>
+              <Skeleton></Skeleton>
+            </template>
+          </Column>
+          <Column header="Stream">
+            <template #body>
+              <Skeleton></Skeleton>
+            </template>
+          </Column>
+          <Column header="Action">
+            <template #body>
+              <Skeleton></Skeleton>
+            </template>
+          </Column>
         </DataTable>
       </div>
     </section>
@@ -100,21 +104,6 @@
         @hide="isUserUpdating = false"
       >
         <div class="input-field-container">
-          <label for="username" class="font-semibold">Contact number</label>
-          <InputNumber
-            v-model="userData.contact"
-            class="flex-auto"
-            inputId="integeronly"
-            :useGrouping="false"
-            placeholder="format: 705045099"
-            :invalid="isContactInvalid"
-            :disabled="isUserUpdating"
-          />
-          <label v-if="isContactInvalid" for="contact" class="contact-error-label"
-            >Contact number length invalid. format: 705045099</label
-          >
-        </div>
-        <div class="input-field-container">
           <label for="username" class="font-semibold">User name</label>
           <InputText
             v-model="userData.userName"
@@ -122,17 +111,42 @@
             id="mark_01"
             class="flex-auto"
             autocomplete="off"
+            @blur="onFieldEdited"
           />
         </div>
         <div class="input-field-container">
-          <label for="username" class="font-semibold">Password</label>
-          <InputText
-            v-model="userData.password"
-            id="mark_02"
-            class="flex-auto"
-            autocomplete="off"
-            :disabled="isUserUpdating"
+          <label for="username" class="font-semibold">Stream</label>
+          <Dropdown
+            v-model="userData.stream"
+            :options="streamList"
+            placeholder="Select a Stream"
+            class="w-full md:w-14rem"
+            @change="onStreamSelect"
+            @blur="onFieldEdited"
           />
+        </div>
+        <div class="input-field-container" v-if="isEssaySelected">
+          <label for="username" class="font-semibold">Language</label>
+          <div class="flex flex-row flex-wrap gap-3">
+            <div class="flex align-items-center">
+              <RadioButton
+                v-model="userData.language"
+                inputId="ingredient1"
+                value="Sinhala"
+                @blur="onFieldEdited"
+              />
+              <label for="language1" class="ml-2">Sinhala</label>
+            </div>
+            <div class="flex align-items-center">
+              <RadioButton
+                v-model="userData.language"
+                inputId="ingredient2"
+                value="Tamil"
+                @blur="onFieldEdited"
+              />
+              <label for="language2" class="ml-2">Tamil</label>
+            </div>
+          </div>
         </div>
         <div class="input-field-container">
           <label for="username" class="font-semibold">Available districts</label>
@@ -153,30 +167,8 @@
             placeholder="Select Cities"
             :maxSelectedLabels="4"
             class="district-dropdown-container w-full md:w-20rem"
+            @blur="onFieldEdited"
           />
-        </div>
-        <div class="input-field-container">
-          <label for="username" class="font-semibold">Stream</label>
-          <Dropdown
-            v-model="userData.stream"
-            :options="streamList"
-            placeholder="Select a Stream"
-            class="w-full md:w-14rem"
-            @change="onStreamSelect"
-          />
-        </div>
-        <div class="input-field-container" v-if="isEssaySelected">
-          <label for="username" class="font-semibold">Language</label>
-          <div class="flex flex-row flex-wrap gap-3">
-            <div class="flex align-items-center">
-              <RadioButton v-model="userData.language" inputId="ingredient1" value="Sinhala" />
-              <label for="language1" class="ml-2">Sinhala</label>
-            </div>
-            <div class="flex align-items-center">
-              <RadioButton v-model="userData.language" inputId="ingredient2" value="Tamil" />
-              <label for="language2" class="ml-2">Tamil</label>
-            </div>
-          </div>
         </div>
         <div class="button-setion">
           <Button
@@ -184,19 +176,19 @@
             :label="isUserUpdating ? 'Update' : 'Save'"
             @click="saveUserDetails"
             :disabled="isButtonDisabled"
-          ></Button>
-          <Button type="button" label="Cancel" severity="secondary" @click="onClear"></Button>
+          />
+          <Button type="button" label="Cancel" severity="secondary" @click="onClear" />
         </div>
       </Sidebar>
     </section>
   </section>
 </template>
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
 import { DISTRICTS } from '@/const/const'
-import Skeleton from 'primevue/skeleton';
+import Skeleton from 'primevue/skeleton'
 
 const userStore = useUserStore()
 const toast = useToast()
@@ -207,16 +199,13 @@ const districts = ref(DISTRICTS)
 const visibleRight = ref(false)
 const usersList = ref([])
 const isEssaySelected = ref(false)
-const isContactInvalid = ref(false)
 const isButtonDisabled = ref(true)
 const streamList = ref(['Essay', 'Art'])
 const isUserUpdating = ref(false)
 const processing = ref(false)
-const skelatonArray = ref(new Array(4));
+const skelatonArray = ref(new Array(4))
 const userData = ref({
-  contact: null,
   userName: null,
-  password: null,
   availableDistricts: [],
   language: null,
   stream: null
@@ -228,20 +217,21 @@ onMounted(async () => {
   processing.value = false
 })
 
-watch(
-  () => userData.value.contact,
-  (newContact) => {
-    if (newContact) {
-      if (newContact.toString().length === 9) {
-        isContactInvalid.value = false
-        isButtonDisabled.value = false
-      } else {
-        isContactInvalid.value = true
-        isButtonDisabled.value = true
-      }
+const onFieldEdited = () => {
+  if (
+    userData.value.userName &&
+    userData.value.availableDistricts.length > 0 &&
+    userData.value.stream
+  ) {
+    if (userData.value.stream === 'Essay') {
+      isButtonDisabled.value = userData.value.language ? false : true
+    } else {
+      isButtonDisabled.value = false
     }
+  } else {
+    isButtonDisabled.value = true
   }
-)
+}
 
 const saveUserDetails = async () => {
   try {
@@ -283,7 +273,7 @@ const removeUser = async (param) => {
   try {
     processing.value = true
     const response = await userStore.deleteUser(param?.teacher_id)
-    usersList.value = await userStore.getUserLists()    
+    usersList.value = await userStore.getUserLists()
     if (response) {
       toast.add({
         severity: 'info',
@@ -321,13 +311,6 @@ const onRowSelect = (param) => {
   }
 }
 
-const onBlurSelect = (param) => {
-  console.log('param log ______ss____', param)
-}
-const onUnSelect = (param) => {
-  console.log('param log ______suns____', param)
-}
-
 const onStreamSelect = async (event) => {
   if (event.value === 'Essay') {
     isEssaySelected.value = true
@@ -348,8 +331,6 @@ const onClear = () => {
 const clearUserData = () => {
   userData.value = {
     userName: null,
-    contact: null,
-    password: null,
     availableDistricts: [],
     language: null,
     stream: null

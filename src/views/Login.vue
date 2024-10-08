@@ -43,7 +43,12 @@
             <p>Is Admin ?</p>
           </div>
           <div>
-            <Button type="button" @click="loginOnAction"  label="Login" :loading="isProcessing" ></Button>
+            <Button
+              type="button"
+              @click="loginOnAction"
+              label="Login"
+              :loading="isProcessing"
+            ></Button>
           </div>
         </section>
       </div>
@@ -55,31 +60,43 @@
           <div class="pw-reset-container">
             <div v-if="!isOtpVerified">
               <div class="input-field-container">
-                <label for="username" class="font-semibold">Contact number</label>
+                <label for="contact" class="font-semibold">Contact number</label>
                 <InputNumber
-                v-model="contact"
-                class="flex-auto"
-                inputId="integeronly"
-                :useGrouping="false"
-                placeholder="format: 705045099"
-                :invalid="isContactInvalid"
+                  v-model="contact"
+                  class="flex-auto"
+                  inputId="integeronly"
+                  :useGrouping="false"
+                  placeholder="format: 705045099"
+                  :invalid="isContactInvalid"
+                  @blur="onFieldEdited"
                 />
                 <label v-if="isContactInvalid" for="contact" class="contact-error-label"
-                >Contact number length invalid. format: 705045099</label
+                  >Contact number length invalid. format: 705045099</label
                 >
+              </div>
+              <div class="input-field-container">
+                <label for="username" class="font-semibold">User name</label>
+                <InputText
+                  v-model="userName"
+                  class="flex-auto"
+                  inputId="integeronly"
+                  :useGrouping="false"
+                  placeholder="Enter your user name here"
+                  @blur="onFieldEdited"
+                />
               </div>
               <div class="button-container">
                 <Button
-                type="button"
-                :disabled="isContactInvalid"
-                label="Send OTP"
-                @click="sendOtpVerificationCode"
+                  type="button"
+                  :disabled="isContactInvalid"
+                  label="Send OTP"
+                  @click="sendOtpVerificationCode"
                 ></Button>
               </div>
             </div>
             <div v-if="isOtpVerified">
               <div class="input-field-container">
-                <label for="username" class="font-semibold">New Password</label>
+                <label for="newPassword" class="font-semibold">New Password</label>
                 <InputText
                   v-model="userData.newPassword"
                   id="mark_02"
@@ -93,7 +110,7 @@
                 >
               </div>
               <div class="input-field-container">
-                <label for="username" class="font-semibold">Enter password again</label>
+                <label for="newPassword" class="font-semibold">Enter password again</label>
                 <InputText
                   v-model="userData.newPasswordCheck"
                   id="mark_02"
@@ -130,24 +147,23 @@
         :style="{ width: '25rem' }"
       >
         <div class="dialogbox-container__input-field-container">
-          <label for="username" class="font-semibold mb-2">Enter OTP sent to your mobile</label>
-          <InputNumber v-model="otpNumber" :useGrouping="false" id="otp" class="flex-auto" autocomplete="off" />
+          <label for="otp" class="font-semibold mb-2">Enter OTP sent to your mobile</label>
+          <InputNumber
+            v-model="otpNumber"
+            :useGrouping="false"
+            id="otp"
+            class="flex-auto"
+            autocomplete="off"
+          />
         </div>
 
         <div class="flex justify-content-end gap-2">
           <Button type="button" label="Verify OTP" @click="onOTPVerification"></Button>
-          <Button
-            type="button"
-            label="Cancel"
-            severity="secondary"
-            @click="onDialogClose"
-          ></Button>
+          <Button type="button" label="Cancel" severity="secondary" @click="onDialogClose"></Button>
         </div>
       </Dialog>
     </section>
-    <section class="dialogbox-container">
-
-    </section>
+    <section class="dialogbox-container"></section>
   </div>
 </template>
 
@@ -156,7 +172,7 @@ import InputText from 'primevue/inputtext'
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
-import { onMounted, ref, watch } from 'vue'
+import { ref } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 
 const confirm = useConfirm()
@@ -164,8 +180,8 @@ const userStore = useUserStore()
 const toast = useToast()
 const router = useRouter()
 
-const userName = ref(null)
-const password = ref(null)
+const userName = ref()
+const password = ref()
 const visibleRight = ref(false)
 const isButtonDisabled = ref(true)
 const isContactInvalid = ref(false)
@@ -178,12 +194,12 @@ const userData = ref({
 const IsDialogVisible = ref(false)
 const isOtpVerified = ref(false)
 const otpNumber = ref()
-const contact = ref(null)
+const contact = ref()
 const isProcessing = ref(false)
 
 const sendOtpVerificationCode = async () => {
   try {
-    await userStore.sendOTP(contact.value)
+    await userStore.sendOTP(contact.value, userName.value)
     toast.add({
       severity: 'info',
       summary: 'Info',
@@ -202,16 +218,15 @@ const sendOtpVerificationCode = async () => {
 }
 
 const onOTPVerification = async () => {
-  try {    
+  try {
     if (otpNumber.value.toString().length === 4) {
-      await userStore.verifyOtp(otpNumber.value, contact.value)
+      await userStore.verifyOtp(otpNumber.value, contact.value, userName.value)
       toast.add({
         severity: 'info',
         summary: 'Info',
         detail: 'OTP verified successfully!',
         life: 3000
       })
-      
     } else {
       toast.add({
         severity: 'error',
@@ -232,29 +247,26 @@ const onOTPVerification = async () => {
   }
 }
 
-onMounted(() => {
-  // const loggedUser = localStorage.getItem('user')
-  // console.log('logged user __________', loggedUser);
-  // if (loggedUser) {
-  //   userStore.setUserData(JSON.parse(loggedUser))
-  //   console.log('logged user __________', loggedUser);
-    
-  //   router.push('/')
-  // }
-})
-
-watch(
-  () => contact.value,
-  (newContact) => {
-    if (newContact && newContact.toString().length === 9) {
-      isContactInvalid.value = false
-      isButtonDisabled.value = false
+const onFieldEdited = () => {
+  if (contact.value && contact.value.toString().length === 9) {
+    if (userName.value && userName.value.length > 0) {
+      validationPropSet(false, false)
     } else {
-      isContactInvalid.value = true
-      isButtonDisabled.value = true
+      validationPropSet(false, true)
+    }
+  } else {
+    if (userName.value && userName.value.length > 0) {
+      validationPropSet(true, false)
+    } else {
+      validationPropSet(true, true)
     }
   }
-)
+}
+
+const validationPropSet = (contact, button) => {
+  isContactInvalid.value = contact
+  isButtonDisabled.value = button
+}
 
 const loginOnAction = async () => {
   isProcessing.value = true
@@ -266,10 +278,10 @@ const loginOnAction = async () => {
       await userStore.userLogin(userName.value, password.value)
       router.push('/')
     }
-    isProcessing.value  = false
+    isProcessing.value = false
     router.push('/')
   } catch (error) {
-    isProcessing.value  = false
+    isProcessing.value = false
     toast.add({
       severity: 'error',
       summary: 'Error',
@@ -284,7 +296,8 @@ const loadForgotPassword = async () => {
 }
 const onChangePassword = async () => {
   try {
-    await userStore.changePassword(userData.value.newPassword, contact.value)
+    await userStore.changePassword(userData.value.newPassword, contact.value, userName.value)
+    onOtpVerificationDataClear()
     toast.add({
       severity: 'info',
       summary: 'Info',
@@ -343,6 +356,12 @@ const cancelConfirmation = (event) => {
 
 const onDialogClose = () => {
   otpNumber.value = null
+}
+
+const onOtpVerificationDataClear = () => {
+  otpNumber.value = null
+  userName.value = null
+  contact.value = null
 }
 </script>
 

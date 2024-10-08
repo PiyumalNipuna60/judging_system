@@ -110,28 +110,27 @@ export const useUserStore = defineStore('UserStore', () => {
   const setUserData = async (param) => {
     userData.value.id = param.id
     userData.value.userName = param.user_name
-    userData.value.contact = param.contact
   }
 
-  const sendOTP = async (contact) => {
+  const sendOTP = async (contact, userName) => {
     try {
-      return await sendOTPToUser(userData.value.contact ? userData.value.contact : contact)
+      return await sendOTPToUser(contact, userName)
     } catch (error) {
       throw new Error('Error at OTP generation')
     }
   }
 
-  const verifyOtp = async (otpNumber, contact) => {
+  const verifyOtp = async (otpNumber, contact, userName) => {
     try {
-      return await verifySentOtp(otpNumber,userData.value.contact ? userData.value.contact : contact)
+      return await verifySentOtp(otpNumber, contact, userName)
     } catch (error) {
       throw new Error('Error at OTP generation')
     }
   }
 
-  const changePassword = async (password, contact) => {
+  const changePassword = async (password, contact, userName) => {
     try {
-      return await changeUserPassword(password, userData.value.contact ? userData.value.contact : contact)
+      return await changeUserPassword(password, contact, userName)
     } catch (error) {
       throw new Error('Error at password change')
     }

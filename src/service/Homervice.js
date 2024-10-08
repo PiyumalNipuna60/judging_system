@@ -83,6 +83,6 @@ async function mapCalculations(params) {
   return params.map((student) => ({
     ...student,
     finalTotal: sumBy(student.marks, 'total'),
-    average: Number(sumBy(student.marks, 'total') / student.marks.length).toFixed(2)
+    average: sumBy(student.marks, 'total') ?  Number(sumBy(student.marks, 'total') / student.marks.length).toFixed(2) : 0
   }))
 }

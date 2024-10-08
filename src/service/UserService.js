@@ -79,26 +79,28 @@ export async function deleteUserById(id) {
   }
 }
 
-export async function sendOTPToUser(param) {
+export async function sendOTPToUser(contact, userName) {
   const request = {
-    contact: param
+    contact: contact,
+    userName: userName
   }
   try {
     const response = await axios.post(`${BASEURL}/api/send_otp`, request)
     if (response.status === 200) {
       return response.data.user
     } else {
-      throw new Error('Error at otp send')
+      throw new Error('Error at otp send', response.status)
     }
   } catch (error) {
     throw new Error('Error at otp send', error)
   }
 }
 
-export async function verifySentOtp(otpNumber, contact) {
+export async function verifySentOtp(otpNumber, contact, userName) {
   const request = {
     otp: otpNumber,
-    contact: contact
+    contact: contact,
+    userName: userName
   }
   try {
     const response = await axios.post(`${BASEURL}/api/verify_otp`, request)
@@ -112,10 +114,11 @@ export async function verifySentOtp(otpNumber, contact) {
   }
 }
 
-export async function changeUserPassword(password, contact) {  
+export async function changeUserPassword(password, contact, userName) {  
   const request = {
     password: password,
-    contact: contact
+    contact: contact,
+    userName: userName
   }
   try {
     const response = await axios.post(`${BASEURL}/api/change_password`, request)
@@ -127,98 +130,3 @@ export async function changeUserPassword(password, contact) {
   } catch (error) {
     throw new Error('Error at  password change', error)
   }}
-
-
-export async function loadDBampleData() {
-  await districtReg()
-  await userReg()
-  await teacherReg()
-  await studentReg('WP/GM/SAC/ART – 00')
-  await studentReg('WP/GM/SAC/ESSAY – 00')
-}
-
-const userReg = async () => {
-  let response = await axios.post(`${BASEURL}/api/register`, {
-    "user_name":"user",
-    "contact":"+94705045098",
-    "password":"1234"
-})
-
-console.log('user reg responce', response);
-   response = await axios.post(`${BASEURL}/api/register`, {
-    "user_name":"admin",
-    "contact":"+94705045099",
-    "password":"1234"
-})
-
-console.log('user reg responce', response);
-}
-const teacherReg =async () => {
-  let response = await axios.post(`${BASEURL}/api/save_teacher`, 
-    {
-      "userName": "Nimal",
-      "password": "1234",
-      "availableDistricts": [1, 2],
-      "language": "Sinhala",
-      "stream": "Essay",
-      "contact": 705045099,
-      "adminId": 2,
-  }
-  )
-console.log('teacher reg responce', response);
-
-  response = await axios.post(`${BASEURL}/api/save_teacher`, 
-    {
-      "userName": "user",
-      "password": "1234",
-      "availableDistricts": [1, 2, 3, 4],
-      "language": null,
-      "stream": "Art",
-      "contact": 705044099,
-      "adminId": 2,
-  }
-  )
-console.log('teacher reg responce 2', response);
-}
-const teacherReg2 = () => {
-
-}
-const districtReg = async () => {
-
-  try {
-    DISTRICTS.forEach(async district => {
-      await axios.post(`${BASEURL}/api/save_district`, {
-        "name": district.name
-    })
-    });
-  } catch (error) {
-    console.error('district error log', error); 
-  }
-}
-
-const studentReg = async (key) => {
-  try {
-    for (let i = 0; i < 9; i++) {
-      const formData = new FormData();
-
-      const studentData = {
-        serialNo: key+i,
-        stream: 'null',
-        language: 'null',
-        ageGroup: 'null',
-        district: 'null',
-      }
-      formData.append('serialNo', studentData.serialNo)
-      formData.append('district', 1)
-      formData.append('ageGroup', '9-11')
-      formData.append('stream', 'Essay')
-      formData.append('language', 'Sinhala')
-      // formData.append('file', studentData.uploadedFile.file,  studentData.uploadedFile.name); // Append file to FormData
-  
-      const response = await axios.post(`${BASEURL}/api/save_student`, formData)  
-  }
-   
-  } catch (error) {
-    console.error('district error log', error); 
-  }
-}

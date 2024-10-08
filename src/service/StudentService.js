@@ -57,6 +57,8 @@ export async function updateStudent(studentData) {
     formData.append('district', studentData.district.id)
     formData.append('ageGroup', studentData.ageGroup)
     formData.append('stream', studentData.stream)
+    formData.append('school', studentData.school)
+    formData.append('studentName', studentData.studentName)
     if(studentData.language){
       formData.append('language', studentData.language)
     }
