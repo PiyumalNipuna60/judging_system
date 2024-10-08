@@ -79,26 +79,28 @@ export async function deleteUserById(id) {
   }
 }
 
-export async function sendOTPToUser(param) {
+export async function sendOTPToUser(contact, userName) {
   const request = {
-    contact: param
+    contact: contact,
+    userName: userName
   }
   try {
     const response = await axios.post(`${BASEURL}/api/send_otp`, request)
     if (response.status === 200) {
       return response.data.user
     } else {
-      throw new Error('Error at otp send')
+      throw new Error('Error at otp send', response.status)
     }
   } catch (error) {
     throw new Error('Error at otp send', error)
   }
 }
 
-export async function verifySentOtp(otpNumber, contact) {
+export async function verifySentOtp(otpNumber, contact, userName) {
   const request = {
     otp: otpNumber,
-    contact: contact
+    contact: contact,
+    userName: userName
   }
   try {
     const response = await axios.post(`${BASEURL}/api/verify_otp`, request)
@@ -112,10 +114,11 @@ export async function verifySentOtp(otpNumber, contact) {
   }
 }
 
-export async function changeUserPassword(password, contact) {  
+export async function changeUserPassword(password, contact, userName) {  
   const request = {
     password: password,
-    contact: contact
+    contact: contact,
+    userName: userName
   }
   try {
     const response = await axios.post(`${BASEURL}/api/change_password`, request)
