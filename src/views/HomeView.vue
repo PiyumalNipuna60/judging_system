@@ -97,7 +97,7 @@
         v-model:visible="IsDialogVisible"
         modal
         :header="isMarksAdding ? 'Add Student marks':'Update student marks'"
-        :style="{ width: '70rem' }"
+        :style="{ width: `calc(100% - 14rem)` }"
         position="right"
         @hide="onSideBarBlur"
       >
@@ -107,10 +107,10 @@
         <section class="sidebar-content-container">
           <section class="sidebar-content-container__image-container">
             <div v-if="getLoggedUser?.stream !== 'Essay'">
-              <embed :src="pdfFileUrl" type="application/pdf" width="100%" height="600px" />
+              <img :src="pdfFileUrl" width="100%" height="600px" />
             </div>
             <div v-else>
-              <embed :src="pdfFileUrl" type="application/pdf" width="100%" height="600px" />
+              <embed :src="pdfFileUrl+'#zoom=100&toolbar=0'" type="application/pdf" width="100%" height="600px" />
             </div>
           </section>
           <Divider layout="vertical" />
@@ -309,16 +309,16 @@ const onSideBarBlur = () => {
   clearStudentData()
 }
 
-const getPdfUrl = (serialNo) => {
-  if (getLoggedUser?.stream !== 'Essay') {
-    pdfFileUrl.value = `${S3_BUCKET}pdf/${replace(replace(serialNo, /\//g, '-'), / /g, '+')}.pdf`
+const getPdfUrl = (serialNo) => {  
+  if (getLoggedUser.value?.stream === 'Essay') {
+    pdfFileUrl.value = `${S3_BUCKET}pdf/${replace(replace(serialNo, /\//g, ''), / /g, '+')}.pdf`
   } else {
-    pdfFileUrl.value = `${S3_BUCKET}image/${replace(replace(serialNo, /\//g, '-'), / /g, '+')}.pdf`
+    pdfFileUrl.value = `${S3_BUCKET}image/${replace(replace(serialNo, /\//g, ''), / /g, '+')}.jpeg`
   }
 }
 
 const onRowSelect = (param) => {
-  getPdfUrl(param.data.serial_no)
+  getPdfUrl(param.data.serial_no)  
   IsDialogVisible.value = !IsDialogVisible.value
   editableStudentData.value.serial_no = param.data.serial_no
   editableStudentData.value.student_id = param.data.student_id
@@ -550,7 +550,7 @@ const checkDisability = () => {
 }
 
 .sidebar-content-container__image-container {
-  width: 50rem;
+  width: 60rem;
   display: flex;
   align-items: center;
   justify-content: center;

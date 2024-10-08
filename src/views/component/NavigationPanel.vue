@@ -51,7 +51,7 @@ const logout = () => {
 .nav-container {
   background: #f8f9fa;
   color: #495057;
-  width: 200px;
+  width: 14rem;
   border-right: 2px solid #aeb6bdab;
 
   .nav-container__main-container {
