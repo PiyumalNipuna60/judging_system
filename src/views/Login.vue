@@ -294,6 +294,7 @@ const loginOnAction = async () => {
 const loadForgotPassword = async () => {
   visibleRight.value = true
 }
+
 const onChangePassword = async () => {
   try {
     await userStore.changePassword(userData.value.newPassword, contact.value, userName.value)

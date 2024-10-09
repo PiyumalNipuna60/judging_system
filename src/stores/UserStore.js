@@ -16,11 +16,18 @@ export const useUserStore = defineStore('UserStore', () => {
   const router = useRouter()
   const navRoutes = ref()
   const userList = ref()
-  const loggedUser = ref({})
+  const loggedUser = ref({
+    id: null,
+    userName: null,
+    userType: null,
+    districtList: null,
+    stream: null
+  })
   const userData = ref({
     id: null,
     userName: null,
-    contact: null
+    contact: null,
+    userType: null
   })
   const isLoggedIn = ref(false)
   
@@ -34,8 +41,7 @@ export const useUserStore = defineStore('UserStore', () => {
   }
 
   const getNavigationList = () => {
-    loggedUser.value = JSON.parse(localStorage.getItem('user'))
-    if (loggedUser.value) {
+    if (isLoggedIn.value) {
       if (loggedUser.value.userType === 'admin') {
         navRoutes.value = NAVACTIONS.filter((route) => route.user === 'admin')
         router.push('/dashboard')
@@ -71,13 +77,13 @@ export const useUserStore = defineStore('UserStore', () => {
       const response = await adminLogIn(username, password)
       if (response) {
         isLoggedIn.value = true
-        setUserData(response)
-        response.userType = 'admin'
-        localStorage.setItem('user', JSON.stringify(response))
+        loggedUser.value.id = response.id
+        loggedUser.value.userName = response.user_name
+        loggedUser.value.userType = 'admin'
       }
       return
     } catch (error) {
-      throw new Error('Error at user login')
+      throw new Error('Error at admin login')
     }
   }
 
@@ -86,10 +92,11 @@ export const useUserStore = defineStore('UserStore', () => {
       const response = await userLogIn(username, password)
       if (response) {
         isLoggedIn.value = true
-        setUserData(response)
-        response.userType = 'user'
-        response.districtList = response.district_details.map(detail => detail.district_id);
-        localStorage.setItem('user', JSON.stringify(response))
+        loggedUser.value.id = response.id
+        loggedUser.value.userName = response.user_name
+        loggedUser.value.stream = response.stream
+        loggedUser.value.userType = 'user'
+        loggedUser.value.districtList = response.district_details.map(detail => detail.district_id);
       }
       return
     } catch (error) {
@@ -99,17 +106,19 @@ export const useUserStore = defineStore('UserStore', () => {
 
   const logOut = async () => {
     isLoggedIn.value = false
-    localStorage.removeItem('user')
     userData.value = {
       id: null,
       userName: null,
       contact: null
     }
-  }
 
-  const setUserData = async (param) => {
-    userData.value.id = param.id
-    userData.value.userName = param.user_name
+    loggedUser.value = {
+      id: null,
+      userName: null,
+      userType: null,
+      districtList: null,
+      stream: null
+    }
   }
 
   const sendOTP = async (contact, userName) => {
@@ -145,7 +154,6 @@ export const useUserStore = defineStore('UserStore', () => {
     isLoggedUser,
     logOut,
     saveUser,
-    setUserData,
     sendOTP,
     verifyOtp,
     getUserLists,
