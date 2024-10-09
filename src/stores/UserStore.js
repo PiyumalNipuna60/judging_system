@@ -90,11 +90,12 @@ export const useUserStore = defineStore('UserStore', () => {
   const userLogin = async (username, password) => {
     try {
       const response = await userLogIn(username, password)
-      if (response) {
+      if (response) {        
         isLoggedIn.value = true
         loggedUser.value.id = response.id
         loggedUser.value.userName = response.user_name
         loggedUser.value.stream = response.stream
+        loggedUser.value.teacher_id = response.teacher_id
         loggedUser.value.userType = 'user'
         loggedUser.value.districtList = response.district_details.map(detail => detail.district_id);
       }
