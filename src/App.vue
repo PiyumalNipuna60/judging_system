@@ -15,31 +15,11 @@
 </template>
 <script setup>
 import { RouterView, useRoute } from 'vue-router'
-import { computed, ref, onMounted } from 'vue'
+import { computed } from 'vue'
 import NavigationPanel from './views/component/NavigationPanel.vue'
-import { NAVACTIONS } from './const/const'
-// import { useUserStore } from './stores/UserStore'
-// const { isLoggedUser } = useUserStore()
-// const userStore = useUserStore()
 
 const route = useRoute()
-const navRoutes = ref(NAVACTIONS)
 const isLoginRoute = computed(() => route.name === 'login' || route.path === '/login')
-
-onMounted(() => {
-  // const userData = localStorage.getItem('user')
-  // if (userData) {
-  //   const parsedUser = JSON.parse(userData);
-  //   if (parsedUser.userType === 'admin') {
-  //     navRoutes.value = navRoutes.value.filter(route => route.user === 'admin')
-  //   } else {
-  //     navRoutes.value = NAVACTIONS.filter(route => route.user === 'user')
-  //   }
-  //   console.log('passwed user ', parsedUser);
-  //   navRoutes.value.push(...NAVACTIONS.filter(route => route.user === 'common'))
-  // }
-  // console.log(' logged user__', navRoutes.value);
-})
 </script>
 
 <style scoped>

@@ -47,25 +47,30 @@ export async function getUsersList() {
 }
 
 export async function createNewUser(userData) {  
-  try {
     const response = await axios.post(`${BASEURL}/api/save_teacher`, userData)
     console.log('response log ', response)
-
     if (response.status === 200) {
       return true
     } else {
       throw new Error('Error at creating user')
     }
-  } catch (error) {
-    throw new Error('Error at creating user', error)
-  }
+}
+
+export async function updateExistingUser(userData) {  
+    const response = await axios.put(`${BASEURL}/api/update_teacher/${userData.teacher_id}`, userData)
+    console.log('response log ', response)
+    if (response.status === 201) {
+      return true
+    } else {
+      throw new Error('Error at updating user')
+    }
 }
 
 export async function deleteUserById(id) {
   try {
-    const response = await axios.delete(`${BASEURL}/api/delete_teacher/${id}`)
+    const response = await axios.delete(`${BASEURL}/api/delete_teacher/${id}`)    
     if (response.status === 200) {
-      return response.data.user
+      return true
     } else {
       throw new Error('Error at delete user')
     }
@@ -74,10 +79,31 @@ export async function deleteUserById(id) {
   }
 }
 
-export async function sendOTPToUser(param) {
-  console.log('Lof', param);
+export async function sendOTPToUser(contact, userName) {
+  const request = {
+    contact: contact,
+    userName: userName
+  }
   try {
-    const response = await axios.post(`${BASEURL}/api/verify_otp`, param)
+    const response = await axios.post(`${BASEURL}/api/send_otp`, request)
+    if (response.status === 200) {
+      return response.data.user
+    } else {
+      throw new Error('Error at otp send', response.status)
+    }
+  } catch (error) {
+    throw new Error('Error at otp send', error)
+  }
+}
+
+export async function verifySentOtp(otpNumber, contact, userName) {
+  const request = {
+    otp: otpNumber,
+    contact: contact,
+    userName: userName
+  }
+  try {
+    const response = await axios.post(`${BASEURL}/api/verify_otp`, request)
     if (response.status === 200) {
       return response.data.user
     } else {
@@ -88,72 +114,19 @@ export async function sendOTPToUser(param) {
   }
 }
 
-export async function otpGenerate(param) {
-  return 'success'
-}
-
-
-export async function loadDBampleData() {
-  await districtReg()
-  await userReg()
-  await teacherReg()
-}
-
-const userReg = async () => {
-  let response = await axios.post(`${BASEURL}/api/register`, {
-    "user_name":"user",
-    "contact":"+94705045098",
-    "password":"1234"
-})
-
-console.log('user reg responce', response);
-   response = await axios.post(`${BASEURL}/api/register`, {
-    "user_name":"admin",
-    "contact":"+94705045099",
-    "password":"1234"
-})
-
-console.log('user reg responce', response);
-}
-const teacherReg =async () => {
-  let response = await axios.post(`${BASEURL}/api/save_teacher`, 
-    {
-      "userName": "Nimal",
-      "password": "1234",
-      "availableDistricts": [1, 2],
-      "language": "Sinhala",
-      "stream": "Essay",
-      "contact": 705044099,
-      "adminId": 2,
+export async function changeUserPassword(password, contact, userName) {  
+  const request = {
+    password: password,
+    contact: contact,
+    userName: userName
   }
-  )
-console.log('teacher reg responce', response);
-
-  response = await axios.post(`${BASEURL}/api/save_teacher`, 
-    {
-      "userName": "user",
-      "password": "1234",
-      "availableDistricts": [1, 2, 3, 4],
-      "language": null,
-      "stream": "Art",
-      "contact": 705044099,
-      "adminId": 2,
-  }
-  )
-console.log('teacher reg responce 2', response);
-}
-const teacherReg2 = () => {
-
-}
-const districtReg = async () => {
-
   try {
-    DISTRICTS.forEach(async district => {
-      await axios.post(`${BASEURL}/api/save_district`, {
-        "name": district.name
-    })
-    });
+    const response = await axios.post(`${BASEURL}/api/change_password`, request)
+    if (response.status === 200) {
+      return response.data.user
+    } else {
+      throw new Error('Error at password change')
+    }
   } catch (error) {
-    console.error('district error log', error); 
-  }
-}
+    throw new Error('Error at  password change', error)
+  }}

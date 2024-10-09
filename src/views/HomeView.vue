@@ -9,9 +9,11 @@
           <Dropdown
             v-model="selectedDistrict"
             :options="districts"
+            optionLabel="name"
+            optionValue="id"
             showClear
             placeholder="Select a District"
-            class="w-full md:w-14rem flex flex-row relative"
+            class="w-full md:w-12rem flex flex-row relative"
             @change="onDropdownChange"
           />
         </div>
@@ -21,16 +23,26 @@
             :options="ageGroups"
             showClear
             placeholder="Select an Age Group"
-            class="w-full md:w-14rem flex flex-row relative"
+            class="w-full md:w-10rem flex flex-row relative"
             @change="onDropdownChange"
           />
         </div>
+        <div class="homepage-content-container_dropdown">
+          <Dropdown
+            v-model="selectedStatus"
+            :options="statusList"
+            showClear
+            placeholder="Select an Age Group"
+            class="w-full md:w-10rem flex flex-row relative"
+            @change="onMarkingStatusChange"
+          />
+        </div>
       </div>
-      <div>
+      <div v-if="isTableVisible">
         <DataTable
           ref="dataTable"
-          v-model:selection="selectedudent"
-          :value="markingListArt"
+          v-model:selection="selectedStudent"
+          :value="studentList"
           tableStyle="min-width: 50rem"
           paginator
           :rows="10"
@@ -42,117 +54,165 @@
           @rowClick="onRowSelect"
           @rowUnSelect="onRowSelect"
         >
-          <Column field="serialNumber" header="Serial Number"></Column>
-          <Column field="mark_01" header="Mark 01">
+          <Column field="serial_no" header="Serial Number"></Column>
+          <Column
+            field="mark_01"
+            :header="getLoggedUser?.stream === 'Essay' ? 'Mark 01 (out Of 30)' : 'Mark 01 (out Of 20)'"
+          >
             <template #body="slotProps">
-              {{ slotProps.data.mark_01 ? slotProps.data.mark_01 : '--' }}
+              {{ slotProps.data.marks?.mark_01 ? slotProps.data.marks.mark_01 : '--' }}
             </template>
           </Column>
-          <Column field="mark_02" header="Mark 02">
+          <Column
+            field="mark_02"
+            :header="getLoggedUser?.stream === 'Essay' ? 'Mark 02 (out Of 30)' : 'Mark 02 (out Of 20)'"
+          >
             <template #body="slotProps">
-              {{ slotProps.data.mark_02 ? slotProps.data.mark_02 : '--' }}
+              {{ slotProps.data.marks?.mark_02 ? slotProps.data.marks.mark_02 : '--' }}
             </template>
           </Column>
-          <Column field="mark_03" header="Mark 03">
+          <Column field="mark_03" header="Mark 03 (out Of 20)">
             <template #body="slotProps">
-              {{ slotProps.data.mark_03 ? slotProps.data.mark_03 : '--' }}
+              {{ slotProps.data.marks?.mark_03 ? slotProps.data.marks.mark_03 : '--' }}
             </template>
           </Column>
-          <Column field="mark_04" header="Mark 04">
+          <Column header="Mark 04 (out Of 20)">
             <template #body="slotProps">
-              {{ slotProps.data.mark_04 ? slotProps.data.mark_04 : '--' }}
+              {{ slotProps.data.marks?.mark_04 ? slotProps.data.marks.mark_04 : '--' }}
             </template>
           </Column>
-          <Column v-if="getLoggedUser.stream !== 'Essay'" field="mark_05" header="Mark 05">
+          <Column
+            v-if="getLoggedUser?.stream !== 'Essay'"
+            field="mark_05"
+            header="Mark 05 (out Of 20)"
+          >
             <template #body="slotProps">
-              {{ slotProps.data.mark_05 ? slotProps.data.mark_05 : '--' }}
+              {{ slotProps.data.marks?.mark_05 ? slotProps.data.marks.mark_05 : '--' }}
             </template>
           </Column>
-          <Column field="total" header="Total"></Column>
+          <Column field="total" header="Total">
+            <template #body="slotProps">
+              {{ slotProps.data.marks?.total ? slotProps.data.marks.total : '--' }}
+            </template></Column
+          >
         </DataTable>
+      </div>
+      <div v-else class="empty-area-container">
+        <i class="pi pi-filter" style="font-size: 2rem"></i>
+        <p>Please select a District and Age group to dispaly student details.</p>
       </div>
     </section>
     <section class="sidebar-container">
       <Sidebar
         v-model:visible="IsDialogVisible"
         modal
-        header="Update student marks"
-        :style="{ width: '70rem' }"
+        :header="isMarksAdding ? 'Add Student marks' : 'Update student marks'"
+        :style="{ width: `calc(100% - 14rem)` }"
         position="right"
+        @hide="onSideBarBlur"
       >
         <span class="p-text-secondary block mb-5"
-          >Student serial number: {{ editableStudentData.serialNumber }}</span
+          >Student serial number: {{ editableStudentData.serial_no }}</span
         >
         <section class="sidebar-content-container">
           <section class="sidebar-content-container__image-container">
-            <div v-if="getLoggedUser.stream !== 'Essay'">
-              <Image src="/src/assets/sample_drawing.webp" alt="Image" width="250" preview />
+            <div v-if="getLoggedUser?.stream !== 'Essay'">
+              <img
+                :src="pdfFileUrl"
+                width="100%"
+                height="600px"
+              />
             </div>
             <div v-else>
-              <fge-pdf-vue3
-                style="height: 100vh"
-                :viewButton="viewButton"
-                :viewSignature="viewSignature"
-                :signature="signature"
-                :page-number="1"
-                file-name="Custom fileName"
-                v-model:files="files"
-                :footer-visible="false"
-                :theme="'light'"
-              ></fge-pdf-vue3>
+              <embed
+                :src="pdfFileUrl + '#zoom=100&toolbar=0'"
+                type="application/pdf"
+                width="100%"
+                height="600px"
+              />
             </div>
           </section>
           <Divider layout="vertical" />
           <section class="sidebar-content-container__form-container">
             <div class="input-field-container">
-              <label for="username" class="font-semibold w-6rem">Mark 01</label>
-              <InputText
-                v-model="editableStudentData.mark_01"
+              <label for="username" class="font-semibold" >Mark 01 {{ getLoggedUser?.stream === 'Essay' ? ' (out Of 30)' : ' (out Of 20)' }}</label>
+              <InputNumber
+                v-model="editableStudentData.marks.mark_01"
                 id="mark_01"
                 class="flex-auto"
+                :invalid="!markValidation.mark_01"
                 autocomplete="off"
+                @blur="onConfirmPasswordBlur('mark_01', editableStudentData.marks.mark_01)"
               />
+              <label v-if="!markValidation.mark_01" for="contact" class="contact-error-label"
+                >Mark must be 1 - {{ streamType === 'Essay' ? 30 : 20 }}</label
+              >
             </div>
             <div class="input-field-container">
-              <label for="username" class="font-semibold w-6rem">Mark 02</label>
-              <InputText
-                v-model="editableStudentData.mark_02"
+              <label for="username" class="font-semibold" >Mark 02{{ getLoggedUser?.stream === 'Essay' ? ' (out Of 30)' : ' (out Of 20)' }}</label>
+              <InputNumber
+                v-model="editableStudentData.marks.mark_02"
                 id="mark_02"
                 class="flex-auto"
+                :invalid="!markValidation.mark_02"
                 autocomplete="off"
+                @blur="onConfirmPasswordBlur('mark_02', editableStudentData.marks.mark_02)"
               />
+              <label v-if="!markValidation.mark_02" for="contact" class="contact-error-label"
+                >Mark must 1 - {{ streamType === 'Essay' ? 30 : 20 }}</label
+              >
             </div>
             <div class="input-field-container">
-              <label for="username" class="font-semibold w-6rem">Mark 03</label>
-              <InputText
-                v-model="editableStudentData.mark_03"
+              <label for="username" class="font-semibold">Mark 03 (out Of 20)</label>
+              <InputNumber
+                v-model="editableStudentData.marks.mark_03"
                 id="mark_03"
                 class="flex-auto"
+                :invalid="!markValidation.mark_03"
                 autocomplete="off"
+                @blur="onConfirmPasswordBlur('mark_03', editableStudentData.marks.mark_03)"
               />
+              <label v-if="!markValidation.mark_03" for="contact" class="contact-error-label">Mark must be 1 - 20</label>
             </div>
             <div class="input-field-container">
-              <label for="username" class="font-semibold w-6rem">Mark 04</label>
-              <InputText
-                v-model="editableStudentData.mark_04"
+              <label for="username" class="font-semibold">Mark 04 (out Of 20)</label>
+              <InputNumber
+                v-model="editableStudentData.marks.mark_04"
                 id="mark_04"
                 class="flex-auto"
+                :invalid="!markValidation.mark_04"
                 autocomplete="off"
+                @blur="onConfirmPasswordBlur('mark_04', editableStudentData.marks.mark_04)"
               />
+              <label v-if="!markValidation.mark_04" for="contact" class="contact-error-label"
+                >Mark must be 1 - 20</label
+              >
             </div>
-            <div class="input-field-container" v-if="getLoggedUser.stream !== 'Essay'">
-              <label for="username" class="font-semibold w-6rem">Mark 05</label>
-              <InputText
-                v-model="editableStudentData.mark_05"
+            <div class="input-field-container" v-if="streamType !== 'Essay'">
+              <label for="username" class="font-semibold">Mark 05 (out Of 20)</label>
+              <InputNumber
+                v-model="editableStudentData.marks.mark_05"
                 id="mark_05"
                 class="flex-auto"
+                :invalid="!markValidation.mark_05"
                 autocomplete="off"
+                @blur="onConfirmPasswordBlur('mark_05', editableStudentData.marks.mark_05)"
               />
+              <label v-if="!markValidation.mark_05" for="contact" class="contact-error-label"
+                >Mark must be 1 - 20</label
+              >
             </div>
           </section>
         </section>
         <div class="button-section">
-          <Button type="button" label="Save" @click="saveStudentDetails"></Button>
+          <Button
+            type="button"
+            class="mr-2"
+            :label="isMarksAdding ? 'Add Marks' : 'Update Marks'"
+            :loading="processing"
+            :disabled="!isSaveDisabled"
+            @click="saveStudentDetails"
+          ></Button>
           <Button
             type="button"
             label="Cancel"
@@ -162,171 +222,296 @@
         </div>
       </Sidebar>
     </section>
+    <section class="criteria-explanation-section">
+      <div v-if="streamType === 'Art'">
+        <li>
+          Mark_01: Depicting the appropriate atmosphere and environment for the topic. (මාතෘකාවට
+          උචිත වාතාවරණය සහ පරිසරය දැක්වීම)
+        </li>
+        <li>
+          Mark_02: The way images are arranged within the space. (අවකාශය මත රූප සංචරණය කර ඇති ආකාරය)
+        </li>
+        <li>Mark_03: Applications of style-related theories. (ශෛලියට අදාල සිද්ධාන්ත භාවිතය)</li>
+        <li>
+          Mark_04: Proficiency in art medium and techniques. (චිත්‍ර මාධ්‍ය සහ ශිල්ප ක්‍රම භාවිතයේ
+          කුසලතාව)
+        </li>
+        <li>Mark_05: Expressiveness and overall finish. (භාව ප්‍රකාශය සහ සමස්ත නිමාව)</li>
+      </div>
+      <div v-else>
+        <ul>
+          <li>
+            Mark_01: Content - Presenting insightful concepts related to the subject. (අන්තර්ගතය -
+            මාතෘකාවට අදාල සාරවත් අදහස් ඉදිරිපත් කිරීම)
+          </li>
+          <li>
+            Mark_02: Follow the rules of language - Grammer and Spelling. (භාෂා රීතින් අනුගමනය -
+            උක්ත ආඛ්‍යාත සම්බන්ධය, අක්ෂර වින්‍යාසය)
+          </li>
+          <li>
+            Mark_03: Technical skills - Verse division, subject separation, punctuation, and
+            handwriting (ශිල්පීය දක්ෂතා - පද බෙදීම, ජේද වෙන්කිරීම, විරාම ලක්ෂණ සහ අත් අකුරු).
+          </li>
+          <li>
+            Mark_04: Strength of expressiveness and overall value. (ප්‍රකාශන ශක්තිය සහ සමස්ත අගය)
+          </li>
+        </ul>
+      </div>
+    </section>
   </section>
 </template>
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { replace } from 'lodash'
 import { storeToRefs } from 'pinia'
 import { useHomeStore } from '../stores/HomeStore'
 import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
-import { useRouter } from 'vue-router'
-import { DISTRICTS, AGEGROUPS } from '@/const/const'
-import Image from 'primevue/image'
-// import FgePdfVue3 from 'fge-pdf-vue3'
-// import 'vue3-pdf-app/dist/icons/main.css'
+import { DISTRICTS, AGEGROUPS, S3_BUCKET } from '@/const/const'
 
 const toast = useToast()
 const userStore = useUserStore()
 const homeStore = useHomeStore()
 
-const { markingList } = storeToRefs(homeStore)
+const { filteredStudentLists } = storeToRefs(homeStore)
 const { getLoggedUser } = storeToRefs(userStore)
 
 const dataTable = ref()
-const selectedudent = ref(null)
+const selectedStudent = ref(null)
 const selectedDistrict = ref(null)
 const selectedAgeGroup = ref(null)
+const selectedStatus = ref(null)
 const ageGroups = ref(AGEGROUPS)
-const markingListArt = ref([])
+const statusList = ref(['Unmarked', 'All'])
+const studentList = ref([])
 const districts = ref([])
 const IsDialogVisible = ref(false)
+const markValidation = ref({
+  mark_01: true,
+  mark_02: true,
+  mark_03: true,
+  mark_04: true,
+  mark_05: true
+})
+const isMarksAdding = ref(false)
+const isTableVisible = ref(false)
+const streamType = ref(false)
+const isSaveDisabled = ref(false)
+const pdfFileUrl = ref()
+const processing = ref(true)
 const editableStudentData = ref({
-  serialNumber: null,
+  serialNo: null,
   district: null,
   ageGroup: null,
-  mark_01: null,
-  mark_02: null,
-  mark_03: null,
-  mark_04: null,
-  mark_05: null,
-  total: null
-})
-
-const files = ref([
-  {
-    id: '6359b8a82736f8d11cd61190',
-    fileName: 'cv2.pdf',
-    pdf: '/src/assets/PE0449.pdf'
+  language: null,
+  student_id: null,
+  marks: {
+    mark_01: null,
+    mark_02: null,
+    mark_03: null,
+    mark_04: null,
+    mark_05: null,
+    total: null
   }
-])
-
-const viewSignature = {
-  adsib: true,
-  agetic: true
-}
-const signature = {
-  adsib: true,
-  agetic: true
-}
-
-
-const viewButton = ref({
-  // print: true,
-  openFile: true,
-  presentationMode: true,
-  // download: true,
-  // bookmark: true,
-  files: true
 })
 
-onMounted(async () => {
-  markingListArt.value = await homeStore.getMarkingLists()
+onMounted(async () => {  
+  processing.value = true
+  streamType.value = getLoggedUser.value?.stream
+  studentList.value = await homeStore.getStudentList(getLoggedUser.value)
   getDistrictList()
+  processing.value = false
 })
 
-const onRowSelect = (param) => {
-  if (selectedDistrict.value !== null && selectedAgeGroup.value === null) {
-    toast.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'Please select an Age group.',
-      life: 3000
-    })
-    return
-  } else if (selectedAgeGroup.value !== null && selectedDistrict.value === null) {
-    toast.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'Please select a District.',
-      life: 3000
-    })
-    return
-  } else if (selectedAgeGroup.value === null && selectedAgeGroup.value === null) {
-    toast.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'Please select a District and Age group.',
-      life: 3000
-    })
-    return
-  }
-  IsDialogVisible.value = !IsDialogVisible.value
-  editableStudentData.value = param.data
-  // dataTable.value.blur()
+const onSideBarBlur = () => {
+  clearStudentData()
 }
 
-const saveStudentDetails = () => {
-  let totalMarks = 0
+const getPdfUrl = async (serialNo) => {
+  if (getLoggedUser.value?.stream === 'Essay') {
+    pdfFileUrl.value = `${S3_BUCKET}pdf/${replace(replace(serialNo, /\//g, ''), / /g, '+')}.pdf`
+  } else {
+    pdfFileUrl.value = `${S3_BUCKET}image/${replace(replace(serialNo, /\//g, ''), / /g, '+')}.jpeg`
+  }
+}
 
-  for (const key in editableStudentData.value) {
-    if (key.startsWith('mark_')) {
-      totalMarks += parseInt(editableStudentData.value[key])
+const onRowSelect = async (param) => {
+  await getPdfUrl(param.data.serial_no)
+  IsDialogVisible.value = !IsDialogVisible.value
+  editableStudentData.value.serial_no = param.data.serial_no
+  editableStudentData.value.student_id = param.data.student_id
+  editableStudentData.value.district = param.data.district
+  editableStudentData.value.ageGroup = param.data.age
+  editableStudentData.value.language = param.data.language
+
+  if (param.data.marks) {
+    editableStudentData.value.marks = param.data.marks
+    isMarksAdding.value = false
+  } else {
+    isMarksAdding.value = true
+  }
+}
+
+const saveStudentDetails = async () => {
+  let totalMarks = 0
+  processing.value = true
+  for (const key in editableStudentData.value.marks) {
+    if (key.startsWith('mark_0') && editableStudentData.value.marks[key]) {
+      totalMarks += parseInt(editableStudentData.value.marks[key])
     }
   }
 
-  editableStudentData.value.total = totalMarks
-  IsDialogVisible.value = !IsDialogVisible.value
+  editableStudentData.value.marks.total = totalMarks
+  try {
+    if (isMarksAdding.value) {
+      editableStudentData.value.marks.teacher_id = getLoggedUser.value.teacher_id
+      editableStudentData.value.marks.student_id = editableStudentData.value.student_id
+      await homeStore.addStudentMarks(editableStudentData.value.marks)
+    } else {
+      await homeStore.updateStudentMarks(editableStudentData.value.marks)
+    }
+    studentList.value = await homeStore.getStudentList(getLoggedUser.value)
+    IsDialogVisible.value = !IsDialogVisible.value
+    onMarkingStatusChange()
+    toast.add({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'student marks added succesfully',
+      life: 3000
+    })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Something went wrong',
+      life: 3000
+    })
+  }
 
-  // End-point
+  isMarksAdding.value = false
+  clearStudentData()
+  processing.value = false
+}
 
-  toast.add({
-    severity: 'info',
-    summary: 'Info',
-    detail: 'student marks added succesfully',
-    life: 3000
-  })
-
-  console.log('markings_____________', editableStudentData.value)
+const clearStudentData = () => {
+  editableStudentData.value = {
+    serialNo: null,
+    district: null,
+    ageGroup: null,
+    language: null,
+    student_id: null,
+    marks: {
+      mark_01: null,
+      mark_02: null,
+      mark_03: null,
+      mark_04: null,
+      mark_05: null,
+      total: null
+    }
+  }
 }
 
 const onDropdownChange = () => {
-  if (selectedDistrict.value !== null && selectedAgeGroup.value === null) {
-    districtFilter()
-    return
-  } else if (selectedAgeGroup.value !== null && selectedDistrict.value === null) {
-    ageGroupFilter()
-    return
-  } else if (selectedAgeGroup.value === null && selectedAgeGroup.value === null) {
-    markingListArt.value = markingList.value
-    return
+  studentList.value = filteredStudentLists.value
+  if (selectedDistrict.value !== null) {
+    studentList.value = studentList.value.filter(
+      (item) => Number(item.district) === selectedDistrict.value
+    )
+    if (selectedAgeGroup.value !== null) {
+      studentList.value = studentList.value.filter((item) => item.age === selectedAgeGroup.value)
+      isTableVisible.value = true
+      return
+    }
   }
-  commonFilter()
+  isTableVisible.value = false
 }
 
-const ageGroupFilter = () => {
-  markingListArt.value = markingList.value.filter(
-    (item) => item.ageGroup === selectedAgeGroup.value
-  )
-}
-
-const districtFilter = () => {
-  markingListArt.value = markingList.value.filter(
-    (item) => item.district === selectedDistrict.value
-  )
-}
-
-const commonFilter = () => {
-  markingListArt.value = markingList.value.filter(
-    (item) => item.district === selectedDistrict.value && item.ageGroup === selectedAgeGroup.value
-  )
+const onMarkingStatusChange = () => {
+  onDropdownChange()
+  if (selectedStatus.value === 'Unmarked') {
+    studentList.value = studentList.value.filter((student) => {
+      if (student.marking_status <= 2) {
+        return !student.marks
+      }
+      return false
+    })
+  } else {
+    onDropdownChange()
+  }
 }
 
 const getDistrictList = () => {
-  getLoggedUser.value.districtDetails?.forEach((element) => {
-    districts.value.push(DISTRICTS.find((ele) => ele.id === element).name)
+  getLoggedUser.value.districtList?.forEach((element) => {
+    districts.value.push(DISTRICTS.find((ele) => ele.id === element))
   })
+}
+
+const onConfirmPasswordBlur = (markType, mark) => {
+  switch (markType) {
+    case 'mark_01':
+      streamType.value === 'Essay'
+        ? (markValidation.value.mark_01 = mark > 30 ? false : true)
+        : (markValidation.value.mark_01 = mark > 20 ? false : true)
+      isSaveDisabled.value = checkDisability()
+      break
+    case 'mark_02':
+      streamType.value === 'Essay'
+        ? (markValidation.value.mark_02 = mark > 30 ? false : true)
+        : (markValidation.value.mark_02 = mark > 20 ? false : true)
+      isSaveDisabled.value = checkDisability()
+      break
+    case 'mark_03':
+      markValidation.value.mark_03 = mark > 20 ? false : true
+      isSaveDisabled.value = checkDisability()
+      break
+    case 'mark_04':
+      markValidation.value.mark_04 = mark > 20 ? false : true
+      isSaveDisabled.value = checkDisability()
+      break
+    case 'mark_05':
+      markValidation.value.mark_05 = mark > 20 ? false : true
+      isSaveDisabled.value = checkDisability()
+      break
+  }
+}
+
+const checkDisability = () => {
+  if (streamType.value === 'Essay') {
+    if (
+      editableStudentData.value.marks.mark_01 &&
+      editableStudentData.value.marks.mark_02 &&
+      editableStudentData.value.marks.mark_03 &&
+      editableStudentData.value.marks.mark_04
+    ) {
+      return (
+        markValidation.value.mark_01 &&
+        markValidation.value.mark_02 &&
+        markValidation.value.mark_03 &&
+        markValidation.value.mark_04
+      )
+    } else {
+      return false
+    }
+  }
+
+  if (
+    editableStudentData.value.marks.mark_01 &&
+    editableStudentData.value.marks.mark_02 &&
+    editableStudentData.value.marks.mark_03 &&
+    editableStudentData.value.marks.mark_04 &&
+    editableStudentData.value.marks.mark_05
+  ) {
+    return (
+      markValidation.value.mark_01 &&
+      markValidation.value.mark_02 &&
+      markValidation.value.mark_03 &&
+      markValidation.value.mark_04 &&
+      markValidation.value.mark_05
+    )
+  } else {
+    return false
+  }
 }
 </script>
 
@@ -335,6 +520,15 @@ const getDistrictList = () => {
   flex-grow: 1;
   display: flex;
   flex-direction: row;
+
+  .empty-area-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 50%;
+    justify-content: center;
+    color: #495057;
+  }
 
   .homepage-content-container {
     justify-content: center;
@@ -375,7 +569,10 @@ const getDistrictList = () => {
 }
 
 .sidebar-content-container__image-container {
-  width: 50rem;
+  width: 60rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidebar-content-container__form-container {
@@ -397,11 +594,34 @@ const getDistrictList = () => {
   }
 }
 
-#toolbarViewerRight, #viewFind, .sidebar-toggle, #pageNumber, #numPages{
+#toolbarViewerRight,
+#viewFind,
+.sidebar-toggle,
+#pageNumber,
+#numPages {
   display: none !important;
 }
 
-.sidebar-toggle{
+.sidebar-toggle {
   display: none !important;
+}
+
+.sidebar-content-container__image-container > div {
+  width: 100%;
+}
+
+.criteria-explanation-section {
+  position: absolute;
+  font-size: 12px;
+  right: 0px;
+  top: 37px;
+  max-width: 740px;
+
+  li {
+    background: #b6dfff;
+    padding: 2px;
+    border-radius: 5px;
+    margin: 2px;
+  }
 }
 </style>

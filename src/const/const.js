@@ -11,21 +11,21 @@ export const NAVACTIONS = [
     route: '/',
     user: 'user'
   },
+  // {
+  //   title: 'Password reset',
+  //   icon: 'pi-user-edit',
+  //   route: '/password-reset',
+  //   user: 'user'
+  // },
   {
-    title: 'Password reset',
-    icon: 'pi-home',
-    route: '/password-reset',
-    user: 'user'
-  },
-  {
-    title: 'Create User',
+    title: 'User Manage',
     icon: 'pi-user',
     route: '/manage-user',
     user: 'admin'
   },
   {
-    title: 'Add Sudent',
-    icon: 'pi-sign-out',
+    title: 'Student Manage',
+    icon: 'pi-user-edit',
     route: '/student-add',
     user: 'admin'
   },
@@ -35,12 +35,12 @@ export const NAVACTIONS = [
     route: '/login',
     user: 'common'
   },
-  {
-    title: 'DB Populate',
-    icon: 'pi-sign-out',
-    route: '/populate',
-    user: 'common'
-  }
+  // {
+  //   title: 'DB Populate',
+  //   icon: 'pi-sign-out',
+  //   route: '/populate',
+  //   user: 'common'
+  // }
 ]
 
 export const DISTRICTS = [
@@ -51,9 +51,9 @@ export const DISTRICTS = [
     { id: 5, name: 'Kandy' },
     { id: 6, name: 'Matale' },
     { id: 7, name: 'Nuwara Eliya' },
-    { id: 8, name: 'Gampaha' },
+    { id: 8, name: 'Kegalle' },
     { id: 9, name: 'Hambantota' },
-    { id: 10, name: 'Kalutara' },
+    { id: 10, name: 'Matara' },
     { id: 11, name: 'Jaffna' },
     { id: 12, name: 'Kilinochchi' },
     { id: 13, name: 'Mannar' },
@@ -74,3 +74,6 @@ export const DISTRICTS = [
 
   export const STREAMS = ['Essay', 'Art']
   export const BASEURL = 'https://tequilasl.com:443'
+  // export const BASEURL = 'http://127.0.0.1:8000'
+
+  export const S3_BUCKET = 'https://elasticbeanstalk-us-east-1-985539771386.s3.amazonaws.com/judging_system/'

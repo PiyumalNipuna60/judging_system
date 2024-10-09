@@ -6,7 +6,7 @@ import {
   adminLogIn,
   userLogIn,
   createNewUser,
-  sendOTPToUser
+  sendOTPToUser, verifySentOtp, changeUserPassword, updateExistingUser
 } from '../service/UserService'
 import { NAVACTIONS } from '../const/const'
 import { useRouter } from 'vue-router'
@@ -16,14 +16,21 @@ export const useUserStore = defineStore('UserStore', () => {
   const router = useRouter()
   const navRoutes = ref()
   const userList = ref()
-  const loggedUser = ref({})
+  const loggedUser = ref({
+    id: null,
+    userName: null,
+    userType: null,
+    districtList: null,
+    stream: null
+  })
   const userData = ref({
     id: null,
     userName: null,
-    contact: null
+    contact: null,
+    userType: null
   })
   const isLoggedIn = ref(false)
-
+  
   const getUserLists = async () => {
     userList.value = await getUsersList()
     return userList.value
@@ -34,12 +41,13 @@ export const useUserStore = defineStore('UserStore', () => {
   }
 
   const getNavigationList = () => {
-    loggedUser.value = JSON.parse(localStorage.getItem('user'))
-    if (loggedUser.value) {
+    if (isLoggedIn.value) {
       if (loggedUser.value.userType === 'admin') {
         navRoutes.value = NAVACTIONS.filter((route) => route.user === 'admin')
+        router.push('/dashboard')
       } else {
         navRoutes.value = NAVACTIONS.filter((route) => route.user === 'user')
+        router.push('/')
       }
       navRoutes.value.push(...NAVACTIONS.filter((route) => route.user === 'common'))
     } else {
@@ -50,9 +58,16 @@ export const useUserStore = defineStore('UserStore', () => {
 
   const saveUser = async (userData) => {
     userData.adminId = loggedUser.value.id
-    userData.user_name = userData.userName
+    userData.userName = userData.userName.toLowerCase()
     return await createNewUser(userData)
   }
+
+  const updateUser = async (userData) => {    
+    userData.adminId = loggedUser.value.id
+    userData.userName = userData.userName.toLowerCase()
+    return await updateExistingUser(userData)
+  }
+
   const deleteUser = async (id) => {    
     return await deleteUserById(id)
   }
@@ -62,25 +77,27 @@ export const useUserStore = defineStore('UserStore', () => {
       const response = await adminLogIn(username, password)
       if (response) {
         isLoggedIn.value = true
-        setUserData(response)
-        response.userType = 'admin'
-        localStorage.setItem('user', JSON.stringify(response))
+        loggedUser.value.id = response.id
+        loggedUser.value.userName = response.user_name
+        loggedUser.value.userType = 'admin'
       }
       return
     } catch (error) {
-      throw new Error('Error at user login')
+      throw new Error('Error at admin login')
     }
   }
 
   const userLogin = async (username, password) => {
     try {
       const response = await userLogIn(username, password)
-      if (response) {
+      if (response) {        
         isLoggedIn.value = true
-        setUserData(response)
-        response.userType = 'user'
-        response.districtDetails = [1,2,3]
-        localStorage.setItem('user', JSON.stringify(response))
+        loggedUser.value.id = response.id
+        loggedUser.value.userName = response.user_name
+        loggedUser.value.stream = response.stream
+        loggedUser.value.teacher_id = response.teacher_id
+        loggedUser.value.userType = 'user'
+        loggedUser.value.districtList = response.district_details.map(detail => detail.district_id);
       }
       return
     } catch (error) {
@@ -90,41 +107,42 @@ export const useUserStore = defineStore('UserStore', () => {
 
   const logOut = async () => {
     isLoggedIn.value = false
-    localStorage.removeItem('user')
     userData.value = {
       id: null,
       userName: null,
       contact: null
     }
+
+    loggedUser.value = {
+      id: null,
+      userName: null,
+      userType: null,
+      districtList: null,
+      stream: null
+    }
   }
 
-  const setUserData = async (param) => {
-    userData.value.id = param.id
-    userData.value.userName = param.user_name
-    userData.value.contact = param.contact
-  }
-
-  const sendOTP = async (param) => {
-    console.log('log sttore otp send _______',userData.value.contact ? true : false, userData.value.contact, param);
-    
-    const contact = userData.value.contact ? userData.value.contact : param
+  const sendOTP = async (contact, userName) => {
     try {
-      return await sendOTPToUser(contact)
+      return await sendOTPToUser(contact, userName)
     } catch (error) {
       throw new Error('Error at OTP generation')
     }
   }
 
-  const verifyOtp = async (param) => {
-    console.log('log sttore otp send _______',userData.value.contact ? true : false, userData.value.contact, param);
-    const request = {
-      otp: param,
-      contact: userData.value.contact
-    }
+  const verifyOtp = async (otpNumber, contact, userName) => {
     try {
-      return await sendOTPToUser(request)
+      return await verifySentOtp(otpNumber, contact, userName)
     } catch (error) {
       throw new Error('Error at OTP generation')
+    }
+  }
+
+  const changePassword = async (password, contact, userName) => {
+    try {
+      return await changeUserPassword(password, contact, userName)
+    } catch (error) {
+      throw new Error('Error at password change')
     }
   }
 
@@ -137,13 +155,14 @@ export const useUserStore = defineStore('UserStore', () => {
     isLoggedUser,
     logOut,
     saveUser,
-    setUserData,
     sendOTP,
     verifyOtp,
     getUserLists,
     getNavigationList,
     userLists,
     deleteUser,
-    getLoggedUser
+    getLoggedUser,
+    changePassword,
+    updateUser
   }
 })

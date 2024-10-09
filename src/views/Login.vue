@@ -43,7 +43,12 @@
             <p>Is Admin ?</p>
           </div>
           <div>
-            <Button type="button" @click="loginOnAction">Login</Button>
+            <Button
+              type="button"
+              @click="loginOnAction"
+              label="Login"
+              :loading="isProcessing"
+            ></Button>
           </div>
         </section>
       </div>
@@ -53,31 +58,45 @@
       <Sidebar v-model:visible="visibleRight" header="Password Reset" position="right">
         <div>
           <div class="pw-reset-container">
-            <div class="input-field-container">
-              <label for="username" class="font-semibold">Contact number</label>
-              <InputNumber
-                v-model="userData.contact"
-                class="flex-auto"
-                inputId="integeronly"
-                :useGrouping="false"
-                placeholder="format: 705045099"
-                :invalid="isContactInvalid"
-              />
-              <label v-if="isContactInvalid" for="contact" class="contact-error-label"
-                >Contact number length invalid. format: 705045099</label
-              >
-            </div>
-            <div class="button-container">
-              <Button
-                type="button"
-                :disabled="isContactInvalid"
-                label="Send OTP"
-                @click="sendOtpVerificationCode"
-              ></Button>
+            <div v-if="!isOtpVerified">
+              <div class="input-field-container">
+                <label for="contact" class="font-semibold">Contact number</label>
+                <InputNumber
+                  v-model="contact"
+                  class="flex-auto"
+                  inputId="integeronly"
+                  :useGrouping="false"
+                  placeholder="format: 705045099"
+                  :invalid="isContactInvalid"
+                  @blur="onFieldEdited"
+                />
+                <label v-if="isContactInvalid" for="contact" class="contact-error-label"
+                  >Contact number length invalid. format: 705045099</label
+                >
+              </div>
+              <div class="input-field-container">
+                <label for="username" class="font-semibold">User name</label>
+                <InputText
+                  v-model="userName"
+                  class="flex-auto"
+                  inputId="integeronly"
+                  :useGrouping="false"
+                  placeholder="Enter your user name here"
+                  @blur="onFieldEdited"
+                />
+              </div>
+              <div class="button-container">
+                <Button
+                  type="button"
+                  :disabled="isContactInvalid"
+                  label="Send OTP"
+                  @click="sendOtpVerificationCode"
+                ></Button>
+              </div>
             </div>
             <div v-if="isOtpVerified">
               <div class="input-field-container">
-                <label for="username" class="font-semibold">New Password</label>
+                <label for="newPassword" class="font-semibold">New Password</label>
                 <InputText
                   v-model="userData.newPassword"
                   id="mark_02"
@@ -91,7 +110,7 @@
                 >
               </div>
               <div class="input-field-container">
-                <label for="username" class="font-semibold">Enter password again</label>
+                <label for="newPassword" class="font-semibold">Enter password again</label>
                 <InputText
                   v-model="userData.newPasswordCheck"
                   id="mark_02"
@@ -100,9 +119,7 @@
                   :invalid="isPasswordInvalid"
                   @blur="onConfirmPasswordBlur"
                 />
-                <label v-if="isPasswordInvalid" for="contact" class="contact-error-label"
-                  >Password must be same</label
-                >
+                <label v-if="isPasswordInvalid" for="contact" class="contact-error-label">Password must be same</label>
               </div>
               <div class="button-container">
                 <Button
@@ -130,32 +147,10 @@
         :style="{ width: '25rem' }"
       >
         <div class="dialogbox-container__input-field-container">
-          <label for="username" class="font-semibold mb-2">Enter OTP sent to your mobile</label>
-          <InputNumber v-model="otpNumber" :useGrouping="false" id="otp" class="flex-auto" autocomplete="off" />
-        </div>
-
-        <div class="flex justify-content-end gap-2">
-          <Button type="button" label="Verify OTP" @click="onOTPVerification"></Button>
-          <Button
-            type="button"
-            label="Cancel"
-            severity="secondary"
-            @click="IsDialogVisible = false"
-          ></Button>
-        </div>
-      </Dialog>
-    </section>
-    <section class="dialogbox-container">
-      <!-- <Dialog
-        v-model:visible="IsDialogVisible"
-        modal
-        header="OTP Verification"
-        :style="{ width: '25rem' }"
-      >
-        <div class="dialogbox-container__input-field-container">
-          <label for="username" class="font-semibold mb-2">Enter OTP sent to your mobile</label>
-          <InputText
+          <label for="otp" class="font-semibold mb-2">Enter OTP sent to your mobile</label>
+          <InputNumber
             v-model="otpNumber"
+            :useGrouping="false"
             id="otp"
             class="flex-auto"
             autocomplete="off"
@@ -164,15 +159,11 @@
 
         <div class="flex justify-content-end gap-2">
           <Button type="button" label="Verify OTP" @click="onOTPVerification"></Button>
-          <Button
-            type="button"
-            label="Cancel"
-            severity="secondary"
-            @click="IsDialogVisible = false"
-          ></Button>
+          <Button type="button" label="Cancel" severity="secondary" @click="onDialogClose"></Button>
         </div>
-      </Dialog> -->
+      </Dialog>
     </section>
+    <section class="dialogbox-container"></section>
   </div>
 </template>
 
@@ -181,8 +172,7 @@ import InputText from 'primevue/inputtext'
 import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 import { useUserStore } from '../stores/UserStore'
-import { sendOTPToUser } from '../service/UserService'
-import { onMounted, ref, watch } from 'vue'
+import { ref } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 
 const confirm = useConfirm()
@@ -190,32 +180,33 @@ const userStore = useUserStore()
 const toast = useToast()
 const router = useRouter()
 
-const userName = ref(null)
-const password = ref(null)
+const userName = ref()
+const password = ref()
 const visibleRight = ref(false)
 const isButtonDisabled = ref(true)
 const isContactInvalid = ref(false)
 const isPasswordInvalid = ref(false)
 const isAdminLogin = ref(false)
 const userData = ref({
-  contact: null,
   newPassword: null,
   newPasswordCheck: null
 })
 const IsDialogVisible = ref(false)
 const isOtpVerified = ref(false)
-const otpNumber = ref(0)
+const otpNumber = ref()
+const contact = ref()
+const isProcessing = ref(false)
 
 const sendOtpVerificationCode = async () => {
-  IsDialogVisible.value = true
   try {
-    const response = await userStore.sendOTP(userData.value)
+    await userStore.sendOTP(contact.value, userName.value)
     toast.add({
       severity: 'info',
       summary: 'Info',
       detail: 'OTP send successfully!',
       life: 3000
     })
+    IsDialogVisible.value = true
   } catch (error) {
     toast.add({
       severity: 'error',
@@ -227,12 +218,9 @@ const sendOtpVerificationCode = async () => {
 }
 
 const onOTPVerification = async () => {
-  IsDialogVisible.value = true
   try {
-    console.log('length==========', otpNumber.value.toString().length);
-    
     if (otpNumber.value.toString().length === 4) {
-      await userStore.verifyOtp(otpNumber.value)
+      await userStore.verifyOtp(otpNumber.value, contact.value, userName.value)
       toast.add({
         severity: 'info',
         summary: 'Info',
@@ -247,6 +235,7 @@ const onOTPVerification = async () => {
         life: 3000
       })
     }
+    IsDialogVisible.value = false
     isOtpVerified.value = true
   } catch (error) {
     toast.add({
@@ -258,37 +247,41 @@ const onOTPVerification = async () => {
   }
 }
 
-onMounted(() => {
-  const loggedUser = localStorage.getItem('user')
-  if (loggedUser) {
-    userStore.setUserData(JSON.parse(loggedUser))
-    router.push('/')
-  }
-})
-
-watch(
-  () => userData.value.contact,
-  (newContact) => {
-    if (newContact && newContact.toString().length === 9) {
-      isContactInvalid.value = false
-      isButtonDisabled.value = false
+const onFieldEdited = () => {
+  if (contact.value && contact.value.toString().length === 9) {
+    if (userName.value && userName.value.length > 0) {
+      validationPropSet(false, false)
     } else {
-      isContactInvalid.value = true
-      isButtonDisabled.value = true
+      validationPropSet(false, true)
+    }
+  } else {
+    if (userName.value && userName.value.length > 0) {
+      validationPropSet(true, false)
+    } else {
+      validationPropSet(true, true)
     }
   }
-)
+}
+
+const validationPropSet = (contact, button) => {
+  isContactInvalid.value = contact
+  isButtonDisabled.value = button
+}
 
 const loginOnAction = async () => {
-  console.log('user logged')
+  isProcessing.value = true
   try {
     if (isAdminLogin.value) {
       await userStore.adminLogin(userName.value, password.value)
+      router.push('/dashboard')
     } else {
       await userStore.userLogin(userName.value, password.value)
+      router.push('/')
     }
+    isProcessing.value = false
     router.push('/')
   } catch (error) {
+    isProcessing.value = false
     toast.add({
       severity: 'error',
       summary: 'Error',
@@ -300,21 +293,27 @@ const loginOnAction = async () => {
 
 const loadForgotPassword = async () => {
   visibleRight.value = true
-  // console.log('user logged')
-  // try {
-  //   await userStore.login(userName.value, password.value)
-  //   router.push('/')
-  // } catch (error) {
-  //   toast.add({
-  //     severity: 'error',
-  //     summary: 'Error',
-  //     detail: 'Username or Password invalid.',
-  //     life: 3000
-  //   })
-  // }
 }
+
 const onChangePassword = async () => {
-  sendOTPToUser({ contact: 705045099 })
+  try {
+    await userStore.changePassword(userData.value.newPassword, contact.value, userName.value)
+    onOtpVerificationDataClear()
+    toast.add({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'Password changes successfully!.',
+      life: 3000
+    })
+    visibleRight.value = false
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Username or Password invalid.',
+      life: 3000
+    })
+  }
 }
 
 const onConfirmPasswordBlur = async () => {
@@ -343,7 +342,6 @@ const cancelConfirmation = (event) => {
     accept: () => {
       visibleRight.value = false
       userData.value = {
-        contact: null,
         newPassword: null,
         newPasswordCheck: null
       }
@@ -355,6 +353,16 @@ const cancelConfirmation = (event) => {
       })
     }
   })
+}
+
+const onDialogClose = () => {
+  otpNumber.value = null
+}
+
+const onOtpVerificationDataClear = () => {
+  otpNumber.value = null
+  userName.value = null
+  contact.value = null
 }
 </script>
 
