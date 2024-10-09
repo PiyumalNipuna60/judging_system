@@ -55,12 +55,18 @@
           @rowUnSelect="onRowSelect"
         >
           <Column field="serial_no" header="Serial Number"></Column>
-          <Column field="mark_01" :header="getLoggedUser?.stream === 'Essay' ? 'Mark 01 (out Of 30)' : 'Mark 01 (out Of 20)'">
+          <Column
+            field="mark_01"
+            :header="getLoggedUser?.stream === 'Essay' ? 'Mark 01 (out Of 30)' : 'Mark 01 (out Of 20)'"
+          >
             <template #body="slotProps">
               {{ slotProps.data.marks?.mark_01 ? slotProps.data.marks.mark_01 : '--' }}
             </template>
           </Column>
-          <Column field="mark_02" :header="getLoggedUser?.stream === 'Essay' ? 'Mark 02 (out Of 30)' : 'Mark 02 (out Of 20)'">
+          <Column
+            field="mark_02"
+            :header="getLoggedUser?.stream === 'Essay' ? 'Mark 02 (out Of 30)' : 'Mark 02 (out Of 20)'"
+          >
             <template #body="slotProps">
               {{ slotProps.data.marks?.mark_02 ? slotProps.data.marks.mark_02 : '--' }}
             </template>
@@ -75,7 +81,11 @@
               {{ slotProps.data.marks?.mark_04 ? slotProps.data.marks.mark_04 : '--' }}
             </template>
           </Column>
-          <Column v-if="getLoggedUser?.stream !== 'Essay'" field="mark_05" header="Mark 05 (out Of 20)">
+          <Column
+            v-if="getLoggedUser?.stream !== 'Essay'"
+            field="mark_05"
+            header="Mark 05 (out Of 20)"
+          >
             <template #body="slotProps">
               {{ slotProps.data.marks?.mark_05 ? slotProps.data.marks.mark_05 : '--' }}
             </template>
@@ -96,7 +106,7 @@
       <Sidebar
         v-model:visible="IsDialogVisible"
         modal
-        :header="isMarksAdding ? 'Add Student marks':'Update student marks'"
+        :header="isMarksAdding ? 'Add Student marks' : 'Update student marks'"
         :style="{ width: `calc(100% - 14rem)` }"
         position="right"
         @hide="onSideBarBlur"
@@ -107,20 +117,25 @@
         <section class="sidebar-content-container">
           <section class="sidebar-content-container__image-container">
             <div v-if="getLoggedUser?.stream !== 'Essay'">
-              <img v-if="!imageError" :src="pdfFileUrl" width="100%" height="600px" @error="imageError = true" 
+              <img
+                :src="pdfFileUrl"
+                width="100%"
+                height="600px"
               />
-              <p v-if="imageError">Image loading error</p>
             </div>
             <div v-else>
-              <embed v-if="!pdfError" :src="pdfFileUrl+'#zoom=100&toolbar=0'" type="application/pdf" width="100%" height="600px" @error="pdfError = true" @load="pdfError = false"
+              <embed
+                :src="pdfFileUrl + '#zoom=100&toolbar=0'"
+                type="application/pdf"
+                width="100%"
+                height="600px"
               />
-              <p v-if="pdfError">PDF loading error</p>
             </div>
           </section>
           <Divider layout="vertical" />
           <section class="sidebar-content-container__form-container">
             <div class="input-field-container">
-              <label for="username" class="font-semibold">Mark 01 {{getLoggedUser?.stream === 'Essay' ? ' (out Of 30)' : ' (out Of 20)'}}</label>
+              <label for="username" class="font-semibold" >Mark 01 {{ getLoggedUser?.stream === 'Essay' ? ' (out Of 30)' : ' (out Of 20)' }}</label>
               <InputNumber
                 v-model="editableStudentData.marks.mark_01"
                 id="mark_01"
@@ -134,7 +149,7 @@
               >
             </div>
             <div class="input-field-container">
-              <label for="username" class="font-semibold">Mark 02 {{getLoggedUser?.stream === 'Essay' ? ' (out Of 30)' : ' (out Of 20)'}}</label>
+              <label for="username" class="font-semibold" >Mark 02{{ getLoggedUser?.stream === 'Essay' ? ' (out Of 30)' : ' (out Of 20)' }}</label>
               <InputNumber
                 v-model="editableStudentData.marks.mark_02"
                 id="mark_02"
@@ -193,7 +208,7 @@
           <Button
             type="button"
             class="mr-2"
-            :label="isMarksAdding ? 'Add Marks':'Update Marks'"
+            :label="isMarksAdding ? 'Add Marks' : 'Update Marks'"
             :loading="processing"
             :disabled="!isSaveDisabled"
             @click="saveStudentDetails"
@@ -285,8 +300,6 @@ const streamType = ref(false)
 const isSaveDisabled = ref(false)
 const pdfFileUrl = ref()
 const processing = ref(true)
-const imageError = ref(false)
-const pdfError = ref(false)
 const editableStudentData = ref({
   serialNo: null,
   district: null,
@@ -303,7 +316,7 @@ const editableStudentData = ref({
   }
 })
 
-onMounted(async () => {
+onMounted(async () => {  
   processing.value = true
   streamType.value = getLoggedUser.value?.stream
   studentList.value = await homeStore.getStudentList(getLoggedUser.value)
@@ -315,26 +328,16 @@ const onSideBarBlur = () => {
   clearStudentData()
 }
 
-const getPdfUrl = async(serialNo) => {  
+const getPdfUrl = async (serialNo) => {
   if (getLoggedUser.value?.stream === 'Essay') {
-    try {
-        const response = await fetch(`${S3_BUCKET}pdf/${replace(replace(serialNo, /\//g, ''), / /g, '+')}.pdf`, { method: 'HEAD' });
-        console.log('response log _________', response);
-        
-        if (!response.ok) {
-          pdfError.value = true;
-        }
-      } catch (error) {
-        pdfError.value = true;
-      }
     pdfFileUrl.value = `${S3_BUCKET}pdf/${replace(replace(serialNo, /\//g, ''), / /g, '+')}.pdf`
   } else {
     pdfFileUrl.value = `${S3_BUCKET}image/${replace(replace(serialNo, /\//g, ''), / /g, '+')}.jpeg`
   }
 }
 
-const onRowSelect = async(param) => {
-  await getPdfUrl(param.data.serial_no)  
+const onRowSelect = async (param) => {
+  await getPdfUrl(param.data.serial_no)
   IsDialogVisible.value = !IsDialogVisible.value
   editableStudentData.value.serial_no = param.data.serial_no
   editableStudentData.value.student_id = param.data.student_id
@@ -345,9 +348,9 @@ const onRowSelect = async(param) => {
   if (param.data.marks) {
     editableStudentData.value.marks = param.data.marks
     isMarksAdding.value = false
-    } else {
-      isMarksAdding.value = true
-    }
+  } else {
+    isMarksAdding.value = true
+  }
 }
 
 const saveStudentDetails = async () => {
@@ -428,14 +431,14 @@ const onMarkingStatusChange = () => {
   onDropdownChange()
   if (selectedStatus.value === 'Unmarked') {
     studentList.value = studentList.value.filter((student) => {
-    if (student.marking_status <= 2) {      
-      return !student.marks
-    }
-    return false
-  })
-} else {
-  onDropdownChange()
-}  
+      if (student.marking_status <= 2) {
+        return !student.marks
+      }
+      return false
+    })
+  } else {
+    onDropdownChange()
+  }
 }
 
 const getDistrictList = () => {

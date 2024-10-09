@@ -22,11 +22,11 @@ import router from '@/router'
 import { onMounted, ref } from 'vue'
 import { useUserStore } from '../../stores/UserStore'
 
-const userStore = useUserStore()
+const { getNavigationList, logOut } = useUserStore()
 const navRoutes = ref([])
 
 onMounted(() => {
-  navRoutes.value = userStore.getNavigationList()
+  navRoutes.value = getNavigationList()
 })
 
 const navigateToRoute = (route) => {
@@ -43,7 +43,7 @@ const getlectedClass = (item) => {
 }
 
 const logout = () => {
-  userStore.logOut()
+  logOut()
 }
 </script>
 
