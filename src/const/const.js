@@ -74,6 +74,5 @@ export const DISTRICTS = [
 
   export const STREAMS = ['Essay', 'Art']
   export const BASEURL = 'https://tequilasl.com:443'
-  // export const BASEURL = 'http://127.0.0.1:8000'
 
   export const S3_BUCKET = 'https://elasticbeanstalk-us-east-1-985539771386.s3.amazonaws.com/judging_system/'
