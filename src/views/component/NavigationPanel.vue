@@ -21,20 +21,17 @@
 import router from '@/router'
 import { onMounted, ref } from 'vue'
 import { useUserStore } from '../../stores/UserStore'
-import { loadDBampleData } from '../../service/UserService'
 
-const userStore = useUserStore()
+const { getNavigationList, logOut } = useUserStore()
 const navRoutes = ref([])
 
 onMounted(() => {
-  navRoutes.value = userStore.getNavigationList()
+  navRoutes.value = getNavigationList()
 })
 
 const navigateToRoute = (route) => {
   if (route === '/login') {
     logout()
-  } else if (route === '/populate') {
-    loadDBampleData()
   }
   router.push(route)
 }
@@ -43,11 +40,10 @@ const getlectedClass = (item) => {
   if (router.currentRoute.value.path === item.route) {
     return 'selected-nav-button'
   }
-
 }
 
 const logout = () => {
-  userStore.logOut()
+  logOut()
 }
 </script>
 
@@ -55,7 +51,7 @@ const logout = () => {
 .nav-container {
   background: #f8f9fa;
   color: #495057;
-  width: 200px;
+  width: 14rem;
   border-right: 2px solid #aeb6bdab;
 
   .nav-container__main-container {
@@ -84,7 +80,7 @@ const logout = () => {
   }
 
   .main-logo {
-    width: 65%;
+    width: 80%;
   }
 }
 </style>
